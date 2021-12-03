@@ -7,19 +7,11 @@ export class CreateDepartmentDto {
 
   @IsString()
   @IsNotEmpty()
-  hospitalId: string;
+  hospital: string;
 }
 
-export class UpdateDepartmentDto {
+export class UpdateDepartmentDto extends CreateDepartmentDto {
   @IsString()
   @IsNotEmpty()
   id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  hospitalId: string;
 }

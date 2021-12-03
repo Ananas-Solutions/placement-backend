@@ -12,22 +12,14 @@ export class CreateHospitalDto {
   @IsString()
   @IsOptional()
   address2?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  authority: string;
 }
 
-export class UpdateHospitalDto {
+export class UpdateHospitalDto extends CreateHospitalDto {
   @IsString()
   @IsNotEmpty()
   id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address1: string;
-
-  @IsString()
-  @IsOptional()
-  address2?: string;
 }

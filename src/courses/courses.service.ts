@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DepartmentService } from 'src/department/department.service';
 import { HospitalService } from 'src/hospital/hospital.service';
 import { Repository } from 'typeorm';
 import { CoursesDto, UpdateCoursesDto } from './dto/courses.dto';
@@ -11,6 +12,7 @@ export class CoursesService {
     @InjectRepository(Courses)
     private readonly coursesRepository: Repository<Courses>,
     private readonly hospitalService: HospitalService,
+    private readonly departmentService: DepartmentService,
   ) {}
 
   async createCourse(body: CoursesDto): Promise<Courses> {
@@ -19,7 +21,7 @@ export class CoursesService {
         where: { name: body.name },
       });
       if (course) throw new Error('Course already exist');
-      const department = await this.hospitalService.findOneDepartment(
+      const department = await this.departmentService.findOneDepartment(
         body.department,
       );
       if (!department) throw new Error('Department not found');

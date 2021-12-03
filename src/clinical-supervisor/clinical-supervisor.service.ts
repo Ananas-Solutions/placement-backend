@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DepartmentService } from 'src/department/department.service';
 import { HospitalService } from 'src/hospital/hospital.service';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
@@ -14,6 +15,7 @@ export class SupervisorService {
 
     private readonly userService: UserService,
     private readonly hospitalService: HospitalService,
+    private readonly departmentService: DepartmentService,
   ) {}
 
   async saveSupervisorProfile(
@@ -25,7 +27,7 @@ export class SupervisorService {
       const hospital = await this.hospitalService.findOneHospital(
         body.hospital,
       );
-      const department = await this.hospitalService.findOneDepartment(
+      const department = await this.departmentService.findOneDepartment(
         body.department,
       );
       return await this.supervisorProfileRepository.save({

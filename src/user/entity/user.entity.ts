@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -18,7 +19,8 @@ export class User {
   @Column()
   name: string;
 
-  @Column()
+  @Index()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -27,7 +29,6 @@ export class User {
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
-    
   }
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.ADMIN })

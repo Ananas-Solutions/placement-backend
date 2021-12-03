@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { CoursesModule } from './courses/courses.module';
+import { AuthorityModule } from './authority/authority.module';
+import { DepartmentModule } from './department/department.module';
 
 
 @Module({
@@ -26,6 +28,8 @@ import { CoursesModule } from './courses/courses.module';
     HospitalModule,
     AuthModule,
     CoursesModule,
+    AuthorityModule,
+    DepartmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

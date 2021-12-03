@@ -1,5 +1,15 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Department } from './department.entity';
+import { Authority } from 'src/authority/entity/authority.entity';
+import { Department } from 'src/department/entity/department.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Hospital {
@@ -15,8 +25,20 @@ export class Hospital {
   @Column({ nullable: true })
   address2: string;
 
+  @ManyToOne(() => Authority, (authority) => authority.id, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  authority: Authority;
+
   @OneToMany(() => Department, (department) => department.hospital, {
     cascade: true,
   })
-  department: Department;
+  department: Department[];
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

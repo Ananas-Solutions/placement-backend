@@ -1,53 +1,78 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthorityService } from 'src/authority/authority.service';
 import { Repository } from 'typeorm';
-import { Department } from './entity/department.entity';
-import { Hospital } from './entity/hospital.entity';
-import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
 import { CreateHospitalDto, UpdateHospitalDto } from './dto/hospital.dto';
+import { Hospital } from './entity/hospital.entity';
 
 @Injectable()
 export class HospitalService {
   constructor(
     @InjectRepository(Hospital)
     private readonly hospitalRepository: Repository<Hospital>,
-
-    @InjectRepository(Department)
-    private readonly departmentRepository: Repository<Department>,
+    private readonly authorityService: AuthorityService,
   ) {}
 
   async saveHospital(body: CreateHospitalDto): Promise<Hospital> {
     try {
-      const newHospital = this.hospitalRepository.create(body);
-      return await this.hospitalRepository.save(newHospital);
+      const authority = await this.authorityService.findOneAuthority(
+        body.authority,
+      );
+      if (!authority) throw new NotFoundException('Authority not found');
+      const newHospital = this.hospitalRepository.create({
+        ...body,
+        authority,
+      });
+      const hospital = await this.hospitalRepository.save(newHospital);
+      delete hospital.authority;
+      return hospital;
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
-  async findAllHospital(): Promise<Hospital[]> {
+  async findAllHospital(authorityId: string): Promise<Hospital[]> {
     try {
-      return await this.hospitalRepository.find();
+      return await this.hospitalRepository.find({
+        where: { authority: authorityId },
+      });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
   async findOneHospital(id: string): Promise<Hospital> {
     try {
-      return await this.hospitalRepository.findOne(id);
+      return await this.hospitalRepository.findOne({
+        where: { id },
+        relations: ['department'],
+      });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
   async updateOneHospital(body: UpdateHospitalDto): Promise<Hospital> {
     try {
+      const authority = await this.authorityService.findOneAuthority(
+        body.authority,
+      );
+      if (!authority) throw new NotFoundException('Authority not found');
       const hospital = await this.hospitalRepository.findOne(body.id);
-      if (!hospital) throw new Error('Hospital not found.');
-      return await this.hospitalRepository.save({ ...hospital, ...body });
+      if (!hospital) throw new NotFoundException('Hospital not found');
+      return await this.hospitalRepository.save({
+        ...hospital,
+        ...body,
+        authority,
+      });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
@@ -55,62 +80,7 @@ export class HospitalService {
     try {
       return await this.hospitalRepository.delete(id);
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-  }
-
-  async saveDepartment(body: CreateDepartmentDto): Promise<Department> {
-    try {
-      const hospital = await this.hospitalRepository.findOne(body.hospitalId);
-      if (!hospital) {
-        throw new Error('Hospital not found for given id. Try again.');
-      }
-      const newDepartment = await this.departmentRepository.create({
-        name: body.name,
-        hospital: hospital,
-      });
-      return await this.departmentRepository.save(newDepartment);
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-  }
-
-  async findHospitalDepartments(hospitalId: string): Promise<Department[]> {
-    try {
-      return await this.departmentRepository.find({
-        where: { hospital: hospitalId },
-      });
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-  }
-
-  async findOneDepartment(departmentId: string): Promise<Department> {
-    try {
-      return await this.departmentRepository.findOne({
-        where: { id: departmentId },
-        relations: ['hospital'],
-      });
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-  }
-
-  async updateOneDepartment(body: UpdateDepartmentDto): Promise<Department> {
-    try {
-      const department = await this.departmentRepository.findOne(body.id);
-      if (!department) throw new Error('Department not found.');
-      return await this.departmentRepository.save({ ...department, ...body });
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-  }
-
-  async deleteOneDepartment(id: string): Promise<any> {
-    try {
-      return await this.departmentRepository.delete(id);
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 }

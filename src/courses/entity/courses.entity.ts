@@ -1,4 +1,4 @@
-import { Department } from 'src/hospital/entity/department.entity';
+import { Department } from 'src/department/entity/department.entity';
 import {
   Column,
   CreateDateColumn,

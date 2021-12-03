@@ -6,11 +6,15 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
-import { HospitalService } from './hospital.service';
-import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { NotFoundInterceptor } from 'src/interceptors/error-interceptor';
 import { CreateHospitalDto, UpdateHospitalDto } from './dto/hospital.dto';
+import { HospitalService } from './hospital.service';
 
+@ApiTags('hospital')
+@UseInterceptors(NotFoundInterceptor)
 @Controller('hospital')
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}
@@ -20,16 +24,11 @@ export class HospitalController {
     return await this.hospitalService.saveHospital(body);
   }
 
-  @Get()
-  async queryAllHospital(): Promise<any> {
-    return await this.hospitalService.findAllHospital();
-  }
-
-  @Get(':id/departments')
-  async queryHospitalDepartment(
-    @Param() { id: hospitalId }: { id: string },
+  @Get('authority/:authorityId')
+  async queryAllHospital(
+    @Param() { authorityId }: { authorityId: string },
   ): Promise<any> {
-    return await this.hospitalService.findHospitalDepartments(hospitalId);
+    return await this.hospitalService.findAllHospital(authorityId);
   }
 
   @Get(':id')
@@ -45,25 +44,5 @@ export class HospitalController {
   @Delete(':id')
   async deleteHospital(@Param() { id }: { id: string }): Promise<any> {
     return await this.hospitalService.deleteOneHospital(id);
-  }
-
-  @Post('department')
-  async createDepartment(@Body() body: CreateDepartmentDto): Promise<any> {
-    return await this.hospitalService.saveDepartment(body);
-  }
-
-  @Get('department/:id')
-  async queryOneDepartment(@Param() { id }: { id: string }): Promise<any> {
-    return await this.hospitalService.findOneDepartment(id);
-  }
-
-  @Put('department')
-  async updateDepartment(@Body() body: UpdateDepartmentDto): Promise<any> {
-    return await this.hospitalService.updateOneDepartment(body);
-  }
-
-  @Delete('department/:id')
-  async deleteDepartment(@Param() { id }: { id: string }): Promise<any> {
-    return await this.hospitalService.deleteOneDepartment(id);
   }
 }

@@ -1,11 +1,13 @@
+import { Hospital } from 'src/hospital/entity/hospital.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Hospital } from './hospital.entity';
 
 @Entity()
 export class Department {
@@ -21,4 +23,10 @@ export class Department {
     onUpdate: 'CASCADE',
   })
   hospital: Hospital;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

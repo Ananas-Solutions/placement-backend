@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DepartmentModule } from 'src/department/department.module';
 import { HospitalModule } from 'src/hospital/hospital.module';
 import { UserModule } from 'src/user/user.module';
 import { SupervisorController } from './clinical-supervisor.controller';
@@ -11,6 +12,7 @@ import { SupervisorProfile } from './entity/clinicalSupervisorProfile.entity';
     TypeOrmModule.forFeature([SupervisorProfile]),
     UserModule,
     HospitalModule,
+    DepartmentModule,
   ],
   controllers: [SupervisorController],
   providers: [SupervisorService],

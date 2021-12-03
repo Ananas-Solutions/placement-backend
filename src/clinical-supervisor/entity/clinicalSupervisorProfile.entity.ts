@@ -1,11 +1,10 @@
-import { Department } from 'src/hospital/entity/department.entity';
+import { Department } from 'src/department/entity/department.entity';
 import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
