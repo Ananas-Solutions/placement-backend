@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -16,7 +17,7 @@ export class Courses {
   @Column()
   name: string;
 
-  @OneToOne(() => Department, (department) => department.id, {
+  @ManyToOne(() => Department, (department) => department.id, {
     cascade: true,
     createForeignKeyConstraints: false,
   })

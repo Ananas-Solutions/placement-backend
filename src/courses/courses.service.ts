@@ -1,9 +1,12 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepartmentService } from 'src/department/department.service';
-import { HospitalService } from 'src/hospital/hospital.service';
 import { Repository } from 'typeorm';
-import { CoursesDto, UpdateCoursesDto } from './dto/courses.dto';
+import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 import { Courses } from './entity/courses.entity';
 
 @Injectable()
@@ -11,32 +14,36 @@ export class CoursesService {
   constructor(
     @InjectRepository(Courses)
     private readonly coursesRepository: Repository<Courses>,
-    private readonly hospitalService: HospitalService,
     private readonly departmentService: DepartmentService,
   ) {}
 
-  async createCourse(body: CoursesDto): Promise<Courses> {
+  async createCourse(body: CreateCourseDto): Promise<Courses> {
     try {
       const course = await this.coursesRepository.findOne({
         where: { name: body.name },
       });
-      if (course) throw new Error('Course already exist');
+      if (course) throw new ConflictException('Course already exist');
       const department = await this.departmentService.findOneDepartment(
         body.department,
       );
-      if (!department) throw new Error('Department not found');
-      const newCourse = this.coursesRepository.create({ ...body, department });
+      if (!department) throw new NotFoundException('Department not found');
+      const newCourse = this.coursesRepository.create({
+        ...body,
+        department,
+      });
       return await this.coursesRepository.save(newCourse);
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
-  async findAllCourses(): Promise<Courses[]> {
+  async findAllCourses(departmentId: string): Promise<Courses[]> {
     try {
-      return await this.coursesRepository.find();
+      return await this.coursesRepository.find({
+        where: { department: departmentId },
+      });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
@@ -47,21 +54,30 @@ export class CoursesService {
         relations: ['department'],
       });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
-  async updateCourse(body: UpdateCoursesDto): Promise<Courses> {
+  async updateCourse(body: UpdateCourseDto): Promise<Courses> {
     try {
+      const department = await this.departmentService.findOneDepartment(
+        body.department,
+      );
+      if (!department) throw new NotFoundException('Department not found');
       const course = await this.coursesRepository.findOne({
         where: { name: body.name },
       });
-      if (course) throw new Error('Course name already exist');
+      if (course) throw new NotFoundException('Course name already exist');
       const oldCourse = await this.coursesRepository.findOne(body.id);
-      if (!oldCourse) throw new Error('Course not found');
-      return await this.coursesRepository.save({ ...oldCourse, ...body });
+      if (!oldCourse) throw new NotFoundException('Course not found');
+      return await this.coursesRepository.save({
+        ...oldCourse,
+        ...body,
+        department,
+      });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      console.log('err', err);
+      throw err;
     }
   }
 
@@ -69,7 +85,7 @@ export class CoursesService {
     try {
       return await this.coursesRepository.delete(id);
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 }

@@ -5,7 +5,11 @@ import {
   CallHandler,
   NotFoundException,
   InternalServerErrorException,
+  UnprocessableEntityException,
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
+import { instanceToInstance } from 'class-transformer';
 import { Observable, catchError } from 'rxjs';
 import { EntityNotFoundError } from 'typeorm';
 
@@ -15,10 +19,16 @@ export class NotFoundInterceptor implements NestInterceptor {
     // next.handle() is an Observable of the controller's result value
     return next.handle().pipe(
       catchError((err) => {
-        if (err instanceof EntityNotFoundError) {
-          throw new NotFoundException(err.message);
-        } else {
-          throw new InternalServerErrorException(err.message);
+        const errMessage = err.response || err.message;
+        switch (err.status) {
+          case 400:
+            throw new NotFoundException(errMessage);
+          case 409:
+            throw new ConflictException(errMessage);
+          case 400:
+            throw new BadRequestException(errMessage);
+          default:
+            throw new InternalServerErrorException(errMessage);
         }
       }),
     );

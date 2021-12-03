@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CoursesDto {
+export class CreateCourseDto {
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -18,21 +18,8 @@ export class CoursesDto {
   year: string;
 }
 
-export class UpdateCoursesDto {
-
+export class UpdateCourseDto extends CreateCourseDto {
   @IsNotEmpty()
   @IsString()
-  id:string;
-
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @IsNotEmpty()
-  @IsString()
-  semester: string;
-
-  @IsNotEmpty()
-  @IsString()
-  year: string;
+  id: string;
 }
