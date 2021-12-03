@@ -1,0 +1,67 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CoursesService } from 'src/courses/courses.service';
+import { Courses } from 'src/courses/entity/courses.entity';
+import { User } from 'src/user/entity/user.entity';
+import { UserService } from 'src/user/user.service';
+import { Repository } from 'typeorm';
+import { AssignCourseStudentsDto } from './dto/student-course.dto';
+import { StudentCourse } from './entity/student-course.entity';
+
+@Injectable()
+export class StudentCourseService {
+  constructor(
+    @InjectRepository(StudentCourse)
+    private readonly studentCourseRepository: Repository<StudentCourse>,
+    private readonly userService: UserService,
+    private readonly courseService: CoursesService,
+  ) {}
+
+  async assignStudents(
+    body: AssignCourseStudentsDto,
+  ): Promise<{ message: string }> {
+    try {
+      const course = await this.courseService.findOneCourse(body.course);
+      if (!course) throw new NotFoundException('Course not found');
+      await Promise.all(
+        body.students.map(async (studentId: string) => {
+          const student = await this.userService.findUserById(studentId);
+          await this.studentCourseRepository.save({ course, student });
+        }),
+      );
+      return { message: 'Students assigned to course' };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findStudentCourses(studentId: string): Promise<Courses[]> {
+    try {
+      const studentCourses = await this.studentCourseRepository.find({
+        where: { student: studentId },
+        relations: ['course'],
+      });
+      const courses = studentCourses.map(
+        (studentCourse) => studentCourse.course,
+      );
+      return courses;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findCourseStudents(courseId: string): Promise<User[]> {
+    try {
+      const studentCourses = await this.studentCourseRepository.find({
+        where: { course: courseId },
+        relations: ['student'],
+      });
+      const users = studentCourses.map(
+        (studentCourse) => studentCourse.student,
+      );
+      return users;
+    } catch (err) {
+      throw err;
+    }
+  }
+}

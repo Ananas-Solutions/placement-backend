@@ -1,8 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
+import { UserRole } from './types/user.role';
 
 @Injectable()
 export class UserService {
@@ -13,10 +18,14 @@ export class UserService {
 
   async saveUser(body: UserDto): Promise<User> {
     try {
+      const user = await this.userRepository.findOne({
+        where: { email: body.email },
+      });
+      if (user) throw new ConflictException('Email already used');
       const newUser = this.userRepository.create(body);
       return await this.userRepository.save(newUser);
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
@@ -24,7 +33,7 @@ export class UserService {
     try {
       return await this.userRepository.findOne({ where: { id } });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
     }
   }
 
@@ -32,7 +41,15 @@ export class UserService {
     try {
       return await this.userRepository.findOne({ where: { email } });
     } catch (err) {
-      throw new InternalServerErrorException(err.message);
+      throw err;
+    }
+  }
+
+  async findAllStudents(): Promise<User[]> {
+    try {
+      return this.userRepository.find({ where: { role: UserRole.STUDENT } });
+    } catch (err) {
+      throw err;
     }
   }
 }

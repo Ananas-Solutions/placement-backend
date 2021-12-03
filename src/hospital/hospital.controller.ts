@@ -8,13 +8,13 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { NotFoundInterceptor } from 'src/interceptors/error-interceptor';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CreateHospitalDto, UpdateHospitalDto } from './dto/hospital.dto';
 import { HospitalService } from './hospital.service';
 
 @ApiTags('hospital')
-@UseInterceptors(NotFoundInterceptor)
+@UseInterceptors(ErrorInterceptor)
 @Controller('hospital')
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}
@@ -24,6 +24,9 @@ export class HospitalController {
     return await this.hospitalService.saveHospital(body);
   }
 
+  @ApiOperation({
+    summary: 'This route is to be used to find all hospitals for an authority.',
+  })
   @Get('authority/:authorityId')
   async queryAllHospital(
     @Param() { authorityId }: { authorityId: string },

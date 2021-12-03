@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DepartmentModule } from 'src/department/department.module';
 import { HospitalModule } from 'src/hospital/hospital.module';
@@ -16,5 +16,6 @@ import { Courses } from './entity/courses.entity';
   ],
   controllers: [CoursesController],
   providers: [CoursesService],
+  exports: [CoursesService],
 })
 export class CoursesModule {}

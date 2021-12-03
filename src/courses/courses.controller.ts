@@ -9,17 +9,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
-import { NotFoundInterceptor } from 'src/interceptors/error-interceptor';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 
 @ApiTags('course')
-@UseInterceptors(NotFoundInterceptor)
+@UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN, Role.COORDINATOR)
 @Controller('course')
@@ -31,6 +31,10 @@ export class CoursesController {
     return await this.coursesServices.createCourse(body);
   }
 
+  @ApiOperation({
+    summary:
+      'This route is to be used to find to find all courses for a department.',
+  })
   @Get('department/:departmentId')
   async queryAllCourses(
     @Param() { departmentId }: { departmentId: string },

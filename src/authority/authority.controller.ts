@@ -8,13 +8,13 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-import { NotFoundInterceptor } from 'src/interceptors/error-interceptor';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthorityService } from './authority.service';
 import { CreateAuthorityDto, UpdateAuthorityDto } from './dto/authority.dto';
 
 @ApiTags('authority')
-@UseInterceptors(NotFoundInterceptor)
+@UseInterceptors(ErrorInterceptor)
 @Controller('authority')
 export class AuthorityController {
   constructor(private authorityService: AuthorityService) {}

@@ -8,13 +8,13 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { NotFoundInterceptor } from 'src/interceptors/error-interceptor';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
 
 @ApiTags('department')
-@UseInterceptors(NotFoundInterceptor)
+@UseInterceptors(ErrorInterceptor)
 @Controller('department')
 export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}
@@ -24,6 +24,9 @@ export class DepartmentController {
     return await this.departmentService.saveDepartment(body);
   }
 
+  @ApiOperation({
+    summary: 'This route is to be used to find all departments for a hospital.',
+  })
   @Get('hospital/:hospitalId')
   async queryHospitalDepartment(
     @Param() { hospitalId }: { hospitalId: string },

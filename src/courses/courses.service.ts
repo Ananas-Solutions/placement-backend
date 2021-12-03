@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepartmentService } from 'src/department/department.service';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 import { Courses } from './entity/courses.entity';
@@ -14,6 +15,7 @@ export class CoursesService {
   constructor(
     @InjectRepository(Courses)
     private readonly coursesRepository: Repository<Courses>,
+    private readonly userService: UserService,
     private readonly departmentService: DepartmentService,
   ) {}
 
