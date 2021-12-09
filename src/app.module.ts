@@ -22,8 +22,8 @@ import { DepartmentUnitsModule } from './department-units/department-units.modul
 import { SemesterModule } from './semester/semester.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CoordinatorCollegeDepartmentModule } from './coordinator-college-department/coordinator-college-department.module';
-import { TrainingSiteModule } from './training-site/training-site.module';
-import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-site-time-slot.module';
+// import { TrainingSiteModule } from './training-site/training-site.module';
+// import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-site-time-slot.module';
 
 @Module({
   imports: [
@@ -49,8 +49,8 @@ import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-s
     SemesterModule,
     CloudinaryModule,
     CoordinatorCollegeDepartmentModule,
-    TrainingSiteModule,
-    TrainingSiteTimeSlotModule,
+    // TrainingSiteModule,
+    // TrainingSiteTimeSlotModule,
   ],
   controllers: [AppController],
   providers: [AppService],
