@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UseInterceptors,
@@ -10,6 +11,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { UserDto } from './dto/user.dto';
+import { UserRole } from './types/user.role';
 import { UserService } from './user.service';
 
 @ApiTags('user')
@@ -23,8 +25,8 @@ export class UserController {
     return await this.userService.saveUser(body);
   }
 
-  @Get('students')
-  async queryAllStudents(): Promise<any> {
-    return await this.userService.findAllStudents();
+  @Get()
+  async queryAllStudents(@Query('role') role: UserRole): Promise<any> {
+    return await this.userService.findAllSpecifcUser(role);
   }
 }

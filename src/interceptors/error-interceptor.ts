@@ -17,6 +17,7 @@ export class ErrorInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError((err) => {
         const errMessage = err.response || err.message;
+        console.log(err.status);
         switch (err.status) {
           case 404:
             throw new NotFoundException(errMessage);

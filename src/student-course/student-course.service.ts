@@ -5,7 +5,7 @@ import { Courses } from 'src/courses/entity/courses.entity';
 import { User } from 'src/user/entity/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
-import { AssignCourseStudentsDto } from './dto/student-course.dto';
+import { AssignCoursesDto, AssignStudentsDto } from './dto/student-course.dto';
 import { StudentCourse } from './entity/student-course.entity';
 
 @Injectable()
@@ -17,9 +17,7 @@ export class StudentCourseService {
     private readonly courseService: CoursesService,
   ) {}
 
-  async assignStudents(
-    body: AssignCourseStudentsDto,
-  ): Promise<{ message: string }> {
+  async assignStudents(body: AssignStudentsDto): Promise<{ message: string }> {
     try {
       const course = await this.courseService.findOneCourse(body.course);
       if (!course) throw new NotFoundException('Course not found');
@@ -30,6 +28,22 @@ export class StudentCourseService {
         }),
       );
       return { message: 'Students assigned to course' };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async assignCourses(body: AssignCoursesDto): Promise<{ message: string }> {
+    try {
+      const student = await this.userService.findUserById(body.student);
+      if (!student) throw new NotFoundException('Student not found');
+      await Promise.all(
+        body.courses.map(async (courseId: string) => {
+          const course = await this.courseService.findOneCourse(courseId);
+          await this.studentCourseRepository.save({ course, student });
+        }),
+      );
+      return { message: 'Courses assigend to student' };
     } catch (err) {
       throw err;
     }

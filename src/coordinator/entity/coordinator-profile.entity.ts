@@ -1,9 +1,11 @@
+import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,7 +17,7 @@ export class CoordinatorProfile {
   id: string;
 
   @Column()
-  college: string;
+  mobile: string;
 
   @Column()
   address: string;

@@ -39,10 +39,7 @@ export class StudentService {
     }
   }
 
-  async updateProfile(
-    id: string,
-    body: StudentProfileDto,
-  ): Promise<StudentProfile> {
+  async updateProfile(id: string, body: any): Promise<StudentProfile> {
     try {
       const user = await this.userService.findUserById(id);
       if (!user || user.role !== UserRole.STUDENT)

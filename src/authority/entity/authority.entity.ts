@@ -14,6 +14,9 @@ export class Authority {
   id: string;
 
   @Column()
+  initials: string;
+
+  @Column()
   name: string;
 
   @OneToMany(() => Hospital, (hospital) => hospital.authority, {

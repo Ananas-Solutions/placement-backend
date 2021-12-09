@@ -45,9 +45,9 @@ export class UserService {
     }
   }
 
-  async findAllStudents(): Promise<User[]> {
+  async findAllSpecifcUser(role: UserRole): Promise<User[]> {
     try {
-      return this.userRepository.find({ where: { role: UserRole.STUDENT } });
+      return this.userRepository.find({ where: { role } });
     } catch (err) {
       throw err;
     }

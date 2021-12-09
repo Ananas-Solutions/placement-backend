@@ -22,7 +22,7 @@ export class DepartmentService {
         body.hospital,
       );
       if (!hospital) {
-        throw new Error('Hospital not found for given id. Try again.');
+        throw new NotFoundException('Hospital not found');
       }
       const newDepartment = this.departmentRepository.create({
         ...body,

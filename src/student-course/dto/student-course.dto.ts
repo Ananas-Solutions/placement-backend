@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsArray, ArrayMinSize } from 'class-validator';
 
-export class AssignCourseStudentsDto {
+export class AssignStudentsDto {
   @IsNotEmpty()
   @IsString()
   course: string;
@@ -8,4 +8,14 @@ export class AssignCourseStudentsDto {
   @IsArray()
   @ArrayMinSize(1)
   students: string[];
+}
+
+export class AssignCoursesDto {
+  @IsNotEmpty()
+  @IsString()
+  student: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  courses: string[];
 }

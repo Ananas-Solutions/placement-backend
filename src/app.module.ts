@@ -17,7 +17,13 @@ import { StudentCourseModule } from './student-course/student-course.module';
 import { StudentModule } from './student/student.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
 import { CoordinatorCourseModule } from './coordinator-course/coordinator-course.module';
-
+import { CollegeDepartmentModule } from './college-department/college-department.module';
+import { DepartmentUnitsModule } from './department-units/department-units.module';
+import { SemesterModule } from './semester/semester.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { CoordinatorCollegeDepartmentModule } from './coordinator-college-department/coordinator-college-department.module';
+import { TrainingSiteModule } from './training-site/training-site.module';
+import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-site-time-slot.module';
 
 @Module({
   imports: [
@@ -38,6 +44,13 @@ import { CoordinatorCourseModule } from './coordinator-course/coordinator-course
     StudentModule,
     CoordinatorModule,
     CoordinatorCourseModule,
+    CollegeDepartmentModule,
+    DepartmentUnitsModule,
+    SemesterModule,
+    CloudinaryModule,
+    CoordinatorCollegeDepartmentModule,
+    TrainingSiteModule,
+    TrainingSiteTimeSlotModule,
   ],
   controllers: [AppController],
   providers: [AppService],

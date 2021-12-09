@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CoordinatorProfileDto {
   @IsNotEmpty()
   @IsString()
-  college: string;
+  mobile: string;
 
   @IsNotEmpty()
   @IsString()

@@ -15,7 +15,6 @@ import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CoordinatorService } from './coordinator.service';
-import { AssignCourseToStudentDto } from './dto/assing-course-to-student.dto';
 import { CoordinatorProfileDto } from './dto/coordinator-profile.dto';
 
 @ApiTags('coordinator')

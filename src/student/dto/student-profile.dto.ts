@@ -4,8 +4,4 @@ export class StudentProfileDto {
   @IsNotEmpty()
   @IsString()
   address: string;
-
-  @IsOptional()
-  @IsString()
-  identity?: string;
 }

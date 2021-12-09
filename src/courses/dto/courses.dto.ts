@@ -1,11 +1,4 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  ValidateNested,
-} from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -14,15 +7,11 @@ export class CreateCourseDto {
 
   @IsNotEmpty()
   @IsString()
-  department: string;
+  collegeDepartment: string;
 
   @IsNotEmpty()
   @IsString()
   semester: string;
-
-  @IsNotEmpty()
-  @IsString()
-  year: string;
 }
 
 export class UpdateCourseDto extends CreateCourseDto {

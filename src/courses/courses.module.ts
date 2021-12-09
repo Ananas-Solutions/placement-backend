@@ -1,7 +1,7 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DepartmentModule } from 'src/department/department.module';
-import { HospitalModule } from 'src/hospital/hospital.module';
+import { CollegeDepartmentModule } from 'src/college-department/college-department.module';
+import { SemesterModule } from 'src/semester/semester.module';
 import { UserModule } from 'src/user/user.module';
 import { CoursesController } from './courses.controller';
 import { CoursesService } from './courses.service';
@@ -11,8 +11,8 @@ import { Courses } from './entity/courses.entity';
   imports: [
     TypeOrmModule.forFeature([Courses]),
     UserModule,
-    HospitalModule,
-    DepartmentModule,
+    CollegeDepartmentModule,
+    SemesterModule,
   ],
   controllers: [CoursesController],
   providers: [CoursesService],

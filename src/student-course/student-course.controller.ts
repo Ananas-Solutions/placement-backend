@@ -14,7 +14,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { AssignCourseStudentsDto } from './dto/student-course.dto';
+import { AssignCoursesDto, AssignStudentsDto } from './dto/student-course.dto';
 import { StudentCourseService } from './student-course.service';
 
 @ApiTags('student-course')
@@ -29,9 +29,19 @@ export class StudentCourseController {
       'This route is to be used when admin or coordinator will assign many students to a course.',
   })
   @Roles(Role.ADMIN, Role.COORDINATOR)
-  @Post('assign')
-  async assignStudents(@Body() body: AssignCourseStudentsDto): Promise<any> {
+  @Post('assign-students')
+  async assignStudents(@Body() body: AssignStudentsDto): Promise<any> {
     return this.studentCourseService.assignStudents(body);
+  }
+
+  @ApiOperation({
+    summary:
+      'This route is to be used when admin or coordinator will assign many courses to a student.',
+  })
+  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Post('assign-courses')
+  async assignCourses(@Body() body: AssignCoursesDto): Promise<any> {
+    return this.studentCourseService.assignCourses(body);
   }
 
   @ApiOperation({

@@ -22,7 +22,10 @@ export class CoordinatorService {
       const user = await this.userService.findUserById(id);
       if (!user || user.role !== UserRole.COORDINATOR)
         throw new NotFoundException('Coordinator not found');
-      return await this.coordinatorRepository.save({ ...body, user });
+      return await this.coordinatorRepository.save({
+        ...body,
+        user,
+      });
     } catch (err) {
       throw err;
     }
@@ -49,7 +52,10 @@ export class CoordinatorService {
       const profile = await this.coordinatorRepository.findOne({
         where: { user: id },
       });
-      return await this.coordinatorRepository.save({ ...profile, ...body });
+      return await this.coordinatorRepository.save({
+        ...profile,
+        ...body,
+      });
     } catch (err) {
       throw err;
     }

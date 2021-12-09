@@ -1,4 +1,6 @@
-import { Department } from 'src/department/entity/department.entity';
+import { Exclude } from 'class-transformer';
+import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
+import { Semester } from 'src/semester/entity/semester.entity';
 import {
   Column,
   CreateDateColumn,
@@ -17,18 +19,19 @@ export class Courses {
   @Column()
   name: string;
 
-  @ManyToOne(() => Department, (department) => department.id, {
+  @ManyToOne(() => CollegeDepartent, {
     cascade: true,
     createForeignKeyConstraints: false,
   })
   @JoinColumn()
-  department: Department;
+  department: CollegeDepartent;
 
-  @Column()
-  semester: string;
-
-  @Column()
-  year: string;
+  @ManyToOne(() => Semester, {
+    createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  semester: Semester;
 
   @CreateDateColumn()
   createdAt: string;
