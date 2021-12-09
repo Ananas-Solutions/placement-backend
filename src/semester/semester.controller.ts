@@ -6,10 +6,15 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { SemesterDto, UpdateSemesterDto } from './dto/semester.dto';
 import { SemesterService } from './semester.service';
 
+@ApiTags('semester')
+@UseInterceptors(ErrorInterceptor)
 @Controller('semester')
 export class SemesterController {
   constructor(private readonly semesterService: SemesterService) {}

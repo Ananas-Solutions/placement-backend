@@ -6,13 +6,18 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { DepartmentUnitsService } from './department-units.service';
 import {
   DepartmentUnitsDto,
   UpdateDepartmentUnitsDto,
 } from './dto/department-units.dto';
 
+@ApiTags('hospital department units')
+@UseInterceptors(ErrorInterceptor)
 @Controller('department-unit')
 export class DepartmentUnitsController {
   constructor(
