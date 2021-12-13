@@ -20,8 +20,8 @@ import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 
 @ApiTags('course')
 @UseInterceptors(ErrorInterceptor)
-// @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(Role.ADMIN, Role.COORDINATOR)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.COORDINATOR)
 @Controller('course')
 export class CoursesController {
   constructor(private readonly coursesServices: CoursesService) {}
