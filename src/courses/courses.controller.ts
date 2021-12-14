@@ -31,6 +31,11 @@ export class CoursesController {
     return await this.coursesServices.createCourse(body);
   }
 
+  @Get()
+  async getAllCourses(): Promise<any> {
+    return await this.coursesServices.allCourses();
+  }
+
   @ApiOperation({
     summary:
       'This route is to be used to find to find all courses for a department.',

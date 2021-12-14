@@ -36,6 +36,14 @@ export class DepartmentService {
     }
   }
 
+  async findAllHospitals(): Promise<Department[]> {
+    try {
+      return await this.departmentRepository.find();
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findHospitalDepartments(hospitalId: string): Promise<Department[]> {
     try {
       return await this.departmentRepository.find({

@@ -41,6 +41,14 @@ export class CoursesService {
     }
   }
 
+  async allCourses(): Promise<Courses[]> {
+    try {
+      return await this.coursesRepository.find();
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findAllCourses(departmentId: string): Promise<Courses[]> {
     try {
       return await this.coursesRepository.find({

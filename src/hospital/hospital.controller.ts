@@ -23,6 +23,10 @@ export class HospitalController {
   async createHospital(@Body() body: CreateHospitalDto): Promise<any> {
     return await this.hospitalService.saveHospital(body);
   }
+  @Get()
+  async findAllHospital(): Promise<any> {
+    return await this.hospitalService.getAllHospital();
+  }
 
   @ApiOperation({
     summary: 'This route is to be used to find all hospitals for an authority.',

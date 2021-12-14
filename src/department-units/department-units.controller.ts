@@ -31,6 +31,11 @@ export class DepartmentUnitsController {
     return newUnit;
   }
 
+  @Get()
+  async getAllUnits(): Promise<any> {
+    return await this.departmentUnitsService.findAll();
+  }
+
   @Get('department/:departmentId')
   async findAllUnit(
     @Param() { departmentId }: { departmentId: string },

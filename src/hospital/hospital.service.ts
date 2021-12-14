@@ -37,6 +37,14 @@ export class HospitalService {
     }
   }
 
+  async getAllHospital(): Promise<Hospital[]> {
+    try {
+      return await this.hospitalRepository.find();
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findAllHospital(authorityId: string): Promise<Hospital[]> {
     try {
       return await this.hospitalRepository.find({

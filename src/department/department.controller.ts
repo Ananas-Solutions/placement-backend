@@ -24,6 +24,11 @@ export class DepartmentController {
     return await this.departmentService.saveDepartment(body);
   }
 
+  @Get()
+  async getAllDepartment(): Promise<any> {
+    return await this.departmentService.findAllHospitals();
+  }
+
   @ApiOperation({
     summary: 'This route is to be used to find all departments for a hospital.',
   })

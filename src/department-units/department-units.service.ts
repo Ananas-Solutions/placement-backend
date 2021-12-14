@@ -28,6 +28,14 @@ export class DepartmentUnitsService {
     }
   }
 
+  async findAll(): Promise<DepartmentUnits[]> {
+    try {
+      return await this.departmentUnitsRepository.find();
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findOne(id: string): Promise<DepartmentUnits> {
     try {
       return await this.departmentUnitsRepository.findOne(id, {

@@ -24,10 +24,6 @@ export class AuthService {
   async login(user: any, response: Response) {
     const payload = { id: user.id };
     const token = this.jwtService.sign(payload);
-    response
-      .cookie('accessToken', token, {
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
-      })
-      .send({ success: true });
+    return { accessToken: token };
   }
 }
