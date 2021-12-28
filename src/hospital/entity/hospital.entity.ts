@@ -27,6 +27,7 @@ export class Hospital {
 
   @ManyToOne(() => Authority, (authority) => authority.id, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn()
   authority: Authority;

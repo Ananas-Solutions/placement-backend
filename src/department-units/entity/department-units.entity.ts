@@ -17,7 +17,7 @@ export class DepartmentUnits {
   @Column()
   name: string;
 
-  @ManyToOne(() => Department, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Department, { onDelete: 'CASCADE', eager: true })
   @JoinColumn()
   department: Department;
 
