@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { HospitalService } from 'src/hospital/hospital.service';
 import { Repository } from 'typeorm';
 import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
@@ -14,19 +15,13 @@ export class DepartmentService {
   constructor(
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
-    private hospitalService: HospitalService,
   ) {}
-  async saveDepartment(body: CreateDepartmentDto): Promise<Department> {
+  async saveDepartment(bodyDto: CreateDepartmentDto): Promise<Department> {
     try {
-      const hospital = await this.hospitalService.findOneHospital(
-        body.hospital,
-      );
-      if (!hospital) {
-        throw new NotFoundException('Hospital not found');
-      }
+      const { hospitalId, ...body } = bodyDto;
       const newDepartment = this.departmentRepository.create({
         ...body,
-        hospital,
+        hospital: { id: hospitalId } as Hospital,
       });
       const department = await this.departmentRepository.save(newDepartment);
       delete department.hospital;
@@ -65,21 +60,16 @@ export class DepartmentService {
     }
   }
 
-  async updateOneDepartment(body: UpdateDepartmentDto): Promise<Department> {
+  async updateOneDepartment(bodyDto: UpdateDepartmentDto): Promise<any> {
     try {
-      const department = await this.departmentRepository.findOne(body.id);
-      if (!department) throw new NotFoundException('Department not found.');
-      const hospital = await this.hospitalService.findOneHospital(
-        body.hospital,
+      const { hospitalId, ...body } = bodyDto;
+      return await this.departmentRepository.update(
+        { id: bodyDto.id },
+        {
+          ...body,
+          hospital: { id: hospitalId } as Hospital,
+        },
       );
-      if (!hospital) throw new NotFoundException('Hospital not found');
-      const updatedDepartment = await this.departmentRepository.save({
-        ...department,
-        ...body,
-        hospital,
-      });
-      delete updatedDepartment.hospital.department;
-      return updatedDepartment;
     } catch (err) {
       throw err;
     }

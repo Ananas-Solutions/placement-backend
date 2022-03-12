@@ -6,9 +6,14 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/roles.enum';
+import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { DepartmentUnitsService } from './department-units.service';
 import {
@@ -18,6 +23,8 @@ import {
 
 @ApiTags('hospital department units')
 @UseInterceptors(ErrorInterceptor)
+@UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(Role.ADMIN)
 @Controller('department-unit')
 export class DepartmentUnitsController {
   constructor(

@@ -7,7 +7,7 @@ export class DepartmentUnitsDto {
 
   @IsString()
   @IsNotEmpty()
-  department: string;
+  departmentId: string;
 }
 
 export class UpdateDepartmentUnitsDto extends DepartmentUnitsDto {

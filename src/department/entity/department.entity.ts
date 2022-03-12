@@ -21,7 +21,6 @@ export class Department {
   @ManyToOne(() => Hospital, (hospital) => hospital.department, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    eager: true,
   })
   hospital: Hospital;
 

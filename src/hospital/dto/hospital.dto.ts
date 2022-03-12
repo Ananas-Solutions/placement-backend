@@ -15,7 +15,7 @@ export class CreateHospitalDto {
 
   @IsString()
   @IsNotEmpty()
-  authority: string;
+  authorityId: string;
 }
 
 export class UpdateHospitalDto extends CreateHospitalDto {

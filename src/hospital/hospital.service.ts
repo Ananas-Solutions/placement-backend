@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorityService } from 'src/authority/authority.service';
+import { Authority } from 'src/authority/entity/authority.entity';
 import { Repository } from 'typeorm';
 import { CreateHospitalDto, UpdateHospitalDto } from './dto/hospital.dto';
 import { Hospital } from './entity/hospital.entity';
@@ -16,18 +17,14 @@ export class HospitalService {
   constructor(
     @InjectRepository(Hospital)
     private readonly hospitalRepository: Repository<Hospital>,
-    private readonly authorityService: AuthorityService,
   ) {}
 
-  async saveHospital(body: CreateHospitalDto): Promise<Hospital> {
+  async saveHospital(bodyDto: CreateHospitalDto): Promise<Hospital> {
     try {
-      const authority = await this.authorityService.findOneAuthority(
-        body.authority,
-      );
-      if (!authority) throw new NotFoundException('Authority not found');
+      const { authorityId, ...body } = bodyDto;
       const newHospital = this.hospitalRepository.create({
         ...body,
-        authority,
+        authority: { id: authorityId } as Authority,
       });
       const hospital = await this.hospitalRepository.save(newHospital);
       delete hospital.authority;
@@ -59,26 +56,23 @@ export class HospitalService {
     try {
       return await this.hospitalRepository.findOne({
         where: { id },
-        relations: ['department'],
+        relations: ['authority', 'department'],
       });
     } catch (err) {
       throw err;
     }
   }
 
-  async updateOneHospital(body: UpdateHospitalDto): Promise<Hospital> {
+  async updateOneHospital(bodyDto: UpdateHospitalDto): Promise<any> {
     try {
-      const authority = await this.authorityService.findOneAuthority(
-        body.authority,
+      const { authorityId, ...body } = bodyDto;
+      return await this.hospitalRepository.update(
+        { id: bodyDto.id },
+        {
+          ...body,
+          authority: { id: authorityId } as Authority,
+        },
       );
-      if (!authority) throw new NotFoundException('Authority not found');
-      const hospital = await this.hospitalRepository.findOne(body.id);
-      if (!hospital) throw new NotFoundException('Hospital not found');
-      return await this.hospitalRepository.save({
-        ...hospital,
-        ...body,
-        authority,
-      });
     } catch (err) {
       throw err;
     }

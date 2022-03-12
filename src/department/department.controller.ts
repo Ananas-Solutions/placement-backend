@@ -6,15 +6,22 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/roles.enum';
+import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
 
 @ApiTags('department')
 @UseInterceptors(ErrorInterceptor)
+@UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(Role.ADMIN)
 @Controller('department')
 export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}

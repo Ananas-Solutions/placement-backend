@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -19,7 +20,12 @@ export class TrainingSiteTimeSlot {
   @Column()
   endTime: string;
 
-  @ManyToOne(() => TrainingSite, { onDelete: 'CASCADE' })
+  @ManyToOne(
+    () => TrainingSite,
+    (trainingSite) => trainingSite.trainingTimeSlots,
+    { onDelete: 'CASCADE' },
+  )
+  @JoinColumn()
   trainingSite: TrainingSite;
 
   @CreateDateColumn()

@@ -6,15 +6,22 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthorityService } from './authority.service';
 import { CreateAuthorityDto, UpdateAuthorityDto } from './dto/authority.dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/roles.enum';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @ApiTags('authority')
 @UseInterceptors(ErrorInterceptor)
+@UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(Role.ADMIN)
 @Controller('authority')
 export class AuthorityController {
   constructor(private authorityService: AuthorityService) {}

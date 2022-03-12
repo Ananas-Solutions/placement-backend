@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepartmentService } from 'src/department/department.service';
+import { Department } from 'src/department/entity/department.entity';
 import { Repository } from 'typeorm';
 import {
   DepartmentUnitsDto,
@@ -13,16 +14,15 @@ export class DepartmentUnitsService {
   constructor(
     @InjectRepository(DepartmentUnits)
     private readonly departmentUnitsRepository: Repository<DepartmentUnits>,
-    private readonly departmentService: DepartmentService,
   ) {}
 
-  async save(body: DepartmentUnitsDto): Promise<DepartmentUnits> {
+  async save(bodyDto: DepartmentUnitsDto): Promise<DepartmentUnits> {
     try {
-      const department = await this.departmentService.findOneDepartment(
-        body.department,
-      );
-      if (!department) throw new NotFoundException('Department not found');
-      return await this.departmentUnitsRepository.save({ ...body, department });
+      const { departmentId, ...body } = bodyDto;
+      return await this.departmentUnitsRepository.save({
+        ...body,
+        department: { id: departmentId } as Department,
+      });
     } catch (err) {
       throw err;
     }
@@ -56,22 +56,16 @@ export class DepartmentUnitsService {
     }
   }
 
-  async update(body: UpdateDepartmentUnitsDto): Promise<DepartmentUnits> {
+  async update(bodyDto: UpdateDepartmentUnitsDto): Promise<any> {
     try {
-      const departmentUnits = await this.departmentUnitsRepository.findOne(
-        body.id,
+      const { departmentId, ...body } = bodyDto;
+      return await this.departmentUnitsRepository.update(
+        { id: bodyDto.id },
+        {
+          ...body,
+          department: { id: departmentId } as Department,
+        },
       );
-      if (!departmentUnits) throw new NotFoundException('Unit not found');
-      const department = await this.departmentService.findOneDepartment(
-        body.department,
-      );
-      if (!department) throw new NotFoundException('Department not found');
-      const updatedUnit = await this.departmentUnitsRepository.save({
-        ...body,
-        department,
-      });
-      delete updatedUnit.department.hospital;
-      return updatedUnit;
     } catch (err) {
       throw err;
     }

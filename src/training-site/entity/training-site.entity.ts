@@ -1,7 +1,14 @@
 import { Authority } from 'src/authority/entity/authority.entity';
 import { Department } from 'src/department/entity/department.entity';
 import { Hospital } from 'src/hospital/entity/hospital.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/training-site-time-slot.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class TrainingSite {
@@ -22,6 +29,13 @@ export class TrainingSite {
 
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   department: Department;
+
+  @OneToMany(
+    () => TrainingSiteTimeSlot,
+    (trainingTimeSlots) => trainingTimeSlots.trainingSite,
+    { cascade: true },
+  )
+  trainingTimeSlots: TrainingSiteTimeSlot[];
 
   @Column()
   speciality: string;
