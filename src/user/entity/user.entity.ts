@@ -4,12 +4,14 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { UserRole } from '../types/user.role';
+import { UserDocuments } from 'src/user-documents/entity/user-documents.entity';
 
 @Entity()
 export class User {
@@ -39,6 +41,9 @@ export class User {
 
   @Column({ default: false })
   archived: boolean;
+
+  @OneToMany(() => UserDocuments, (userDocument) => userDocument.user)
+  documents: UserDocuments[];
 
   @CreateDateColumn()
   createdAt: Date;

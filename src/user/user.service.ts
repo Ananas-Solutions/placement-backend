@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserDto } from './dto/user.dto';
+import { CreateBulkStudentDto, UserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
 import { UserRole } from './types/user.role';
 
@@ -24,6 +24,25 @@ export class UserService {
       if (user) throw new ConflictException('Email already used');
       const newUser = this.userRepository.create(body);
       return await this.userRepository.save(newUser);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async saveBulkStudent(body: CreateBulkStudentDto): Promise<any> {
+    try {
+      await Promise.all(
+        body.students.map(async (student) => {
+          const newStudent = this.userRepository.create({
+            name: student.name,
+            email: student.email,
+            password: 'ramu1234',
+            role: UserRole.STUDENT,
+          });
+          return await this.userRepository.save(newStudent);
+        }),
+      );
+      return { message: 'Student uploaded on bulk' };
     } catch (err) {
       throw err;
     }

@@ -26,6 +26,7 @@ import { TrainingSiteModule } from './training-site/training-site.module';
 import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-site-time-slot.module';
 import { PlacementModule } from './placement/placement.module';
 import { ConfigModule } from '@nestjs/config';
+import { UserDocumentsModule } from './user-documents/user-documents.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ConfigModule } from '@nestjs/config';
     TrainingSiteModule,
     TrainingSiteTimeSlotModule,
     PlacementModule,
+    UserDocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

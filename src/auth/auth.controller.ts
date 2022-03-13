@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -23,7 +23,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Req() req: Request, @Res() res: Response) {
-    return this.authService.login(req.user, res);
+  async login(@Req() req: Request) {
+    return this.authService.login(req.user);
   }
 }

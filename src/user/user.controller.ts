@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { UserDto } from './dto/user.dto';
+import { CreateBulkStudentDto, UserDto } from './dto/user.dto';
 import { UserRole } from './types/user.role';
 import { UserService } from './user.service';
 
@@ -23,6 +23,11 @@ export class UserController {
   @Post()
   async createUser(@Body() body: UserDto): Promise<any> {
     return await this.userService.saveUser(body);
+  }
+
+  @Post('bulk-student')
+  async bulkStudentCreate(@Body() body: CreateBulkStudentDto): Promise<any> {
+    return await this.userService.saveBulkStudent(body);
   }
 
   @Get()
