@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TrainingSite } from 'src/training-site/entity/training-site.entity';
 import { TrainingSiteService } from 'src/training-site/training-site.service';
 import { Repository } from 'typeorm';
 import { TrainingSiteTimeSlotDto } from './dto/training-site-time-slot.dto';
@@ -13,17 +14,15 @@ export class TrainingSiteTimeSlotService {
     private readonly trainingSiteService: TrainingSiteService,
   ) {}
 
-  async save(body: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
+  async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
     try {
-      const trainingSite = await this.trainingSiteService.findOne(
-        body.trainingSite,
-      );
+      const { trainingSiteId, ...body } = bodyDto;
       await Promise.all(
         body.timeslots.map(async (timeslot) => {
           return await this.timeslotRepository.save({
             startTime: timeslot.startTime,
             endTime: timeslot.endTime,
-            trainingSite,
+            trainingSite: { id: trainingSiteId } as TrainingSite,
           });
         }),
       );

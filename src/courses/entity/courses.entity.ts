@@ -9,9 +9,11 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity()
+@Unique('unique_course', ['name', 'department', 'semester'])
 export class Courses {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -21,13 +23,11 @@ export class Courses {
 
   @ManyToOne(() => CollegeDepartent, {
     cascade: true,
-    createForeignKeyConstraints: false,
   })
   @JoinColumn()
   department: CollegeDepartent;
 
   @ManyToOne(() => Semester, {
-    createForeignKeyConstraints: false,
     onDelete: 'CASCADE',
   })
   @JoinColumn()

@@ -35,11 +35,10 @@ export class SemesterService {
     }
   }
 
-  async update(body: UpdateSemesterDto): Promise<Semester> {
+  async update(bodyDto: UpdateSemesterDto): Promise<any> {
     try {
-      const semester = await this.semesterRepository.findOne(body.id);
-      if (!semester) throw new NotFoundException('Semester not found');
-      return await this.semesterRepository.save({ ...semester, ...body });
+      const { id, ...body } = bodyDto;
+      return await this.semesterRepository.update({ id }, { ...body });
     } catch (err) {
       throw err;
     }

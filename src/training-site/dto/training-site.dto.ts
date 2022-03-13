@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 
 export class CreateTrainingSiteDto {
   @IsNotEmpty()
@@ -26,7 +26,7 @@ export class CreateTrainingSiteDto {
   speciality: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsObject()
   location: any;
 }
 

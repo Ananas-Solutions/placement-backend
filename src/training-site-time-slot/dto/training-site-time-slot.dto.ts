@@ -13,7 +13,7 @@ class TimeSlot {
 export class TrainingSiteTimeSlotDto {
   @IsNotEmpty()
   @IsString()
-  trainingSite: string;
+  trainingSiteId: string;
 
   @IsArray()
   @ArrayMinSize(1)

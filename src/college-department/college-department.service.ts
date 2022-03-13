@@ -1,10 +1,6 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import {
   CollegeDepartmentDto,
   UpdateCollegeDepartmentDto,
@@ -46,17 +42,15 @@ export class CollegeDepartmentService {
     }
   }
 
-  async update(body: UpdateCollegeDepartmentDto): Promise<CollegeDepartent> {
+  async update(bodyDto: UpdateCollegeDepartmentDto): Promise<UpdateResult> {
     try {
-      const collegeDepartment = await this.collegeDepartmentRepository.findOne(
-        body.id,
+      const { id, ...body } = bodyDto;
+      return await this.collegeDepartmentRepository.update(
+        { id },
+        {
+          ...body,
+        },
       );
-      if (!collegeDepartment)
-        throw new NotFoundException('Department not found');
-      return await this.collegeDepartmentRepository.save({
-        ...collegeDepartment,
-        ...body,
-      });
     } catch (err) {
       throw err;
     }

@@ -28,9 +28,19 @@ export class TrainingSiteService {
     }
   }
 
+  async findAll(): Promise<any> {
+    try {
+      return await this.trainingSiteRepository.find();
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findOne(id: string): Promise<any> {
     try {
-      return await this.trainingSiteRepository.findOne(id);
+      return await this.trainingSiteRepository.findOne(id, {
+        relations: ['authority', 'hospital', 'department'],
+      });
     } catch (err) {
       throw err;
     }

@@ -1,14 +1,8 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CollegeDepartmentService } from 'src/college-department/college-department.service';
-import { DepartmentService } from 'src/department/department.service';
-import { SemesterService } from 'src/semester/semester.service';
-import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
+import { Semester } from 'src/semester/entity/semester.entity';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 import { Courses } from './entity/courses.entity';
 
@@ -17,23 +11,15 @@ export class CoursesService {
   constructor(
     @InjectRepository(Courses)
     private readonly coursesRepository: Repository<Courses>,
-    private readonly collegeDepartmentService: CollegeDepartmentService,
-    private readonly semesterService: SemesterService,
   ) {}
 
-  async createCourse(body: CreateCourseDto): Promise<Courses> {
+  async createCourse(bodyDto: CreateCourseDto): Promise<Courses> {
     try {
-      const semester = await this.semesterService.findOne(body.semester);
-      if (!semester) throw new NotFoundException('Semester not found');
-      const collegeDepartment = await this.collegeDepartmentService.findOne(
-        body.collegeDepartment,
-      );
-      if (!collegeDepartment)
-        throw new NotFoundException('College Department not found');
+      const { semesterId, departmentId, ...body } = bodyDto;
       const newCourse = this.coursesRepository.create({
         ...body,
-        department: collegeDepartment,
-        semester,
+        department: { id: departmentId } as CollegeDepartent,
+        semester: { id: semesterId } as Semester,
       });
       return await this.coursesRepository.save(newCourse);
     } catch (err) {
@@ -53,6 +39,7 @@ export class CoursesService {
     try {
       return await this.coursesRepository.find({
         where: { department: departmentId },
+        relations: ['semester'],
       });
     } catch (err) {
       throw err;
@@ -70,25 +57,18 @@ export class CoursesService {
     }
   }
 
-  async updateCourse(body: UpdateCourseDto): Promise<Courses> {
+  async updateCourse(bodyDto: UpdateCourseDto): Promise<UpdateResult> {
     try {
-      const collegeDepartment = await this.collegeDepartmentService.findOne(
-        body.collegeDepartment,
+      const { semesterId, departmentId, ...body } = bodyDto;
+      return await this.coursesRepository.update(
+        { id: bodyDto.id },
+        {
+          ...body,
+          department: { id: departmentId } as CollegeDepartent,
+          semester: { id: semesterId } as Semester,
+        },
       );
-      if (!collegeDepartment)
-        throw new NotFoundException('College Department not found');
-      const semester = await this.semesterService.findOne(body.semester);
-      if (!semester) throw new NotFoundException('Semester not found');
-      const oldCourse = await this.coursesRepository.findOne(body.id);
-      if (!oldCourse) throw new NotFoundException('Course not found');
-      return await this.coursesRepository.save({
-        ...oldCourse,
-        ...body,
-        department: collegeDepartment,
-        semester,
-      });
     } catch (err) {
-      console.log('err', err);
       throw err;
     }
   }

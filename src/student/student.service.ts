@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/user/entity/user.entity';
 
 import { UserRole } from 'src/user/types/user.role';
 import { UserService } from 'src/user/user.service';
@@ -20,10 +21,10 @@ export class StudentService {
     body: StudentProfileDto,
   ): Promise<StudentProfile> {
     try {
-      const user = await this.userService.findUserById(id);
-      if (!user || user.role !== UserRole.STUDENT)
-        throw new NotFoundException('Student not found');
-      return await this.studentProfileRepository.save({ ...body, user });
+      return await this.studentProfileRepository.save({
+        ...body,
+        user: { id } as User,
+      });
     } catch (err) {
       throw err;
     }

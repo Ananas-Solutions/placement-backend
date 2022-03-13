@@ -8,12 +8,7 @@ import { CoursesService } from './courses.service';
 import { Courses } from './entity/courses.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Courses]),
-    UserModule,
-    CollegeDepartmentModule,
-    SemesterModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Courses]), UserModule],
   controllers: [CoursesController],
   providers: [CoursesService],
   exports: [CoursesService],

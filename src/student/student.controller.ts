@@ -77,7 +77,6 @@ export class StudentController {
       }
       const { id } = req.user;
       const cloudinaryResponse = await this.cloudinary.uploadImage(file);
-      console.log(id, cloudinaryResponse.url);
       return await this.studentService.updateProfile(id, {
         identity: cloudinaryResponse.url,
       });
