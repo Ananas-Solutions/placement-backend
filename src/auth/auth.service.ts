@@ -29,11 +29,11 @@ export class AuthService {
         secret: process.env.JWT_SIGN_SECRET,
         expiresIn: '1d',
       });
-      res.cookie('accessToken', token, {
-        expires: new Date(Date.now() + 86400000), // expires after 1 day
-        // httpOnly: true, // for extra layer of security
-      });
-      return res.send(user);
+      // res.cookie('accessToken', token, {
+      //   expires: new Date(Date.now() + 86400000), // expires after 1 day
+      //   // httpOnly: true, // for extra layer of security
+      // });
+      return res.send({ ...user, accessToken: token });
     } catch (err) {
       throw err;
     }

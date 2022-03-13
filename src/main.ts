@@ -13,7 +13,7 @@ async function bootstrap() {
   });
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(new ValidationPipe());
-  app.use(cookieParser(process.env.COOKIE_SECRET));
+  // app.use(cookieParser(process.env.COOKIE_SECRET));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Placement API')

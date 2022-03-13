@@ -25,9 +25,13 @@ import { CoordinatorCollegeDepartmentModule } from './coordinator-college-depart
 import { TrainingSiteModule } from './training-site/training-site.module';
 import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-site-time-slot.module';
 import { PlacementModule } from './placement/placement.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: async () =>
         Object.assign(await getConnectionOptions(), {
