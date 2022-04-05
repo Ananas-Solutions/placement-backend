@@ -35,9 +35,6 @@ export class HospitalController {
     return await this.hospitalService.getAllHospital();
   }
 
-  @ApiOperation({
-    summary: 'This route is to be used to find all hospitals for an authority.',
-  })
   @Get('authority/:authorityId')
   async queryAllHospital(
     @Param() { authorityId }: { authorityId: string },

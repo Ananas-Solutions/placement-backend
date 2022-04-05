@@ -36,10 +36,6 @@ export class CoursesController {
     return await this.coursesServices.allCourses();
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used to find to find all courses for a department.',
-  })
   @Get('department/:departmentId')
   async queryAllCourses(
     @Param() { departmentId }: { departmentId: string },
