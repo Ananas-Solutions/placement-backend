@@ -36,9 +36,6 @@ export class DepartmentController {
     return await this.departmentService.findAllHospitals();
   }
 
-  @ApiOperation({
-    summary: 'This route is to be used to find all departments for a hospital.',
-  })
   @Get('hospital/:hospitalId')
   async queryHospitalDepartment(
     @Param() { hospitalId }: { hospitalId: string },

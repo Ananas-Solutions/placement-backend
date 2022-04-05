@@ -33,7 +33,7 @@ export class DepartmentService {
 
   async findAllHospitals(): Promise<Department[]> {
     try {
-      return await this.departmentRepository.find();
+      return await this.departmentRepository.find({ relations: ['hospital'] });
     } catch (err) {
       throw err;
     }

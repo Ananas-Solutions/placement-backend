@@ -25,10 +25,6 @@ import { CoordinatorSelfAssignCoursesDto } from './dto/coordinator-self-assign-c
 export class CoordinatorCourseController {
   constructor(private coordinatorCourseService: CoordinatorCourseService) {}
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when coordinator will self assign themselves to course(s).',
-  })
   @Roles(Role.COORDINATOR)
   @Post('self-assign')
   async coordinatorCourseSelfAssign(
@@ -41,10 +37,6 @@ export class CoordinatorCourseController {
     });
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin will assign coordinator to course(s).',
-  })
   @Roles(Role.ADMIN)
   @Post('assign')
   async assignCoursesToCoordinator(
@@ -53,10 +45,6 @@ export class CoordinatorCourseController {
     return await this.coordinatorCourseService.assignCoursesToCoordinator(body);
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when coordinator will view the course(s) assign them.',
-  })
   @Roles(Role.COORDINATOR)
   @Get('coordinator')
   async queryAssignedCourses(@Req() req): Promise<any> {
@@ -65,10 +53,6 @@ export class CoordinatorCourseController {
     );
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin will view courses(s) assigned to a coordinator.',
-  })
   @Roles(Role.ADMIN)
   @Get('coordinator/:coordinatorId')
   async queryCoordinatorCourses(
@@ -79,10 +63,6 @@ export class CoordinatorCourseController {
     );
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin will view coordinator(s) assigned to the course.',
-  })
   @Roles(Role.ADMIN)
   @Get('course/:courseId')
   async queryCourseCoordinators(

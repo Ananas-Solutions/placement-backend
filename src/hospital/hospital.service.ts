@@ -36,7 +36,7 @@ export class HospitalService {
 
   async getAllHospital(): Promise<Hospital[]> {
     try {
-      return await this.hospitalRepository.find();
+      return await this.hospitalRepository.find({ relations: ['authority'] });
     } catch (err) {
       throw err;
     }

@@ -29,7 +29,9 @@ export class CoursesService {
 
   async allCourses(): Promise<Courses[]> {
     try {
-      return await this.coursesRepository.find();
+      return await this.coursesRepository.find({
+        relations: ['department', 'semester'],
+      });
     } catch (err) {
       throw err;
     }

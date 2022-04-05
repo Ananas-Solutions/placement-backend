@@ -28,10 +28,6 @@ import {
 export class CoordinatorCollegeDepartmentController {
   constructor(private readonly service: CoordinatorCollegeDepartmentService) {}
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when coordinator will self assign college department(s) to themselves.',
-  })
   @Roles(Role.COORDINATOR)
   @Post()
   async saveDepartments(
@@ -42,19 +38,11 @@ export class CoordinatorCollegeDepartmentController {
   }
 
   @Roles(Role.COORDINATOR)
-  @ApiOperation({
-    summary:
-      'This route is to be used when coordinator will find all assigned college department(s) to themselves.',
-  })
   @Get()
   async getDepartments(@Req() req): Promise<any> {
     return await this.service.findDepartments(req.user.id);
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin will assign college departments(s) to coordinator.',
-  })
   @Roles(Role.ADMIN)
   @Post('admin')
   async assignDepartments(
@@ -67,10 +55,6 @@ export class CoordinatorCollegeDepartmentController {
   }
 
   @Roles(Role.ADMIN)
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin will find all assigned college department(s) to a coordinator.',
-  })
   @Get('admin/coordinator/:coordinatorId')
   async getCoordinatorDepartments(
     @Param('coordinatorId') coordinatorId: string,
@@ -79,10 +63,6 @@ export class CoordinatorCollegeDepartmentController {
   }
 
   @Roles(Role.ADMIN)
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin will find all assigned coorindato(s) to a college department.',
-  })
   @Get('admin/department/:collegeDepartmentId')
   async getDepartmentCoordinators(
     @Param('collegeDepartmentId') collegeDepartmentId: string,

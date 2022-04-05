@@ -24,40 +24,24 @@ import { StudentCourseService } from './student-course.service';
 export class StudentCourseController {
   constructor(private readonly studentCourseService: StudentCourseService) {}
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin or coordinator will assign many students to a course.',
-  })
   @Roles(Role.ADMIN, Role.COORDINATOR)
   @Post('assign-students')
   async assignStudents(@Body() body: AssignStudentsDto): Promise<any> {
     return this.studentCourseService.assignStudents(body);
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin or coordinator will assign many courses to a student.',
-  })
   @Roles(Role.ADMIN, Role.COORDINATOR)
   @Post('assign-courses')
   async assignCourses(@Body() body: AssignCoursesDto): Promise<any> {
     return this.studentCourseService.assignCourses(body);
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when student will view courses assigned to them.',
-  })
   @Roles(Role.STUDENT)
   @Get('student')
   async queryAssignedCourses(@Req() req): Promise<any> {
     return await this.studentCourseService.findStudentCourses(req.user.id);
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin or coordinator will view courses assigned to a student.',
-  })
   @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('student/:studentId')
   async queryStudentAssignedCourses(
@@ -66,10 +50,6 @@ export class StudentCourseController {
     return await this.studentCourseService.findStudentCourses(studentId);
   }
 
-  @ApiOperation({
-    summary:
-      'This route is to be used when admin or coordinator view students assigned to a course.',
-  })
   @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('course/:courseId')
   async queryCourseAssignedStudents(
