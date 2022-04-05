@@ -8,8 +8,6 @@ import { UserModule } from './user/user.module';
 import { SupervisorModule } from './clinical-supervisor/clinical-supervisor.module';
 import { HospitalModule } from './hospital/hospital.module';
 import { AuthModule } from './auth/auth.module';
-import { RolesGuard } from './auth/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
 import { CoursesModule } from './courses/courses.module';
 import { AuthorityModule } from './authority/authority.module';
 import { DepartmentModule } from './department/department.module';
@@ -37,6 +35,7 @@ import { UserDocumentsModule } from './user-documents/user-documents.module';
       useFactory: async () =>
         Object.assign(await getConnectionOptions(), {
           autoLoadEntities: true,
+          synchronize: true,
         }),
     }),
     UserModule,

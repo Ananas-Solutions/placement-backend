@@ -9,10 +9,6 @@ export class CreateTrainingSiteDto {
   @IsString()
   address: string;
 
-  @IsNotEmpty()
-  @IsString()
-  authorityId: string;
-
   @IsString()
   @IsNotEmpty()
   hospitalId: string;
