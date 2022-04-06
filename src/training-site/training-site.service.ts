@@ -33,7 +33,9 @@ export class TrainingSiteService {
 
   async findAll(): Promise<any> {
     try {
-      return await this.trainingSiteRepository.find();
+      return await this.trainingSiteRepository.find({
+        relations: ['authority', 'hospital', 'department'],
+      });
     } catch (err) {
       throw err;
     }
