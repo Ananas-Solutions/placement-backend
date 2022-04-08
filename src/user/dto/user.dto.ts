@@ -20,7 +20,13 @@ export class UserDto {
 
 class BulkStudent {
   @IsString()
-  name: string;
+  id: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
 
   @IsEmail()
   email: string;

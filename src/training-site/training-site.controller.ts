@@ -41,6 +41,13 @@ export class TrainingSiteController {
     return await this.service.findOne(id);
   }
 
+  @Get('hospital/:hospitalId')
+  async getTrainingSiteByHospital(
+    @Param('hospitalId') hospitalId: string,
+  ): Promise<any> {
+    return await this.service.findByHospital(hospitalId);
+  }
+
   @Put()
   async updateTrainingSite(
     @Body() bodyDto: UpdateTrainingSiteDto,

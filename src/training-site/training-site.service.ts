@@ -44,7 +44,18 @@ export class TrainingSiteService {
   async findOne(id: string): Promise<any> {
     try {
       return await this.trainingSiteRepository.findOne(id, {
-        relations: ['authority', 'hospital', 'department'],
+        relations: ['authority', 'hospital', 'department', 'trainingTimeSlots'],
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findByHospital(hospitalId: string): Promise<any> {
+    try {
+      return await this.trainingSiteRepository.findOne({
+        where: { hospital: { id: hospitalId } },
+        relations: ['authority', 'hospital', 'department', 'trainingTimeSlots'],
       });
     } catch (err) {
       throw err;
