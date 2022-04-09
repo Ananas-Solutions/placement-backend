@@ -41,8 +41,8 @@ export class UserController {
     return await this.userService.findAllSpecifcUser(role);
   }
 
-  @UseGuards(LocalAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  // @UseGuards(LocalAuthGuard, RolesGuard)
+  // @Roles(Role.ADMIN)
   @Get('student/:studentId')
   async getStudent(@Param('studentId') studentId: string): Promise<any> {
     return await this.userService.findUserById(studentId);
