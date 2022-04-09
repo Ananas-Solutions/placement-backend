@@ -15,6 +15,9 @@ export class StudentProfile {
   id: string;
 
   @Column()
+  studentId: string;
+
+  @Column()
   address: string;
 
   @Column({ nullable: true })

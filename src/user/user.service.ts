@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { StudentProfile } from 'src/student/entity/student-profile.entity';
 import { Repository } from 'typeorm';
 import { CreateBulkStudentDto, UserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
@@ -14,6 +15,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(StudentProfile)
+    private readonly studentRepository: Repository<StudentProfile>,
   ) {}
 
   async saveUser(body: UserDto): Promise<User> {
@@ -40,6 +43,9 @@ export class UserService {
             password: 'ramu1234',
             role: UserRole.STUDENT,
           });
+          newStudent.studentProfile = {
+            studentId: student.id,
+          } as StudentProfile;
           return await this.userRepository.save(newStudent);
         }),
       );
@@ -67,7 +73,10 @@ export class UserService {
 
   async findAllSpecifcUser(role: UserRole): Promise<User[]> {
     try {
-      return this.userRepository.find({ where: { role } });
+      return this.userRepository.find({
+        where: { role },
+        order: { name: 'ASC' },
+      });
     } catch (err) {
       throw err;
     }

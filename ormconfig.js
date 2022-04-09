@@ -13,7 +13,7 @@ module.exports = {
   // ssl: {
   //   rejectUnauthorized: false,
   // },
-  synchronize: false,
+  synchronize: true,
   cli: {
     migrationsDir: 'src/migration',
   },

@@ -5,6 +5,7 @@ import {
   Entity,
   Index,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,6 +13,7 @@ import * as bcrypt from 'bcrypt';
 
 import { UserRole } from '../types/user.role';
 import { UserDocuments } from 'src/user-documents/entity/user-documents.entity';
+import { StudentProfile } from 'src/student/entity/student-profile.entity';
 
 @Entity()
 export class User {
@@ -44,6 +46,9 @@ export class User {
 
   @OneToMany(() => UserDocuments, (userDocument) => userDocument.user)
   documents: UserDocuments[];
+
+  @OneToOne(() => StudentProfile, (studentProfile) => studentProfile.user)
+  studentProfile: StudentProfile;
 
   @CreateDateColumn()
   createdAt: Date;
