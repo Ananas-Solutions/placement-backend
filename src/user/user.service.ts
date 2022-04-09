@@ -34,7 +34,7 @@ export class UserService {
       await Promise.all(
         body.students.map(async (student) => {
           const newStudent = this.userRepository.create({
-            id: student.id,
+            // id: student.id,
             name: `${student.firstName} ${student.lastName}`,
             email: student.email,
             password: 'ramu1234',
