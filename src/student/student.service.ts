@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { StudentCourseService } from 'src/student-course/student-course.service';
 import { User } from 'src/user/entity/user.entity';
 
 import { UserRole } from 'src/user/types/user.role';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
+import { CreateBulkStudentDto, Student } from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
 import { StudentProfile } from './entity/student-profile.entity';
 
@@ -14,7 +16,30 @@ export class StudentService {
     @InjectRepository(StudentProfile)
     private readonly studentProfileRepository: Repository<StudentProfile>,
     private readonly userService: UserService,
+    private readonly studentCourseService: StudentCourseService,
   ) {}
+
+  async saveBulkStudent(body: CreateBulkStudentDto): Promise<any> {
+    try {
+      const allStudents = await Promise.all(
+        body.students.map(async (student: Student) => {
+          return await this.userService.saveUser({
+            email: student.email,
+            name: `${student.firstName} ${student.lastName}`,
+            role: UserRole.STUDENT,
+            password: 'student',
+          });
+        }),
+      );
+      await this.studentCourseService.assignStudents({
+        course: body.courseId,
+        students: allStudents,
+      });
+      return { message: 'Student upload succesful' };
+    } catch (err) {
+      throw err;
+    }
+  }
 
   async saveProfile(
     id: string,

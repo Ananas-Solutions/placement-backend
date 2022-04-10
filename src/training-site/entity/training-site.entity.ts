@@ -1,4 +1,5 @@
 import { Authority } from 'src/authority/entity/authority.entity';
+import { Courses } from 'src/courses/entity/courses.entity';
 import { Department } from 'src/department/entity/department.entity';
 import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/training-site-time-slot.entity';
@@ -30,6 +31,11 @@ export class TrainingSite {
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   department: Department;
 
+  @ManyToOne(() => Courses, (course) => course.trainingSite, {
+    onDelete: 'CASCADE',
+  })
+  course: Courses;
+
   @OneToMany(
     () => TrainingSiteTimeSlot,
     (trainingTimeSlots) => trainingTimeSlots.trainingSite,
@@ -42,4 +48,10 @@ export class TrainingSite {
 
   @Column({ type: 'jsonb' })
   location: any;
+
+  @Column()
+  startsFrom: Date;
+
+  @Column()
+  endsAt: Date;
 }

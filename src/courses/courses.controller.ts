@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
+  Header,
+  Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -27,8 +29,9 @@ export class CoursesController {
   constructor(private readonly coursesServices: CoursesService) {}
 
   @Post()
-  async saveCourse(@Body() body: CreateCourseDto): Promise<any> {
-    return await this.coursesServices.createCourse(body);
+  async saveCourse(@Body() body: CreateCourseDto, @Req() req): Promise<any> {
+    const userId = req.user.id;
+    return await this.coursesServices.createCourse(body, userId);
   }
 
   @Get()

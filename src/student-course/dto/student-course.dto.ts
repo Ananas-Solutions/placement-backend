@@ -7,7 +7,7 @@ export class AssignStudentsDto {
 
   @IsArray()
   @ArrayMinSize(1)
-  students: string[];
+  students: any;
 }
 
 export class AssignCoursesDto {

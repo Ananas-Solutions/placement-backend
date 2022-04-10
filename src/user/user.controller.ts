@@ -5,16 +5,9 @@ import {
   Param,
   Post,
   Query,
-  Req,
-  Res,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { LocalAuthGuard } from 'src/auth/local-auth.guard';
-import { Roles } from 'src/auth/roles.decorator';
-import { Role } from 'src/auth/roles.enum';
-import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CreateBulkStudentDto, UserDto } from './dto/user.dto';
 import { UserRole } from './types/user.role';

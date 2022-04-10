@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsObject, IsString } from 'class-validator';
 
 export class CreateTrainingSiteDto {
   @IsNotEmpty()
@@ -24,6 +24,18 @@ export class CreateTrainingSiteDto {
   @IsNotEmpty()
   @IsObject()
   location: any;
+
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  startsFrom: string;
+
+  @IsNotEmpty()
+  @IsString()
+  endsAt: string;
 }
 
 export class UpdateTrainingSiteDto extends CreateTrainingSiteDto {

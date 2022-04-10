@@ -22,9 +22,8 @@ export class StudentCourseService {
       const course = await this.courseService.findOneCourse(body.course);
       if (!course) throw new NotFoundException('Course not found');
       await Promise.all(
-        body.students.map(async (studentId: string) => {
-          const student = await this.userService.findUserById(studentId);
-          await this.studentCourseRepository.save({ course, student });
+        body.students.map(async (student: any) => {
+          return await this.studentCourseRepository.save({ course, student });
         }),
       );
       return { message: 'Students assigned to course' };

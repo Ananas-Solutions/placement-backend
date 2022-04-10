@@ -16,12 +16,14 @@ export class TrainingSiteTimeSlotService {
 
   async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
     try {
-      const { trainingSiteId, ...body } = bodyDto;
+      const { trainingSiteId, day, ...body } = bodyDto;
       await Promise.all(
         body.timeslots.map(async (timeslot) => {
           return await this.timeslotRepository.save({
             startTime: timeslot.startTime,
             endTime: timeslot.endTime,
+            day,
+            capacity: timeslot.capacity,
             trainingSite: { id: trainingSiteId } as TrainingSite,
           });
         }),

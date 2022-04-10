@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Authority } from 'src/authority/entity/authority.entity';
+import { Courses } from 'src/courses/entity/courses.entity';
 import { Department } from 'src/department/entity/department.entity';
 import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { HospitalService } from 'src/hospital/hospital.service';
@@ -18,13 +19,14 @@ export class TrainingSiteService {
 
   async create(body: CreateTrainingSiteDto): Promise<TrainingSite> {
     try {
-      const { hospitalId, departmentId, ...rest } = body;
+      const { hospitalId, departmentId, courseId, ...rest } = body;
       const hospital = await this.hospitalService.findOneHospital(hospitalId);
       return await this.trainingSiteRepository.save({
         ...rest,
         authority: { id: hospital.authority.id } as Authority,
         hospital: { id: hospitalId } as Hospital,
         department: { id: departmentId } as Department,
+        course: { id: courseId } as Courses,
       });
     } catch (err) {
       throw err;

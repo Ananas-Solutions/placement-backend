@@ -18,6 +18,7 @@ import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
+import { CreateBulkStudentDto } from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
 import { StudentService } from './student.service';
 import {
@@ -27,7 +28,7 @@ import {
 
 @ApiTags('student')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.STUDENT)
+@Roles(Role.ADMIN, Role.COORDINATOR, Role.STUDENT)
 @UseInterceptors(ErrorInterceptor)
 @Controller('student')
 export class StudentController {
@@ -35,6 +36,11 @@ export class StudentController {
     private studentService: StudentService,
     private readonly cloudinary: CloudinaryService,
   ) {}
+
+  @Post('bulk-student')
+  async bulkStudentCreate(@Body() body: CreateBulkStudentDto): Promise<any> {
+    return await this.studentService.saveBulkStudent(body);
+  }
 
   @Post('profile')
   async createProfile(
