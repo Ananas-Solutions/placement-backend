@@ -17,21 +17,3 @@ export class UserDto {
   @IsEnum(UserRole)
   role: UserRole;
 }
-
-class BulkStudent {
-  @IsString()
-  id: string;
-
-  @IsString()
-  firstName: string;
-
-  @IsString()
-  lastName: string;
-
-  @IsEmail()
-  email: string;
-}
-
-export class CreateBulkStudentDto {
-  students: BulkStudent[];
-}
