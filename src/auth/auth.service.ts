@@ -24,9 +24,14 @@ export class AuthService {
     return null;
   }
 
-  async login(user: Express.User) {
+  async login(reqUser: Express.User) {
     try {
-      const payload = { id: (user as User).id };
+      const user = reqUser as User;
+      const payload = {
+        id: (user as User).id,
+        name: user.name,
+        role: user.role,
+      };
       const token = this.jwtService.sign(payload, {
         secret: this.configService.get('JWT_SECRET'),
         expiresIn: '1d',
