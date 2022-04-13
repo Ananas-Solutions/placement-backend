@@ -18,7 +18,7 @@ import { PlacementService } from './placement.service';
 @ApiTags('placement')
 @Controller('placement')
 @UseInterceptors(ErrorInterceptor)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class PlacementController {
   constructor(private readonly placementService: PlacementService) {}
 

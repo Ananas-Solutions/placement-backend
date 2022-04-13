@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Put,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -48,6 +49,13 @@ export class StudentController {
     @Body() body: StudentProfileDto,
   ): Promise<any> {
     return await this.studentService.saveProfile(req.user.id, body);
+  }
+
+  @Get(':courseId')
+  async getStudentsFromCourse(
+    @Query('courseId') courseId: string,
+  ): Promise<any> {
+    return await this.studentService.getStudentsFromCourse(courseId);
   }
 
   @Get('profile')

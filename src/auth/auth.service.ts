@@ -26,7 +26,11 @@ export class AuthService {
 
   async login(user: Express.User) {
     try {
-      const payload = { id: (user as User).id };
+      const payload = {
+        id: (user as User).id,
+        role: (user as User).role,
+        name: (user as User).name,
+      };
       const token = this.jwtService.sign(payload, {
         secret: this.configService.get('JWT_SECRET'),
         expiresIn: '1d',

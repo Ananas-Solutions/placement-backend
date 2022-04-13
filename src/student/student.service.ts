@@ -65,6 +65,16 @@ export class StudentService {
     }
   }
 
+  async getStudentsFromCourse(courseId: string): Promise<StudentProfile[]> {
+    try {
+      return await this.studentProfileRepository.find({
+        where: { course: courseId },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async updateProfile(id: string, body: any): Promise<StudentProfile> {
     try {
       const user = await this.userService.findUserById(id);
