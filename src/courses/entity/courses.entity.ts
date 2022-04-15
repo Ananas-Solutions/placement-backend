@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
+import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
 import { TrainingSite } from 'src/training-site/entity/training-site.entity';
 import { User } from 'src/user/entity/user.entity';
@@ -25,13 +25,14 @@ export class Courses {
   name: string;
 
   @OneToOne(() => User)
+  @JoinColumn()
   coordinator: User;
 
-  @ManyToOne(() => CollegeDepartent, {
+  @ManyToOne(() => CollegeDepartment, {
     cascade: true,
   })
   @JoinColumn()
-  department: CollegeDepartent;
+  department: CollegeDepartment;
 
   @ManyToOne(() => Semester, {
     onDelete: 'CASCADE',

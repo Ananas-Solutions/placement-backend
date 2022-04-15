@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
+import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
@@ -14,20 +14,18 @@ export class CoursesService {
     private readonly coursesRepository: Repository<Courses>,
   ) {}
 
-  async createCourse(
-    bodyDto: CreateCourseDto,
-    coordinatorId: string,
-  ): Promise<Courses> {
+  async createCourse(bodyDto: CreateCourseDto): Promise<Courses> {
     try {
-      const { semesterId, departmentId, ...body } = bodyDto;
-      const newCourse = this.coursesRepository.create({
-        ...body,
+      console.log('bodydto', bodyDto);
+      const { semesterId, departmentId, coordinatorId, name } = bodyDto;
+      return await this.coursesRepository.save({
+        name: name,
         coordinator: { id: coordinatorId } as User,
-        department: { id: departmentId } as CollegeDepartent,
+        department: { id: departmentId } as CollegeDepartment,
         semester: { id: semesterId } as Semester,
       });
-      return await this.coursesRepository.save(newCourse);
     } catch (err) {
+      console.log('err', err);
       throw err;
     }
   }
@@ -71,7 +69,7 @@ export class CoursesService {
         { id: bodyDto.id },
         {
           ...body,
-          department: { id: departmentId } as CollegeDepartent,
+          department: { id: departmentId } as CollegeDepartment,
           semester: { id: semesterId } as Semester,
         },
       );

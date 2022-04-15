@@ -2,9 +2,8 @@ import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class StudentPlacementDto {
   @IsNotEmpty()
-  @IsArray()
-  @ArrayMinSize(1)
-  studentIds: [string];
+  @IsString()
+  courseId: string;
 
   @IsNotEmpty()
   @IsString()
@@ -13,4 +12,9 @@ export class StudentPlacementDto {
   @IsNotEmpty()
   @IsString()
   timeSlotId: string;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayMinSize(1)
+  studentIds: [string];
 }

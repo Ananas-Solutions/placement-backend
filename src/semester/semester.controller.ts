@@ -21,11 +21,11 @@ import { SemesterService } from './semester.service';
 @ApiTags('semester')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(Role.ADMIN)
 @Controller('semester')
 export class SemesterController {
   constructor(private readonly semesterService: SemesterService) {}
 
+  @Roles(Role.ADMIN)
   @Post()
   async createSemester(@Body() body: SemesterDto): Promise<any> {
     return await this.semesterService.save(body);

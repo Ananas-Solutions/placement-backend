@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -39,7 +40,8 @@ export class StudentCourseController {
   @Roles(Role.STUDENT)
   @Get('student')
   async queryAssignedCourses(@Req() req): Promise<any> {
-    return await this.studentCourseService.findStudentCourses(req.user.id);
+    const userId = req.user.id;
+    return await this.studentCourseService.findStudentCourses(userId);
   }
 
   @Roles(Role.ADMIN, Role.COORDINATOR)

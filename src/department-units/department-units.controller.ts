@@ -24,7 +24,7 @@ import {
 @ApiTags('hospital department units')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(Role.ADMIN)
+@Roles(Role.ADMIN)
 @Controller('department-unit')
 export class DepartmentUnitsController {
   constructor(

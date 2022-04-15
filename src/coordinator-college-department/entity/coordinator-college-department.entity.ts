@@ -1,4 +1,4 @@
-import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
+import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   CreateDateColumn,
@@ -16,8 +16,8 @@ export class CoordinatorCollegeDepartment {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => CollegeDepartent, { onDelete: 'CASCADE' })
-  department: CollegeDepartent;
+  @ManyToOne(() => CollegeDepartment, { onDelete: 'CASCADE' })
+  department: CollegeDepartment;
 
   @CreateDateColumn()
   createdAt: Date;

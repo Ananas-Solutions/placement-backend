@@ -21,7 +21,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 @ApiTags('authority')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(Role.ADMIN)
+@Roles(Role.ADMIN)
 @Controller('authority')
 export class AuthorityController {
   constructor(private authorityService: AuthorityService) {}

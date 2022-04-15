@@ -7,7 +7,7 @@ export class CreateTrainingSiteDto {
 
   @IsNotEmpty()
   @IsString()
-  address: string;
+  courseId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -19,15 +19,15 @@ export class CreateTrainingSiteDto {
 
   @IsNotEmpty()
   @IsString()
+  address: string;
+
+  @IsNotEmpty()
+  @IsString()
   speciality: string;
 
   @IsNotEmpty()
   @IsObject()
   location: any;
-
-  @IsNotEmpty()
-  @IsString()
-  courseId: string;
 
   @IsNotEmpty()
   @IsString()

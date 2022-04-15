@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PlacementService } from 'src/placement/placement.service';
 import { TrainingSite } from 'src/training-site/entity/training-site.entity';
 import { TrainingSiteService } from 'src/training-site/training-site.service';
 import { Repository } from 'typeorm';
@@ -12,6 +13,7 @@ export class TrainingSiteTimeSlotService {
     @InjectRepository(TrainingSiteTimeSlot)
     private readonly timeslotRepository: Repository<TrainingSiteTimeSlot>,
     private readonly trainingSiteService: TrainingSiteService,
+    private readonly placementService: PlacementService,
   ) {}
 
   async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
@@ -36,9 +38,21 @@ export class TrainingSiteTimeSlotService {
 
   async findTimeSlots(trainingSite: string): Promise<TrainingSiteTimeSlot[]> {
     try {
-      return await this.timeslotRepository.find({
+      const trainingSiteAllTimeSlots = await this.timeslotRepository.find({
         where: { trainingSite: trainingSite },
       });
+      const allAvailableTimeSlots = await Promise.all(
+        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingSiteTimeSlot) => {
+          const assingedStudents =
+            await this.placementService.findTimeSlotStudents(timeSlot.id);
+
+          return {
+            ...timeSlot,
+            capacity: timeSlot.capacity - assingedStudents.length,
+          };
+        }),
+      );
+      return allAvailableTimeSlots;
     } catch (err) {
       throw err;
     }

@@ -5,16 +5,16 @@ import {
   CollegeDepartmentDto,
   UpdateCollegeDepartmentDto,
 } from './dto/college-department.dto';
-import { CollegeDepartent } from './entity/college-department.entity';
+import { CollegeDepartment } from './entity/college-department.entity';
 
 @Injectable()
 export class CollegeDepartmentService {
   constructor(
-    @InjectRepository(CollegeDepartent)
-    private readonly collegeDepartmentRepository: Repository<CollegeDepartent>,
+    @InjectRepository(CollegeDepartment)
+    private readonly collegeDepartmentRepository: Repository<CollegeDepartment>,
   ) {}
 
-  async save(body: CollegeDepartmentDto): Promise<CollegeDepartent> {
+  async save(body: CollegeDepartmentDto): Promise<CollegeDepartment> {
     try {
       const department = await this.collegeDepartmentRepository.findOne({
         name: body.name,
@@ -26,7 +26,7 @@ export class CollegeDepartmentService {
     }
   }
 
-  async findOne(id: string): Promise<CollegeDepartent> {
+  async findOne(id: string): Promise<CollegeDepartment> {
     try {
       return await this.collegeDepartmentRepository.findOne(id);
     } catch (err) {
@@ -34,7 +34,7 @@ export class CollegeDepartmentService {
     }
   }
 
-  async findAll(): Promise<CollegeDepartent[]> {
+  async findAll(): Promise<CollegeDepartment[]> {
     try {
       return await this.collegeDepartmentRepository.find();
     } catch (err) {

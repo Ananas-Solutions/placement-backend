@@ -1,4 +1,3 @@
-import { CollegeDepartent } from 'src/college-department/entity/college-department.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
