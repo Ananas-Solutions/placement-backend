@@ -43,6 +43,17 @@ export class TrainingSiteService {
     }
   }
 
+  async findByCourse(courseId: string): Promise<any> {
+    try {
+      return await this.trainingSiteRepository.find({
+        where: { course: { id: courseId } },
+        relations: ['authority', 'hospital', 'department', 'trainingTimeSlots'],
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findOne(id: string): Promise<any> {
     try {
       return await this.trainingSiteRepository.findOne(id, {

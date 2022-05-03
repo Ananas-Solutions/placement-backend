@@ -6,6 +6,7 @@ import { TrainingSiteService } from 'src/training-site/training-site.service';
 import { Repository } from 'typeorm';
 import { TrainingSiteTimeSlotDto } from './dto/training-site-time-slot.dto';
 import { TrainingSiteTimeSlot } from './entity/training-site-time-slot.entity';
+import { TrainingDaysEnum } from './types/training-site-days.enum';
 
 @Injectable()
 export class TrainingSiteTimeSlotService {
@@ -18,13 +19,13 @@ export class TrainingSiteTimeSlotService {
 
   async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
     try {
-      const { trainingSiteId, day, ...body } = bodyDto;
+      const { trainingSiteId, ...body } = bodyDto;
       await Promise.all(
         body.timeslots.map(async (timeslot) => {
           return await this.timeslotRepository.save({
             startTime: timeslot.startTime,
             endTime: timeslot.endTime,
-            day,
+            day: timeslot.day,
             capacity: timeslot.capacity,
             trainingSite: { id: trainingSiteId } as TrainingSite,
           });
@@ -46,6 +47,30 @@ export class TrainingSiteTimeSlotService {
           const assingedStudents =
             await this.placementService.findTimeSlotStudents(timeSlot.id);
 
+          return {
+            ...timeSlot,
+            capacity: timeSlot.capacity - assingedStudents.length,
+          };
+        }),
+      );
+      return allAvailableTimeSlots;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findDaysTimeSlots(
+    trainingSite: string,
+    day: TrainingDaysEnum,
+  ): Promise<TrainingSiteTimeSlot[]> {
+    try {
+      const trainingSiteAllTimeSlots = await this.timeslotRepository.find({
+        where: { trainingSite: trainingSite, day: day },
+      });
+      const allAvailableTimeSlots = await Promise.all(
+        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingSiteTimeSlot) => {
+          const assingedStudents =
+            await this.placementService.findTimeSlotStudents(timeSlot.id);
           return {
             ...timeSlot,
             capacity: timeSlot.capacity - assingedStudents.length,

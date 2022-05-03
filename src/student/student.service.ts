@@ -20,25 +20,30 @@ export class StudentService {
   ) {}
 
   async saveBulkStudent(body: CreateBulkStudentDto): Promise<any> {
-    try {
-      const allStudents = await Promise.all(
-        body.students.map(async (student: Student) => {
-          return await this.userService.saveUser({
-            email: student.email,
-            name: `${student.firstName} ${student.lastName}`,
-            role: UserRole.STUDENT,
-            password: 'student',
-          });
-        }),
-      );
-      await this.studentCourseService.assignStudents({
-        course: body.courseId,
-        students: allStudents,
-      });
-      return { message: 'Student upload succesful' };
-    } catch (err) {
-      throw err;
-    }
+    // try {
+    const allStudents = await Promise.allSettled(
+      body.students.map(async (student: Student) => {
+        return await this.userService.saveUser({
+          email: student.email,
+          name: `${student.firstName} ${student.lastName}`,
+          role: UserRole.STUDENT,
+          password: 'student',
+        });
+      }),
+    );
+    const mappedStudents = allStudents.map((student: any) => {
+      if (student.status === 'fulfilled') {
+        return student.value.id;
+      }
+    });
+    await this.studentCourseService.assignStudents({
+      course: body.courseId,
+      students: mappedStudents.filter(Boolean),
+    });
+    return { message: 'Student upload succesful' };
+    // } catch (err) {
+    //   throw err;
+    // }
   }
 
   async saveProfile(

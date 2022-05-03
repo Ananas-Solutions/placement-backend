@@ -47,6 +47,14 @@ export class TrainingSiteController {
   }
 
   @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Get('course/:courseId')
+  async getTrainingSiteByCourse(
+    @Param('courseId') courseId: string,
+  ): Promise<any> {
+    return await this.service.findByCourse(courseId);
+  }
+
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('hospital/:hospitalId')
   async getTrainingSiteByHospital(
     @Param('hospitalId') hospitalId: string,

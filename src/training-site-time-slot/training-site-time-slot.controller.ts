@@ -36,4 +36,12 @@ export class TrainingSiteTimeSlotController {
   ): Promise<any> {
     return await this.timeslotService.findTimeSlots(trainingSiteId);
   }
+
+  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Get('training-site/:trainingSiteId/:trainingDays')
+  async findTrainingSiteDaysTimeSlots(
+    @Param('trainingSiteId') trainingSiteId: string,
+  ): Promise<any> {
+    return await this.timeslotService.findTimeSlots(trainingSiteId);
+  }
 }

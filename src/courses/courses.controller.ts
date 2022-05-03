@@ -52,10 +52,16 @@ export class CoursesController {
     });
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN)
   @Get()
   async getAllCourses(): Promise<any> {
     return await this.coursesServices.allCourses();
+  }
+
+  @Roles(Role.COORDINATOR)
+  @Get('coordinator')
+  async getOwnCourses(@Req() req): Promise<any> {
+    return await this.coursesServices.allCoordinatorCourses(req.user.id);
   }
 
   @Roles(Role.ADMIN, Role.COORDINATOR)

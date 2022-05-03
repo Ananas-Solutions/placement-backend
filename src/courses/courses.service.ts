@@ -39,6 +39,16 @@ export class CoursesService {
       throw err;
     }
   }
+  async allCoordinatorCourses(coordinatorId: string): Promise<Courses[]> {
+    try {
+      return await this.coursesRepository.find({
+        where: { coordinator: { id: coordinatorId } },
+        relations: ['department', 'semester'],
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
 
   async findAllCourses(departmentId: string): Promise<Courses[]> {
     try {
