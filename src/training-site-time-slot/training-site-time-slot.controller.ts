@@ -15,6 +15,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { TrainingSiteTimeSlotDto } from './dto/training-site-time-slot.dto';
 import { TrainingSiteTimeSlotService } from './training-site-time-slot.service';
+import { TrainingDaysEnum } from './types/training-site-days.enum';
 
 @ApiTags('training site time slots')
 @UseInterceptors(ErrorInterceptor)
@@ -38,10 +39,14 @@ export class TrainingSiteTimeSlotController {
   }
 
   @Roles(Role.ADMIN, Role.COORDINATOR)
-  @Get('training-site/:trainingSiteId/:trainingDays')
+  @Get('training-site/:trainingSiteId/:trainingDay')
   async findTrainingSiteDaysTimeSlots(
     @Param('trainingSiteId') trainingSiteId: string,
+    @Param('trainingDay') trainingDay: TrainingDaysEnum,
   ): Promise<any> {
-    return await this.timeslotService.findTimeSlots(trainingSiteId);
+    return await this.timeslotService.findDaysTimeSlots(
+      trainingSiteId,
+      trainingDay,
+    );
   }
 }
