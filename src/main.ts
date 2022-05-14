@@ -22,7 +22,7 @@ async function bootstrap() {
     .addTag('placement-api')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
-  await app.listen(4000);
+  SwaggerModule.setup('/v1/api', app, document);
+  await app.listen(4500);
 }
 bootstrap();

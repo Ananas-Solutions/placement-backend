@@ -58,7 +58,7 @@ export class CoursesController {
     return await this.coursesServices.allCourses();
   }
 
-  @Roles(Role.COORDINATOR)
+  @Roles(Role.COORDINATOR, Role.ADMIN)
   @Get('coordinator')
   async getOwnCourses(@Req() req): Promise<any> {
     return await this.coursesServices.allCoordinatorCourses(req.user.id);
