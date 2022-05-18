@@ -24,7 +24,7 @@ export class Courses {
   @Column()
   name: string;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   coordinator: User;
 

@@ -10,9 +10,9 @@ module.exports = {
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrationsTableName: 'migration',
   migrations: ['dist/migration/*.js'],
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
   synchronize: true,
   cli: {
     migrationsDir: 'src/migration',

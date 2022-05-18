@@ -73,7 +73,8 @@ export class TrainingSiteTimeSlotService {
             await this.placementService.findTimeSlotStudents(timeSlot.id);
           return {
             ...timeSlot,
-            capacity: timeSlot.capacity - assingedStudents.length,
+            totalCapacity: timeSlot.capacity,
+            remainingCapacity: timeSlot.capacity - assingedStudents.length,
           };
         }),
       );
