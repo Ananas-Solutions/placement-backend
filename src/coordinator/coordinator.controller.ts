@@ -25,6 +25,11 @@ import { CoordinatorProfileDto } from './dto/coordinator-profile.dto';
 export class CoordinatorController {
   constructor(private coordinatorService: CoordinatorService) {}
 
+  @Get('course')
+  async findCoordinatorCourse(@Req() req): Promise<any> {
+    return await this.coordinatorService.findCoordinatorCourse(req.user.id);
+  }
+
   @Post('profile')
   async createProfile(
     @Req() req,

@@ -14,7 +14,7 @@ import { DepartmentModule } from './department/department.module';
 import { StudentCourseModule } from './student-course/student-course.module';
 import { StudentModule } from './student/student.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
-import { CoordinatorCourseModule } from './coordinator-course/coordinator-course.module';
+
 import { CollegeDepartmentModule } from './college-department/college-department.module';
 import { DepartmentUnitsModule } from './department-units/department-units.module';
 import { SemesterModule } from './semester/semester.module';
@@ -48,7 +48,6 @@ import { UserDocumentsModule } from './user-documents/user-documents.module';
     StudentCourseModule,
     StudentModule,
     CoordinatorModule,
-    CoordinatorCourseModule,
     CollegeDepartmentModule,
     DepartmentUnitsModule,
     SemesterModule,

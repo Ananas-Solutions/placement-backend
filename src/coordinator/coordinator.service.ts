@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CoordinatorCourseService } from 'src/coordinator-course/coordinator-course.service';
-import { CoordinatorCourse } from 'src/coordinator-course/entity/coordinator-course.entity';
+import { Courses } from 'src/courses/entity/courses.entity';
 import { User } from 'src/user/entity/user.entity';
 import { UserRole } from 'src/user/types/user.role';
 import { UserService } from 'src/user/user.service';
@@ -14,11 +13,21 @@ export class CoordinatorService {
   constructor(
     @InjectRepository(CoordinatorProfile)
     private readonly coordinatorRepository: Repository<CoordinatorProfile>,
-    @InjectRepository(CoordinatorCourse)
-    private readonly coordinatorCourseRepository: Repository<CoordinatorCourse>,
+    @InjectRepository(Courses)
+    private readonly courseRepository: Repository<Courses>,
     private readonly userService: UserService,
-    private readonly coordinatorCourseService: CoordinatorCourseService,
   ) {}
+
+  async findCoordinatorCourse(coordinatorId: string): Promise<Courses> {
+    try {
+      return await this.courseRepository.findOne({
+        where: { coordinator: { id: coordinatorId } },
+        relations: ['department', 'semester'],
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
 
   async saveProfile(
     id: string,
@@ -72,7 +81,7 @@ export class CoordinatorService {
       const coordinators = await this.userService.findAllSpecifcUser(
         UserRole.COORDINATOR,
       );
-      const allCourseCoordinator = await this.coordinatorCourseRepository.find({
+      const allCourseCoordinator = await this.courseRepository.find({
         relations: ['coordinator'],
       });
       const courseCoordinatorIds = allCourseCoordinator.map(

@@ -31,6 +31,11 @@ export class SemesterController {
     return await this.semesterService.save(body);
   }
 
+  @Get(':id')
+  async getOneSemester(@Param('id') id: string): Promise<any> {
+    return await this.semesterService.findOne(id);
+  }
+
   @Get()
   async getAllSemester(): Promise<any> {
     return await this.semesterService.findAll();
