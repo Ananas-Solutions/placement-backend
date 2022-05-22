@@ -45,4 +45,9 @@ export class CoordinatorController {
   ): Promise<any> {
     return await this.coordinatorService.updateProfile(req.user.id, body);
   }
+
+  @Get('unassigned')
+  async getAllUnassignedCoordinator() {
+    return await this.coordinatorService.getAllUnassignedCoordinator();
+  }
 }
