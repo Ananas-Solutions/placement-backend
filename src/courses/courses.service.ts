@@ -33,7 +33,7 @@ export class CoursesService {
   async allCourses(): Promise<Courses[]> {
     try {
       return await this.coursesRepository.find({
-        relations: ['department', 'semester'],
+        relations: ['department', 'semester', 'coordinator'],
       });
     } catch (err) {
       throw err;
@@ -54,7 +54,7 @@ export class CoursesService {
     try {
       return await this.coursesRepository.find({
         where: { department: departmentId },
-        relations: ['semester', 'coordinator', 'department'],
+        relations: ['semester', 'coordinator'],
       });
     } catch (err) {
       throw err;
