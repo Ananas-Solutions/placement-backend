@@ -54,7 +54,7 @@ export class CoursesService {
     try {
       return await this.coursesRepository.find({
         where: { department: departmentId },
-        relations: ['semester'],
+        relations: ['semester', 'coordinator', 'department'],
       });
     } catch (err) {
       throw err;
