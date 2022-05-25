@@ -24,7 +24,7 @@ export class Courses {
   @Column()
   name: string;
 
-  @ManyToOne(() => User)
+  @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: User;
 
