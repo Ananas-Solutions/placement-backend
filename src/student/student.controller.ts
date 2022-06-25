@@ -20,6 +20,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CreateBulkStudentDto } from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
+import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
 import { StudentService } from './student.service';
 import {
   identityDocumentFileFilter,
@@ -56,11 +57,9 @@ export class StudentController {
   }
 
   @Put('profile')
-  async updateProfile(
-    @Req() req,
-    @Body() body: StudentProfileDto,
-  ): Promise<any> {
-    return await this.studentService.updateProfile(req.user.id, body);
+  async updateProfile(@Body() body: UpdateStudentProfileDto): Promise<any> {
+    const { id, ...updateBody } = body;
+    return await this.studentService.updateProfile(id, updateBody);
   }
 
   @Post('identity-document')
@@ -85,6 +84,34 @@ export class StudentController {
       const cloudinaryResponse = await this.cloudinary.uploadImage(file);
       return await this.studentService.updateProfile(id, {
         identity: cloudinaryResponse.url,
+      });
+    } catch (err) {
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  @Post('avatar')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: identityDocumentFileLimit,
+      fileFilter: identityDocumentFileFilter,
+    }),
+  )
+  async updateAvatar(
+    @Req() req,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<any> {
+    try {
+      if (req.fileValidationError) {
+        throw new BadRequestException(req.fileValidationError);
+      }
+      if (!file) {
+        throw new BadRequestException('Invalid file uploaded.');
+      }
+      const { id } = req.user;
+      const cloudinaryResponse = await this.cloudinary.uploadImage(file);
+      return await this.studentService.updateProfile(id, {
+        imageUrl: cloudinaryResponse.url,
       });
     } catch (err) {
       throw new BadRequestException(err.message);

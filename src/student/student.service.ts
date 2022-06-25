@@ -25,7 +25,7 @@ export class StudentService {
       body.students.map(async (student: Student) => {
         return await this.userService.saveUser({
           email: student.email,
-          name: `${student.firstName} ${student.lastName}`,
+          name: student.name,
           role: UserRole.STUDENT,
           password: 'student',
         });
@@ -53,7 +53,7 @@ export class StudentService {
     try {
       return await this.studentProfileRepository.save({
         ...body,
-        user: { id } as User,
+        user: { id: id } as User,
       });
     } catch (err) {
       throw err;

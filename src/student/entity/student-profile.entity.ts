@@ -17,8 +17,38 @@ export class StudentProfile {
   @Column()
   studentId: string;
 
+  @Column({ nullable: true })
+  alternameEmail: string;
+
   @Column()
-  address: string;
+  phone: string;
+
+  @Column({ nullable: true })
+  alternatePhone: string;
+
+  @Column()
+  address1: string;
+
+  @Column({ nullable: true })
+  address2: string;
+
+  @Column({ nullable: true })
+  postalCode: string;
+
+  @Column()
+  city: string;
+
+  @Column({ nullable: true })
+  state: string;
+
+  @Column()
+  country: string;
+
+  @Column({ nullable: true })
+  imageUrl: string;
+
+  @Column({ type: 'jsonb' })
+  kin: JSON;
 
   @Column({ nullable: true })
   identity: string;

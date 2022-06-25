@@ -11,10 +11,7 @@ export class Student {
   id: string;
 
   @IsString()
-  firstName: string;
-
-  @IsString()
-  lastName: string;
+  name: string;
 
   @IsEmail()
   email: string;
