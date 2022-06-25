@@ -18,7 +18,7 @@ export class StudentProfile {
   studentId: string;
 
   @Column({ nullable: true })
-  alternameEmail: string;
+  alternateEmail: string;
 
   @Column()
   phone: string;
