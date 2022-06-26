@@ -8,6 +8,7 @@ import { User } from 'src/user/entity/user.entity';
 import {
   createQueryBuilder,
   DeleteResult,
+  getManager,
   getRepository,
   Repository,
 } from 'typeorm';
@@ -93,12 +94,17 @@ export class PlacementService {
 
   async findTrainingSiteStudents(
     trainingSiteId: string,
+    timeSlotId: string,
   ): Promise<TrainingSiteStudents[]> {
     try {
       const studentsPlacement = await this.placementRepository.find({
-        where: { trainingSite: { id: trainingSiteId } },
+        where: {
+          trainingSite: { id: trainingSiteId },
+          timeSlot: { id: timeSlotId },
+        },
         relations: ['trainingSite', 'student', 'timeSlot'],
       });
+
       const mappedTrainingSiteStudents = studentsPlacement.map(
         (studentPlacement) => {
           const { student, timeSlot } = studentPlacement;
@@ -124,20 +130,26 @@ export class PlacementService {
       //   where: { trainingSite: { id: trainingSiteId } },
       //   relations: ['student', 'timeSlot'],
       // });
-      const placements = await getRepository(Placement)
-        .createQueryBuilder('placement')
-        .innerJoinAndSelect('placement.student', 'student')
-        .innerJoinAndSelect('placement.timeSlot', 'timeSlot')
-        .where('placement.trainingSite.id = :trainingSiteId', {
-          trainingSiteId,
-        })
-        .select(['placement.id', 'student.id', 'timeSlot.id', 'timeSlot.day'])
-        .groupBy('placement.id')
-        .addGroupBy('student.id')
-        .addGroupBy('timeSlot.id')
 
-        .getMany();
-      return placements;
+      // const mappedPlacements = placements.map((p) => {
+      //   return {
+      //     studentId: p.student.id,
+      //     name: p.student.name,
+      //     timeslotId: p.timeSlot.id,
+      //     day: p.timeSlot.day,
+      //     startTime: p.timeSlot.startTime,
+      //     endTime: p.timeSlot.endTime,
+      //   };
+      // });
+
+      const mappedPlacements = await getManager().query(
+        `
+      select  COUNT(tsts.id),tsts.id,tsts."startTime", tsts."endTime", tsts."day"  from placement p inner join training_site ts on p."trainingSiteId"=ts.id inner join training_site_time_slot tsts on p."timeSlotId" = tsts .id where ts.id =$1 group by tsts."id" ;
+      `,
+        [trainingSiteId],
+      );
+
+      return mappedPlacements;
     } catch (err) {
       throw err;
     }

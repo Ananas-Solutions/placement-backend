@@ -64,6 +64,7 @@ export class StudentService {
     try {
       return await this.studentProfileRepository.findOne({
         where: { user: id },
+        relations: ['user'],
       });
     } catch (err) {
       throw err;

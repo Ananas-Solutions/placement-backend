@@ -63,10 +63,14 @@ export class PlacementController {
   }
 
   @Roles(Role.ADMIN, Role.COORDINATOR)
-  @Get('training-site/:trainingSiteId')
+  @Get('training-site/:trainingSiteId/:timeSlotId')
   async getTrainingSiteStudents(
     @Param('trainingSiteId') trainingSiteId: string,
+    @Param('timeSlotId') timeSlotId: string,
   ): Promise<any> {
-    return await this.placementService.findTrainingSiteStudents(trainingSiteId);
+    return await this.placementService.findTrainingSiteStudents(
+      trainingSiteId,
+      timeSlotId,
+    );
   }
 }
