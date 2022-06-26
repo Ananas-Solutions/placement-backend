@@ -53,6 +53,16 @@ export class PlacementController {
   }
 
   @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Get('training-site/:trainingSiteId/group-by-day')
+  async getTrainingSiteStudentsGroupByDay(
+    @Param('trainingSiteId') trainingSiteId: string,
+  ): Promise<any> {
+    return await this.placementService.groupTrainingSiteStudentsByDay(
+      trainingSiteId,
+    );
+  }
+
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('training-site/:trainingSiteId')
   async getTrainingSiteStudents(
     @Param('trainingSiteId') trainingSiteId: string,

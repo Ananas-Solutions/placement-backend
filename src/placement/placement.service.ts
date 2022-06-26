@@ -5,7 +5,12 @@ import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/trainin
 import { TrainingDaysEnum } from 'src/training-site-time-slot/types/training-site-days.enum';
 import { TrainingSite } from 'src/training-site/entity/training-site.entity';
 import { User } from 'src/user/entity/user.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import {
+  createQueryBuilder,
+  DeleteResult,
+  getRepository,
+  Repository,
+} from 'typeorm';
 import { StudentPlacementDto } from './dto/placement.dto';
 import { Placement } from './entity/placement.entity';
 import { StudentAvailabilityInterface } from './interface/student-availability.interface';
@@ -108,6 +113,22 @@ export class PlacementService {
         },
       );
       return mappedTrainingSiteStudents;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async groupTrainingSiteStudentsByDay(trainingSiteId: string): Promise<any> {
+    try {
+      const studentPlacement = await getRepository(Placement)
+        .createQueryBuilder('placement')
+        .leftJoinAndSelect('placement.student', 'student')
+        .leftJoinAndSelect('placement.trainingSite', 'trainingSite')
+        .leftJoinAndSelect('placement.timeSlot', 'timeSlot')
+        .where('trainingSite.id = :trainingSiteId', { trainingSiteId })
+        .groupBy('timeSlot.day')
+        .getMany();
+      return studentPlacement;
     } catch (err) {
       throw err;
     }
