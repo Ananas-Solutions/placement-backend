@@ -22,7 +22,7 @@ import { PlacementService } from './placement.service';
 @ApiTags('placement')
 @Controller('placement')
 @UseInterceptors(ErrorInterceptor)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class PlacementController {
   constructor(private readonly placementService: PlacementService) {}
 
@@ -62,7 +62,7 @@ export class PlacementController {
     );
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  // @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('training-site/:trainingSiteId')
   async getTrainingSiteStudents(
     @Param('trainingSiteId') trainingSiteId: string,

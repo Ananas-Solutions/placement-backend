@@ -120,15 +120,24 @@ export class PlacementService {
 
   async groupTrainingSiteStudentsByDay(trainingSiteId: string): Promise<any> {
     try {
-      const studentPlacement = await getRepository(Placement)
+      // const placements = await this.placementRepository.find({
+      //   where: { trainingSite: { id: trainingSiteId } },
+      //   relations: ['student', 'timeSlot'],
+      // });
+      const placements = await getRepository(Placement)
         .createQueryBuilder('placement')
-        .leftJoinAndSelect('placement.student', 'student')
-        .leftJoinAndSelect('placement.trainingSite', 'trainingSite')
-        .leftJoinAndSelect('placement.timeSlot', 'timeSlot')
-        .where('trainingSite.id = :trainingSiteId', { trainingSiteId })
-        .groupBy('timeSlot.day')
+        .innerJoinAndSelect('placement.student', 'student')
+        .innerJoinAndSelect('placement.timeSlot', 'timeSlot')
+        .where('placement.trainingSite.id = :trainingSiteId', {
+          trainingSiteId,
+        })
+        .select(['placement.id', 'student.id', 'timeSlot.id', 'timeSlot.day'])
+        .groupBy('placement.id')
+        .addGroupBy('student.id')
+        .addGroupBy('timeSlot.id')
+
         .getMany();
-      return studentPlacement;
+      return placements;
     } catch (err) {
       throw err;
     }

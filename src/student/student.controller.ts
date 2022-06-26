@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Req,
@@ -54,6 +55,13 @@ export class StudentController {
   @Get('profile')
   async queryProfile(@Req() req): Promise<any> {
     return await this.studentService.getProfile(req.user.id);
+  }
+
+  @Get('profile/:studentId')
+  async queryStudentProfile(
+    @Param('studentId') studentId: string,
+  ): Promise<any> {
+    return await this.studentService.getProfile(studentId);
   }
 
   @Put('profile')
