@@ -62,10 +62,15 @@ export class StudentService {
 
   async getProfile(id: string): Promise<StudentProfile> {
     try {
-      return await this.studentProfileRepository.findOne({
+      const studentProfile = await this.studentProfileRepository.findOne({
         where: { user: id },
         relations: ['user'],
       });
+      if (studentProfile) {
+        return studentProfile;
+      }
+      const user = await this.userService.findUserById(id);
+      return { user } as unknown as StudentProfile;
     } catch (err) {
       throw err;
     }
