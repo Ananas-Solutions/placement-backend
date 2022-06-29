@@ -1,9 +1,23 @@
-import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class StudentProfileDto {
   @IsNotEmpty()
   @IsString()
   studentId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  gender: string;
+
+  @IsNotEmpty()
+  @IsDate()
+  dob: string;
 
   @IsOptional()
   @IsString()

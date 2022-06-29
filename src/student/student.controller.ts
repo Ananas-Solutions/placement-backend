@@ -19,7 +19,11 @@ import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { CreateBulkStudentDto } from './dto/bulk-student-upload.dto';
+import { User } from 'src/user/entity/user.entity';
+import {
+  CreateBulkStudentDto,
+  CreateStudentDto,
+} from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
 import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
 import { StudentService } from './student.service';
@@ -38,6 +42,11 @@ export class StudentController {
     private studentService: StudentService,
     private readonly cloudinary: CloudinaryService,
   ) {}
+
+  @Post()
+  async createStudent(@Body() body: CreateStudentDto): Promise<User> {
+    return await this.studentService.saveStudent(body);
+  }
 
   @Post('bulk-student')
   async bulkStudentCreate(@Body() body: CreateBulkStudentDto): Promise<any> {

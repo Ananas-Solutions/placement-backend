@@ -6,7 +6,10 @@ import { User } from 'src/user/entity/user.entity';
 import { UserRole } from 'src/user/types/user.role';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
-import { CreateBulkStudentDto, Student } from './dto/bulk-student-upload.dto';
+import {
+  CreateBulkStudentDto,
+  CreateStudentDto,
+} from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
 import { StudentProfile } from './entity/student-profile.entity';
 
@@ -19,16 +22,37 @@ export class StudentService {
     private readonly studentCourseService: StudentCourseService,
   ) {}
 
+  async saveStudent(body: CreateStudentDto): Promise<User> {
+    try {
+      const studentUser = await this.userService.saveUser({
+        email: body.email,
+        name: body.name,
+        role: UserRole.STUDENT,
+        password: 'student',
+      });
+      await this.studentProfileRepository.save({
+        user: { id: studentUser.id },
+      });
+      return studentUser;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async saveBulkStudent(body: CreateBulkStudentDto): Promise<any> {
     // try {
     const allStudents = await Promise.allSettled(
-      body.students.map(async (student: Student) => {
-        return await this.userService.saveUser({
+      body.students.map(async (student: CreateStudentDto) => {
+        const studentUser = await this.userService.saveUser({
           email: student.email,
           name: student.name,
           role: UserRole.STUDENT,
           password: 'student',
         });
+        await this.studentProfileRepository.save({
+          user: { id: studentUser.id },
+        });
+        return studentUser;
       }),
     );
     const mappedStudents = allStudents.map((student: any) => {
@@ -66,11 +90,7 @@ export class StudentService {
         where: { user: id },
         relations: ['user'],
       });
-      if (studentProfile) {
-        return studentProfile;
-      }
-      const user = await this.userService.findUserById(id);
-      return { user } as unknown as StudentProfile;
+      return studentProfile;
     } catch (err) {
       throw err;
     }

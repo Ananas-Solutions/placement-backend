@@ -6,15 +6,18 @@ import {
   ArrayMinSize,
 } from 'class-validator';
 
-export class Student {
+export class CreateStudentDto {
   @IsString()
-  id: string;
-
-  @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsEmail()
+  @IsNotEmpty()
   email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  studentId: string;
 }
 
 export class CreateBulkStudentDto {
@@ -24,5 +27,5 @@ export class CreateBulkStudentDto {
 
   @IsArray()
   @ArrayMinSize(1)
-  students: Student[];
+  students: CreateStudentDto[];
 }

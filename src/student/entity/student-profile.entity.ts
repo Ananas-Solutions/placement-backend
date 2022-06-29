@@ -18,15 +18,21 @@ export class StudentProfile {
   studentId: string;
 
   @Column({ nullable: true })
+  gender: string;
+
+  @Column({ nullable: true })
+  dob: Date;
+
+  @Column({ nullable: true })
   alternateEmail: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
   @Column({ nullable: true })
   alternatePhone: string;
 
-  @Column()
+  @Column({ nullable: true })
   address1: string;
 
   @Column({ nullable: true })
@@ -35,13 +41,13 @@ export class StudentProfile {
   @Column({ nullable: true })
   postalCode: string;
 
-  @Column()
+  @Column({ nullable: true })
   city: string;
 
   @Column({ nullable: true })
   state: string;
 
-  @Column()
+  @Column({ nullable: true })
   country: string;
 
   @Column({ nullable: true })
