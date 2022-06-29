@@ -53,7 +53,7 @@ export class StudentProfile {
   @Column({ nullable: true })
   imageUrl: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   kin: JSON;
 
   @Column({ nullable: true })

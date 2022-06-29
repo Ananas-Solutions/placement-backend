@@ -40,34 +40,38 @@ export class StudentService {
   }
 
   async saveBulkStudent(body: CreateBulkStudentDto): Promise<any> {
-    // try {
-    const allStudents = await Promise.allSettled(
-      body.students.map(async (student: CreateStudentDto) => {
-        const studentUser = await this.userService.saveUser({
-          email: student.email,
-          name: student.name,
-          role: UserRole.STUDENT,
-          password: 'student',
-        });
-        await this.studentProfileRepository.save({
-          user: { id: studentUser.id },
-        });
-        return studentUser;
-      }),
-    );
-    const mappedStudents = allStudents.map((student: any) => {
-      if (student.status === 'fulfilled') {
-        return student.value.id;
-      }
-    });
-    await this.studentCourseService.assignStudents({
-      course: body.courseId,
-      students: mappedStudents.filter(Boolean),
-    });
-    return { message: 'Student upload succesful' };
-    // } catch (err) {
-    //   throw err;
-    // }
+    try {
+      const allStudents = await Promise.all(
+        body.students.map(async (student: CreateStudentDto) => {
+          const foundStudent = await this.userService.findUserByEmail(
+            student.email,
+          );
+          if (foundStudent) {
+            return foundStudent;
+          }
+          const studentUser = await this.userService.saveUser({
+            email: student.email,
+            name: student.name,
+            role: UserRole.STUDENT,
+            password: 'student',
+          });
+
+          const savedProfile = await this.studentProfileRepository.save({
+            studentId: student.studentId,
+            user: { id: studentUser.id },
+          });
+          return studentUser;
+        }),
+      );
+      const mappedStudents = allStudents.map((student: any) => student.id);
+      return await this.studentCourseService.assignStudents({
+        course: body.courseId,
+        students: mappedStudents.filter(Boolean),
+      });
+    } catch (err) {
+      console.log('error bulk upload', err);
+      throw err;
+    }
   }
 
   async saveProfile(

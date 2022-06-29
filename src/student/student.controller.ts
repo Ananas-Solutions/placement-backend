@@ -33,8 +33,8 @@ import {
 } from './utils/identity-document.filter';
 
 @ApiTags('student')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.COORDINATOR, Role.STUDENT)
+// @UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(Role.ADMIN, Role.COORDINATOR, Role.STUDENT)
 @UseInterceptors(ErrorInterceptor)
 @Controller('student')
 export class StudentController {
