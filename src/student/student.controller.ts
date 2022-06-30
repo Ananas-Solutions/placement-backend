@@ -33,8 +33,8 @@ import {
 } from './utils/identity-document.filter';
 
 @ApiTags('student')
-// @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(Role.ADMIN, Role.COORDINATOR, Role.STUDENT)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.COORDINATOR, Role.STUDENT)
 @UseInterceptors(ErrorInterceptor)
 @Controller('student')
 export class StudentController {
@@ -66,7 +66,7 @@ export class StudentController {
     return await this.studentService.getProfile(req.user.id);
   }
 
-  @Get('profile/:studentId')
+  @Get('profile/:userId')
   async queryStudentProfile(
     @Param('studentId') studentId: string,
   ): Promise<any> {

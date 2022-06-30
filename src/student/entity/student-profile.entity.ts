@@ -14,7 +14,7 @@ export class StudentProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   studentId: string;
 
   @Column({ nullable: true })
