@@ -5,4 +5,8 @@ export class UpdateStudentProfileDto extends StudentProfileDto {
   @IsNotEmpty()
   @IsString()
   id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 }

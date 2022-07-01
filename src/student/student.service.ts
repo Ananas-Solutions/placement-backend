@@ -102,13 +102,18 @@ export class StudentService {
 
   async updateProfile(id: string, body: any): Promise<StudentProfile> {
     try {
+      const { name, ...profileData } = body;
       const user = await this.userService.findUserById(id);
       if (!user || user.role !== UserRole.STUDENT)
         throw new NotFoundException('Student not found');
+      await this.userService.updateUser(id, name);
       const profile = await this.studentProfileRepository.findOne({
         where: { user: id },
       });
-      return await this.studentProfileRepository.save({ ...profile, ...body });
+      return await this.studentProfileRepository.save({
+        ...profile,
+        ...profileData,
+      });
     } catch (err) {
       throw err;
     }

@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentProfile } from 'src/student/entity/student-profile.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
 import { UserRole } from './types/user.role';
@@ -54,6 +55,14 @@ export class UserService {
         where: { role },
         order: { name: 'ASC' },
       });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updateUser(id: string, body: UpdateUserDto): Promise<UpdateResult> {
+    try {
+      return this.userRepository.update(id, body);
     } catch (err) {
       throw err;
     }
