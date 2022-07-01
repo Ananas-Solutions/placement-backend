@@ -25,7 +25,6 @@ import {
   CreateStudentDto,
 } from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
-import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
 import { StudentService } from './student.service';
 import {
   identityDocumentFileFilter,
@@ -74,9 +73,11 @@ export class StudentController {
   }
 
   @Put('profile')
-  async updateProfile(@Body() body: UpdateStudentProfileDto): Promise<any> {
-    const { id, ...updateBody } = body;
-    return await this.studentService.updateProfile(id, updateBody);
+  async updateProfile(
+    @Req() req,
+    @Body() body: StudentProfileDto,
+  ): Promise<any> {
+    return await this.studentService.updateProfile(req.user.id, body);
   }
 
   @Post('identity-document')
@@ -99,7 +100,7 @@ export class StudentController {
       }
       const { id } = req.user;
       const cloudinaryResponse = await this.cloudinary.uploadImage(file);
-      return await this.studentService.updateProfile(id, {
+      return await this.studentService.updateProfileAssets(id, {
         identity: cloudinaryResponse.url,
       });
     } catch (err) {
@@ -127,7 +128,7 @@ export class StudentController {
       }
       const { id } = req.user;
       const cloudinaryResponse = await this.cloudinary.uploadImage(file);
-      return await this.studentService.updateProfile(id, {
+      return await this.studentService.updateProfileAssets(id, {
         imageUrl: cloudinaryResponse.url,
       });
     } catch (err) {

@@ -9,6 +9,10 @@ import {
 export class StudentProfileDto {
   @IsNotEmpty()
   @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
   studentId: string;
 
   @IsNotEmpty()
@@ -16,7 +20,7 @@ export class StudentProfileDto {
   gender: string;
 
   @IsNotEmpty()
-  @IsDate()
+  @IsString()
   dob: string;
 
   @IsOptional()

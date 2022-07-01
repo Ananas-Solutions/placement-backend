@@ -79,8 +79,9 @@ export class StudentService {
     body: StudentProfileDto,
   ): Promise<StudentProfile> {
     try {
+      const { name, ...profileData } = body;
       return await this.studentProfileRepository.save({
-        ...body,
+        ...profileData,
         user: { id: id } as User,
       });
     } catch (err) {
@@ -100,13 +101,35 @@ export class StudentService {
     }
   }
 
-  async updateProfile(id: string, body: any): Promise<StudentProfile> {
+  async updateProfile(
+    id: string,
+    body: StudentProfileDto,
+  ): Promise<StudentProfile> {
     try {
       const { name, ...profileData } = body;
       const user = await this.userService.findUserById(id);
       if (!user || user.role !== UserRole.STUDENT)
         throw new NotFoundException('Student not found');
-      await this.userService.updateUser(id, name);
+      await this.userService.updateUser(id, { name });
+      const profile = await this.studentProfileRepository.findOne({
+        where: { user: id },
+      });
+      return await this.studentProfileRepository.save({
+        ...profile,
+        ...profileData,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updateProfileAssets(id: string, body: any): Promise<StudentProfile> {
+    try {
+      const { name, studentId, ...profileData } = body;
+      const user = await this.userService.findUserById(id);
+      if (!user || user.role !== UserRole.STUDENT)
+        throw new NotFoundException('Student not found');
+      await this.userService.updateUser(id, { name });
       const profile = await this.studentProfileRepository.findOne({
         where: { user: id },
       });
