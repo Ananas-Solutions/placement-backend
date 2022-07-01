@@ -25,11 +25,11 @@ import { UserDocumentsService } from './user-documents.service';
 @ApiTags('user-documents')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(Role.ADMIN)
 @Controller('user-documents')
 export class UserDocumentsController {
   constructor(private readonly documentService: UserDocumentsService) {}
 
+  @Roles(Role.STUDENT)
   @Post()
   @UseInterceptors(AnyFilesInterceptor())
   async uploadDocuments(
@@ -39,6 +39,13 @@ export class UserDocumentsController {
     return await this.documentService.uploadDocuments(req.user.id, files);
   }
 
+  @Roles(Role.STUDENT)
+  @Get()
+  async viewUploadDocuments(@Req() req): Promise<any> {
+    return await this.documentService.getUserDocuments(req.user.id);
+  }
+
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Post('verify/:documentId')
   async verifyDocument(
     @Param('documentId') documentId: string,
@@ -47,6 +54,7 @@ export class UserDocumentsController {
     return await this.documentService.verifyDocument(documentId, body);
   }
 
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('user/:userId')
   async userDocuments(
     @Param('userId') userId: string,
