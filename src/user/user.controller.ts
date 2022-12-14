@@ -41,6 +41,6 @@ export class UserController {
   @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('student/:studentId')
   async getStudent(@Param('studentId') studentId: string): Promise<any> {
-    return await this.userService.findUserById(studentId);
+    return await this.userService.findStudentById(studentId);
   }
 }
