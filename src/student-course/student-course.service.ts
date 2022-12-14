@@ -23,6 +23,12 @@ export class StudentCourseService {
       if (!course) throw new NotFoundException('Course not found');
       await Promise.all(
         students.map(async (studentId: any) => {
+          const studentCourse = await this.studentCourseRepository.findOne({
+            where: { student: { id: studentId }, course: { id: course } },
+          });
+          if (studentCourse) {
+            return;
+          }
           return await this.studentCourseRepository.save({
             course: { id: course } as Courses,
             student: { id: studentId } as User,
@@ -70,7 +76,7 @@ export class StudentCourseService {
     try {
       const studentCourses = await this.studentCourseRepository.find({
         where: { course: courseId },
-        relations: ['student'],
+        relations: ['student', 'student.studentProfile'],
       });
       const users = studentCourses.map(
         (studentCourse) => studentCourse.student,

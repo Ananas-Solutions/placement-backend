@@ -35,7 +35,19 @@ export class UserService {
 
   async findUserById(id: string): Promise<User> {
     try {
-      return await this.userRepository.findOne({ where: { id } });
+      return await this.userRepository.findOne({
+        where: { id },
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+  async findStudentById(id: string): Promise<User> {
+    try {
+      return await this.userRepository.findOne({
+        where: { id },
+        relations: ['studentProfile'],
+      });
     } catch (err) {
       throw err;
     }
