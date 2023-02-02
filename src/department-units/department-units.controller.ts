@@ -38,11 +38,13 @@ export class DepartmentUnitsController {
     return newUnit;
   }
 
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get()
   async getAllUnits(): Promise<any> {
     return await this.departmentUnitsService.findAll();
   }
 
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get('department/:departmentId')
   async findAllUnit(
     @Param() { departmentId }: { departmentId: string },
@@ -50,6 +52,7 @@ export class DepartmentUnitsController {
     return await this.departmentUnitsService.find(departmentId);
   }
 
+  @Roles(Role.ADMIN, Role.COORDINATOR)
   @Get(':id')
   async findOneUnit(@Param() { id }: { id: string }): Promise<any> {
     return await this.departmentUnitsService.findOne(id);

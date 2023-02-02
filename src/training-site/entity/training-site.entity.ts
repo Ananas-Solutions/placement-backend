@@ -1,5 +1,6 @@
 import { Authority } from 'src/authority/entity/authority.entity';
 import { Courses } from 'src/courses/entity/courses.entity';
+import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Department } from 'src/department/entity/department.entity';
 import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/training-site-time-slot.entity';
@@ -16,10 +17,10 @@ export class TrainingSite {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
   @ManyToOne(() => Authority, { onDelete: 'CASCADE' })
@@ -30,6 +31,9 @@ export class TrainingSite {
 
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   department: Department;
+
+  @ManyToOne(() => DepartmentUnits, { onDelete: 'CASCADE' })
+  unit: DepartmentUnits;
 
   @ManyToOne(() => Courses, (course) => course.trainingSite, {
     onDelete: 'CASCADE',
@@ -43,10 +47,10 @@ export class TrainingSite {
   )
   trainingTimeSlots: TrainingSiteTimeSlot[];
 
-  @Column()
+  @Column({ nullable: true })
   speciality: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   location: any;
 
   @Column()

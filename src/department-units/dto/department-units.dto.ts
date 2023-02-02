@@ -7,6 +7,10 @@ export class DepartmentUnitsDto {
 
   @IsString()
   @IsNotEmpty()
+  hospitalId: string;
+
+  @IsString()
+  @IsNotEmpty()
   departmentId: string;
 }
 

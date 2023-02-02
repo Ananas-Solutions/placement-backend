@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepartmentService } from 'src/department/department.service';
 import { Department } from 'src/department/entity/department.entity';
+import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { Repository } from 'typeorm';
 import {
   DepartmentUnitsDto,
@@ -18,10 +19,11 @@ export class DepartmentUnitsService {
 
   async save(bodyDto: DepartmentUnitsDto): Promise<DepartmentUnits> {
     try {
-      const { departmentId, ...body } = bodyDto;
+      const { departmentId, hospitalId, ...body } = bodyDto;
       return await this.departmentUnitsRepository.save({
         ...body,
         department: { id: departmentId } as Department,
+        hospital: { id: hospitalId } as Hospital,
       });
     } catch (err) {
       throw err;
@@ -31,7 +33,7 @@ export class DepartmentUnitsService {
   async findAll(): Promise<DepartmentUnits[]> {
     try {
       return await this.departmentUnitsRepository.find({
-        relations: ['department'],
+        relations: ['department', 'hospital'],
       });
     } catch (err) {
       throw err;
@@ -41,7 +43,7 @@ export class DepartmentUnitsService {
   async findOne(id: string): Promise<DepartmentUnits> {
     try {
       return await this.departmentUnitsRepository.findOne(id, {
-        relations: ['department'],
+        relations: ['department', 'hospital'],
       });
     } catch (err) {
       throw err;
@@ -60,12 +62,13 @@ export class DepartmentUnitsService {
 
   async update(bodyDto: UpdateDepartmentUnitsDto): Promise<any> {
     try {
-      const { departmentId, ...body } = bodyDto;
+      const { departmentId, hospitalId, ...body } = bodyDto;
       return await this.departmentUnitsRepository.update(
         { id: bodyDto.id },
         {
           ...body,
           department: { id: departmentId } as Department,
+          hospital: { id: hospitalId } as Hospital,
         },
       );
     } catch (err) {

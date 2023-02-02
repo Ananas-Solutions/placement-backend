@@ -1,4 +1,5 @@
 import { Department } from 'src/department/entity/department.entity';
+import { Hospital } from 'src/hospital/entity/hospital.entity';
 import {
   Column,
   CreateDateColumn,
@@ -16,6 +17,9 @@ export class DepartmentUnits {
 
   @Column()
   name: string;
+
+  @ManyToOne(() => Hospital, { onDelete: 'CASCADE' })
+  hospital: Hospital;
 
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   @JoinColumn()

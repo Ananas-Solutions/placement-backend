@@ -1,7 +1,7 @@
-import { IsDateString, IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateTrainingSiteDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   name: string;
 
@@ -19,13 +19,17 @@ export class CreateTrainingSiteDto {
 
   @IsNotEmpty()
   @IsString()
+  unitId: string;
+
+  @IsOptional()
+  @IsString()
   address: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   speciality: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsObject()
   location: any;
 

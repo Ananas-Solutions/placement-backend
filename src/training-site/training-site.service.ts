@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Authority } from 'src/authority/entity/authority.entity';
 import { Courses } from 'src/courses/entity/courses.entity';
+import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Department } from 'src/department/entity/department.entity';
 import { Hospital } from 'src/hospital/entity/hospital.entity';
 import { HospitalService } from 'src/hospital/hospital.service';
@@ -19,7 +20,7 @@ export class TrainingSiteService {
 
   async create(body: CreateTrainingSiteDto): Promise<TrainingSite> {
     try {
-      const { hospitalId, departmentId, courseId, ...rest } = body;
+      const { hospitalId, departmentId, courseId, unitId, ...rest } = body;
       const hospital = await this.hospitalService.findOneHospital(hospitalId);
       return await this.trainingSiteRepository.save({
         ...rest,
@@ -27,6 +28,7 @@ export class TrainingSiteService {
         hospital: { id: hospitalId } as Hospital,
         department: { id: departmentId } as Department,
         course: { id: courseId } as Courses,
+        unit: { id: unitId } as DepartmentUnits,
       });
     } catch (err) {
       throw err;
@@ -36,7 +38,7 @@ export class TrainingSiteService {
   async findAll(): Promise<any> {
     try {
       return await this.trainingSiteRepository.find({
-        relations: ['authority', 'hospital', 'department'],
+        relations: ['authority', 'hospital', 'department', 'unit'],
       });
     } catch (err) {
       throw err;
@@ -47,7 +49,13 @@ export class TrainingSiteService {
     try {
       return await this.trainingSiteRepository.find({
         where: { course: { id: courseId } },
-        relations: ['authority', 'hospital', 'department', 'trainingTimeSlots'],
+        relations: [
+          'authority',
+          'hospital',
+          'department',
+          'trainingTimeSlots',
+          'unit',
+        ],
       });
     } catch (err) {
       throw err;
@@ -57,7 +65,13 @@ export class TrainingSiteService {
   async findOne(id: string): Promise<any> {
     try {
       return await this.trainingSiteRepository.findOne(id, {
-        relations: ['authority', 'hospital', 'department', 'trainingTimeSlots'],
+        relations: [
+          'authority',
+          'hospital',
+          'department',
+          'trainingTimeSlots',
+          'unit',
+        ],
       });
     } catch (err) {
       throw err;
@@ -68,7 +82,13 @@ export class TrainingSiteService {
     try {
       return await this.trainingSiteRepository.findOne({
         where: { hospital: { id: hospitalId } },
-        relations: ['authority', 'hospital', 'department', 'trainingTimeSlots'],
+        relations: [
+          'authority',
+          'hospital',
+          'department',
+          'trainingTimeSlots',
+          'unit',
+        ],
       });
     } catch (err) {
       throw err;
