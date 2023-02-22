@@ -35,13 +35,13 @@ export class TrainingSiteTimeSlotService {
     }
   }
 
-  async findTimeSlots(trainingSite: string): Promise<TrainingTimeSlot[]> {
+  async findTimeSlots(courseId: string): Promise<TrainingTimeSlot[]> {
     try {
-      const trainingSiteAllTimeSlots = await this.timeslotRepository.find({
-        where: { trainingSite: trainingSite },
+      const courseTimeSlots = await this.timeslotRepository.find({
+        where: { course: courseId },
       });
       const allAvailableTimeSlots = await Promise.all(
-        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
+        courseTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
           const assingedStudents =
             await this.placementService.findTimeSlotStudents(timeSlot.id);
 
@@ -58,12 +58,12 @@ export class TrainingSiteTimeSlotService {
   }
 
   async findDaysTimeSlots(
-    trainingSite: string,
+    courseId: string,
     day: TrainingDaysEnum,
   ): Promise<TrainingTimeSlot[]> {
     try {
       const trainingSiteAllTimeSlots = await this.timeslotRepository.find({
-        where: { trainingSite: trainingSite, day: day },
+        where: { course: courseId, day: day },
       });
       const allAvailableTimeSlots = await Promise.all(
         trainingSiteAllTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {

@@ -30,12 +30,12 @@ export class PlacementController {
   @Get('student-availability')
   async findStudentsAvailability(
     @Query('courseId') courseId: string,
-    @Query('trainingSiteId') trainingSiteId: string,
+    @Query('departmentUnit') departmentUnit: string,
     @Query('trainingDay') trainingDay: TrainingDaysEnum,
   ) {
     return await this.placementService.findStudentsAvailability(
       courseId,
-      trainingSiteId,
+      departmentUnit,
       trainingDay,
     );
   }
@@ -53,23 +53,21 @@ export class PlacementController {
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
-  @Get('training-site/:trainingSiteId/group-by-day')
+  @Get('department-unit/:unitId/group-by-day')
   async getTrainingSiteStudentsGroupByDay(
-    @Param('trainingSiteId') trainingSiteId: string,
+    @Param('unitId') unitId: string,
   ): Promise<any> {
-    return await this.placementService.groupTrainingSiteStudentsByDay(
-      trainingSiteId,
-    );
+    return await this.placementService.groupTrainingSiteStudentsByDay(unitId);
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
-  @Get('training-site/:trainingSiteId/:timeSlotId')
+  @Get('department-unit/:unitId/:timeSlotId')
   async getTrainingSiteStudents(
-    @Param('trainingSiteId') trainingSiteId: string,
+    @Param('unitId') unitId: string,
     @Param('timeSlotId') timeSlotId: string,
   ): Promise<any> {
     return await this.placementService.findTrainingSiteStudents(
-      trainingSiteId,
+      unitId,
       timeSlotId,
     );
   }

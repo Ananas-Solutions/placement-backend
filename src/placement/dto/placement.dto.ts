@@ -7,7 +7,7 @@ export class StudentPlacementDto {
 
   @IsNotEmpty()
   @IsString()
-  trainingSiteId: string;
+  departmentUnitId: string;
 
   @IsNotEmpty()
   @IsString()
