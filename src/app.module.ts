@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { async } from 'rxjs';
 import { getConnectionOptions } from 'typeorm';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -14,7 +14,6 @@ import { DepartmentModule } from './department/department.module';
 import { StudentCourseModule } from './student-course/student-course.module';
 import { StudentModule } from './student/student.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
-
 import { CollegeDepartmentModule } from './college-department/college-department.module';
 import { DepartmentUnitsModule } from './department-units/department-units.module';
 import { SemesterModule } from './semester/semester.module';
@@ -25,6 +24,7 @@ import { TrainingSiteTimeSlotModule } from './training-time-slot/training-time-s
 import { PlacementModule } from './placement/placement.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserDocumentsModule } from './user-documents/user-documents.module';
+import { EvaluationModule } from './evaluation/evaluation.module';
 
 @Module({
   imports: [
@@ -57,6 +57,7 @@ import { UserDocumentsModule } from './user-documents/user-documents.module';
     TrainingSiteTimeSlotModule,
     PlacementModule,
     UserDocumentsModule,
+    EvaluationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
