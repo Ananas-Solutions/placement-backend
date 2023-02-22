@@ -46,11 +46,6 @@ export class Courses {
   @JoinColumn()
   semester: Semester;
 
-  @OneToMany(() => TrainingTimeSlot, (timeslots) => timeslots.course, {
-    cascade: true,
-  })
-  timeslots: TrainingTimeSlot[];
-
   @CreateDateColumn()
   createdAt: string;
 

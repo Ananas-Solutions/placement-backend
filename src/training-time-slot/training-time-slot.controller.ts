@@ -31,11 +31,11 @@ export class TrainingSiteTimeSlotController {
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
-  @Get('course/:courseId')
+  @Get('training-site/:trainingsiteId')
   async findTrainingSiteTimeSlots(
-    @Param('courseId') courseId: string,
+    @Param('trainingsiteId') trainingsiteId: string,
   ): Promise<any> {
-    return await this.timeslotService.findTimeSlots(courseId);
+    return await this.timeslotService.findTimeSlots(trainingsiteId);
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)

@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
 import { Courses } from 'src/courses/entity/courses.entity';
 import { PlacementService } from 'src/placement/placement.service';
+import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { TrainingSiteTimeSlotDto } from './dto/training-time-slot.dto';
 import { TrainingTimeSlot } from './entity/training-time-slot.entity';
@@ -17,7 +19,7 @@ export class TrainingSiteTimeSlotService {
 
   async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
     try {
-      const { course, ...body } = bodyDto;
+      const { trainingSiteId, ...body } = bodyDto;
       await Promise.all(
         body.timeslots.map(async (timeslot) => {
           return await this.timeslotRepository.save({
@@ -25,7 +27,8 @@ export class TrainingSiteTimeSlotService {
             endTime: timeslot.endTime,
             day: timeslot.day,
             capacity: timeslot.capacity,
-            course: { id: course } as Courses,
+            trainingSite: { id: trainingSiteId } as CourseTrainingSite,
+            supervisor: { id: timeslot.supervisor } as User,
           });
         }),
       );
@@ -35,13 +38,14 @@ export class TrainingSiteTimeSlotService {
     }
   }
 
-  async findTimeSlots(courseId: string): Promise<TrainingTimeSlot[]> {
+  async findTimeSlots(trainingSiteId: string): Promise<TrainingTimeSlot[]> {
     try {
-      const courseTimeSlots = await this.timeslotRepository.find({
-        where: { course: courseId },
+      const trainingSiteTimeSlots = await this.timeslotRepository.find({
+        where: { trainingSite: trainingSiteId },
+        relations: ['supervisor'],
       });
       const allAvailableTimeSlots = await Promise.all(
-        courseTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
+        trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
           const assingedStudents =
             await this.placementService.findTimeSlotStudents(timeSlot.id);
 

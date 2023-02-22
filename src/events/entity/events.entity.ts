@@ -20,6 +20,9 @@ export class Events {
   @Column()
   public message: string;
 
+  @Column({ nullable: true })
+  public date?: Date;
+
   @ManyToOne(() => Courses, { cascade: true })
   @JoinColumn()
   course: Courses;

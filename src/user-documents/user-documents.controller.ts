@@ -52,18 +52,6 @@ export class UserDocumentsController {
     );
   }
 
-  // async uploadDocuments(
-  //   @Req() req,
-  //   @UploadedFiles() files: Array<Express.Multer.File>,
-  //   @Body() { documentExpiryDate }: { documentExpiryDate?: Date },
-  // ): Promise<any> {
-  //   return await this.documentService.uploadDocuments(
-  //     req.user.id,
-  //     files,
-  //     documentExpiryDate,
-  //   );
-  // }
-
   @Roles(Role.STUDENT)
   @Get()
   async viewUploadDocuments(@Req() req): Promise<any> {

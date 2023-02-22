@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  IsUUID,
 } from 'class-validator';
 import { TrainingDaysEnum } from '../types/training-site-days.enum';
 
@@ -24,12 +25,17 @@ class TimeSlot {
   @IsNotEmpty()
   @IsNumber()
   capacity: number;
+
+  @IsNotEmpty()
+  @IsUUID()
+  @IsString()
+  supervisor: string;
 }
 
 export class TrainingSiteTimeSlotDto {
   @IsNotEmpty()
   @IsString()
-  course: string;
+  trainingSiteId: string;
 
   @IsArray()
   @ArrayMinSize(1)

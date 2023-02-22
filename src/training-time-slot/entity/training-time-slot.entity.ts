@@ -1,4 +1,6 @@
+import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
 import { Courses } from 'src/courses/entity/courses.entity';
+import { User } from 'src/user/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -27,11 +29,19 @@ export class TrainingTimeSlot {
   @Column()
   capacity: number;
 
-  @ManyToOne(() => Courses, (course) => course.timeslots, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => CourseTrainingSite,
+    (trainingSite) => trainingSite.timeslots,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn()
-  course: Courses;
+  trainingSite: CourseTrainingSite;
+
+  @ManyToOne(() => User, { cascade: true })
+  @JoinColumn()
+  supervisor: User;
 
   @CreateDateColumn()
   createdAt: Date;
