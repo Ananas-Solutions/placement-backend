@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
+import { TrainingTimeSlot } from 'src/training-time-slot/entity/training-time-slot.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
@@ -23,6 +24,12 @@ export class Courses {
   @Column()
   name: string;
 
+  @Column({ type: 'date', default: new Date() })
+  startsFrom: Date;
+
+  @Column({ type: 'date', default: new Date() })
+  endsAt: Date;
+
   @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: User;
@@ -38,6 +45,11 @@ export class Courses {
   })
   @JoinColumn()
   semester: Semester;
+
+  @OneToMany(() => TrainingTimeSlot, (timeslots) => timeslots.course, {
+    cascade: true,
+  })
+  timeslots: TrainingTimeSlot[];
 
   @CreateDateColumn()
   createdAt: string;

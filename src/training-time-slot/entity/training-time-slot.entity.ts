@@ -1,4 +1,4 @@
-import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
+import { Courses } from 'src/courses/entity/courses.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,7 +11,7 @@ import {
 import { TrainingDaysEnum } from '../types/training-site-days.enum';
 
 @Entity()
-export class TrainingSiteTimeSlot {
+export class TrainingTimeSlot {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -27,13 +27,11 @@ export class TrainingSiteTimeSlot {
   @Column()
   capacity: number;
 
-  @ManyToOne(
-    () => DepartmentUnits,
-    (departmentUnit) => departmentUnit.timeslots,
-    { onDelete: 'CASCADE' },
-  )
+  @ManyToOne(() => Courses, (course) => course.timeslots, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
-  departmentUnit: DepartmentUnits;
+  course: Courses;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -65,7 +65,7 @@ export class StudentController {
     return await this.studentService.getProfile(req.user.id);
   }
 
-  @Get('profile/:userId')
+  @Get('profile/:studentId')
   async queryStudentProfile(
     @Param('studentId') studentId: string,
   ): Promise<any> {

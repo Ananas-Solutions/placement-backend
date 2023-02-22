@@ -15,7 +15,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { TrainingDaysEnum } from 'src/training-site-time-slot/types/training-site-days.enum';
+import { TrainingDaysEnum } from 'src/training-time-slot/types/training-site-days.enum';
 import { StudentPlacementDto } from './dto/placement.dto';
 import { PlacementService } from './placement.service';
 

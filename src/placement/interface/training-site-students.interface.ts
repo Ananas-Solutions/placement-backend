@@ -1,4 +1,4 @@
-import { TrainingDaysEnum } from 'src/training-site-time-slot/types/training-site-days.enum';
+import { TrainingDaysEnum } from 'src/training-time-slot/types/training-site-days.enum';
 
 export interface TrainingSiteStudents {
   studentId: string;

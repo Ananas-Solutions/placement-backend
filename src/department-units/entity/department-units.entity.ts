@@ -1,5 +1,5 @@
 import { Department } from 'src/department/entity/department.entity';
-import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/training-site-time-slot.entity';
+import { TrainingTimeSlot } from 'src/training-time-slot/entity/training-time-slot.entity';
 import {
   Column,
   CreateDateColumn,
@@ -25,13 +25,6 @@ export class DepartmentUnits {
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   @JoinColumn()
   department: Department;
-
-  @OneToMany(
-    () => TrainingSiteTimeSlot,
-    (timeslots) => timeslots.departmentUnit,
-    { cascade: true },
-  )
-  timeslots: TrainingSiteTimeSlot[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
+import { Courses } from 'src/courses/entity/courses.entity';
 import { PlacementService } from 'src/placement/placement.service';
 import { Repository } from 'typeorm';
-import { TrainingSiteTimeSlotDto } from './dto/training-site-time-slot.dto';
-import { TrainingSiteTimeSlot } from './entity/training-site-time-slot.entity';
+import { TrainingSiteTimeSlotDto } from './dto/training-time-slot.dto';
+import { TrainingTimeSlot } from './entity/training-time-slot.entity';
 import { TrainingDaysEnum } from './types/training-site-days.enum';
 
 @Injectable()
 export class TrainingSiteTimeSlotService {
   constructor(
-    @InjectRepository(TrainingSiteTimeSlot)
-    private readonly timeslotRepository: Repository<TrainingSiteTimeSlot>,
+    @InjectRepository(TrainingTimeSlot)
+    private readonly timeslotRepository: Repository<TrainingTimeSlot>,
     private readonly placementService: PlacementService,
   ) {}
 
   async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
     try {
-      const { trainingSiteId, ...body } = bodyDto;
+      const { course, ...body } = bodyDto;
       await Promise.all(
         body.timeslots.map(async (timeslot) => {
           return await this.timeslotRepository.save({
@@ -25,7 +25,7 @@ export class TrainingSiteTimeSlotService {
             endTime: timeslot.endTime,
             day: timeslot.day,
             capacity: timeslot.capacity,
-            departmentUnit: { id: trainingSiteId } as DepartmentUnits,
+            course: { id: course } as Courses,
           });
         }),
       );
@@ -35,13 +35,13 @@ export class TrainingSiteTimeSlotService {
     }
   }
 
-  async findTimeSlots(trainingSite: string): Promise<TrainingSiteTimeSlot[]> {
+  async findTimeSlots(trainingSite: string): Promise<TrainingTimeSlot[]> {
     try {
       const trainingSiteAllTimeSlots = await this.timeslotRepository.find({
         where: { trainingSite: trainingSite },
       });
       const allAvailableTimeSlots = await Promise.all(
-        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingSiteTimeSlot) => {
+        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
           const assingedStudents =
             await this.placementService.findTimeSlotStudents(timeSlot.id);
 
@@ -60,13 +60,13 @@ export class TrainingSiteTimeSlotService {
   async findDaysTimeSlots(
     trainingSite: string,
     day: TrainingDaysEnum,
-  ): Promise<TrainingSiteTimeSlot[]> {
+  ): Promise<TrainingTimeSlot[]> {
     try {
       const trainingSiteAllTimeSlots = await this.timeslotRepository.find({
         where: { trainingSite: trainingSite, day: day },
       });
       const allAvailableTimeSlots = await Promise.all(
-        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingSiteTimeSlot) => {
+        trainingSiteAllTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
           const assingedStudents =
             await this.placementService.findTimeSlotStudents(timeSlot.id);
           return {

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { StudentCourseService } from 'src/student-course/student-course.service';
-import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/training-site-time-slot.entity';
-import { TrainingDaysEnum } from 'src/training-site-time-slot/types/training-site-days.enum';
+import { TrainingTimeSlot } from 'src/training-time-slot/entity/training-time-slot.entity';
+import { TrainingDaysEnum } from 'src/training-time-slot/types/training-site-days.enum';
 import { User } from 'src/user/entity/user.entity';
 import {
   createQueryBuilder,
@@ -34,7 +34,7 @@ export class PlacementService {
           return await this.placementRepository.save({
             student: { id: studentId } as User,
             departmentUnit: { id: trainingSiteId } as DepartmentUnits,
-            timeSlot: { id: timeSlotId } as TrainingSiteTimeSlot,
+            timeSlot: { id: timeSlotId } as TrainingTimeSlot,
           });
         }),
       );

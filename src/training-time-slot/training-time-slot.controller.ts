@@ -13,8 +13,8 @@ import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { TrainingSiteTimeSlotDto } from './dto/training-site-time-slot.dto';
-import { TrainingSiteTimeSlotService } from './training-site-time-slot.service';
+import { TrainingSiteTimeSlotDto } from './dto/training-time-slot.dto';
+import { TrainingSiteTimeSlotService } from './training-time-slot.service';
 import { TrainingDaysEnum } from './types/training-site-days.enum';
 
 @ApiTags('training site time slots')

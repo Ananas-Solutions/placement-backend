@@ -65,7 +65,7 @@ export class CoursesService {
     try {
       return await this.coursesRepository.findOne({
         where: { id },
-        relations: ['department', 'semester', 'coordinator'],
+        relations: ['department', 'semester', 'coordinator', 'timeslots'],
       });
     } catch (err) {
       throw err;
