@@ -20,7 +20,7 @@ import { DepartmentUnitsModule } from './department-units/department-units.modul
 import { SemesterModule } from './semester/semester.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CoordinatorCollegeDepartmentModule } from './coordinator-college-department/coordinator-college-department.module';
-import { TrainingSiteModule } from './training-site/training-site.module';
+//import { TrainingSiteModule } from './training-site/training-site.module';
 import { TrainingSiteTimeSlotModule } from './training-site-time-slot/training-site-time-slot.module';
 import { PlacementModule } from './placement/placement.module';
 import { ConfigModule } from '@nestjs/config';
@@ -53,7 +53,7 @@ import { UserDocumentsModule } from './user-documents/user-documents.module';
     SemesterModule,
     CloudinaryModule,
     CoordinatorCollegeDepartmentModule,
-    TrainingSiteModule,
+    //TrainingSiteModule,
     TrainingSiteTimeSlotModule,
     PlacementModule,
     UserDocumentsModule,

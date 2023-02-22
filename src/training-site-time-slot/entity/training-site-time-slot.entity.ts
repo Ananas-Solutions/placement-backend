@@ -1,4 +1,4 @@
-import { TrainingSite } from 'src/training-site/entity/training-site.entity';
+import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import {
   Column,
   CreateDateColumn,
@@ -28,12 +28,12 @@ export class TrainingSiteTimeSlot {
   capacity: number;
 
   @ManyToOne(
-    () => TrainingSite,
-    (trainingSite) => trainingSite.trainingTimeSlots,
+    () => DepartmentUnits,
+    (departmentUnit) => departmentUnit.timeslots,
     { onDelete: 'CASCADE' },
   )
   @JoinColumn()
-  trainingSite: TrainingSite;
+  departmentUnit: DepartmentUnits;
 
   @CreateDateColumn()
   createdAt: Date;

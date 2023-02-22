@@ -1,7 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
-import { TrainingSite } from 'src/training-site/entity/training-site.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
@@ -39,9 +38,6 @@ export class Courses {
   })
   @JoinColumn()
   semester: Semester;
-
-  @OneToMany(() => TrainingSite, (trainingSite) => trainingSite.course)
-  trainingSite: TrainingSite[];
 
   @CreateDateColumn()
   createdAt: string;

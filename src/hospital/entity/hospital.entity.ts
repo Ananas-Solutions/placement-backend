@@ -25,6 +25,9 @@ export class Hospital {
   @Column({ nullable: true })
   address2: string;
 
+  @Column({ type: 'jsonb' })
+  location: any;
+
   @ManyToOne(() => Authority, (authority) => authority.id, {
     onDelete: 'CASCADE',
   })

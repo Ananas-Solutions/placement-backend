@@ -1,5 +1,5 @@
+import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { TrainingSiteTimeSlot } from 'src/training-site-time-slot/entity/training-site-time-slot.entity';
-import { TrainingSite } from 'src/training-site/entity/training-site.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -11,8 +11,8 @@ export class Placement {
   @ManyToOne(() => User)
   student: User;
 
-  @ManyToOne(() => TrainingSite, { cascade: true, onDelete: 'CASCADE' })
-  trainingSite: TrainingSite;
+  @ManyToOne(() => DepartmentUnits, { cascade: true, onDelete: 'CASCADE' })
+  departmentUnit: DepartmentUnits;
 
   @ManyToOne(() => TrainingSiteTimeSlot, { cascade: true, onDelete: 'CASCADE' })
   timeSlot: TrainingSiteTimeSlot;

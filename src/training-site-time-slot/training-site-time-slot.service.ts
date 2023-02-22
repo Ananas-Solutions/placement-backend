@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { PlacementService } from 'src/placement/placement.service';
-import { TrainingSite } from 'src/training-site/entity/training-site.entity';
-import { TrainingSiteService } from 'src/training-site/training-site.service';
 import { Repository } from 'typeorm';
 import { TrainingSiteTimeSlotDto } from './dto/training-site-time-slot.dto';
 import { TrainingSiteTimeSlot } from './entity/training-site-time-slot.entity';
@@ -13,7 +12,6 @@ export class TrainingSiteTimeSlotService {
   constructor(
     @InjectRepository(TrainingSiteTimeSlot)
     private readonly timeslotRepository: Repository<TrainingSiteTimeSlot>,
-    private readonly trainingSiteService: TrainingSiteService,
     private readonly placementService: PlacementService,
   ) {}
 
@@ -27,7 +25,7 @@ export class TrainingSiteTimeSlotService {
             endTime: timeslot.endTime,
             day: timeslot.day,
             capacity: timeslot.capacity,
-            trainingSite: { id: trainingSiteId } as TrainingSite,
+            departmentUnit: { id: trainingSiteId } as DepartmentUnits,
           });
         }),
       );
