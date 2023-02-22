@@ -45,7 +45,7 @@ export class UserDocumentsController {
     return await this.documentService.getUserDocuments(req.user.id);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Post('verify/:documentId')
   async verifyDocument(
     @Param('documentId') documentId: string,
@@ -54,7 +54,7 @@ export class UserDocumentsController {
     return await this.documentService.verifyDocument(documentId, body);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('user/:userId')
   async userDocuments(
     @Param('userId') userId: string,

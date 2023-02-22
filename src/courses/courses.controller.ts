@@ -39,7 +39,7 @@ export class CoursesController {
     });
   }
 
-  @Roles(Role.COORDINATOR)
+  @Roles(Role.CLINICAL_COORDINATOR)
   @Post('self')
   async selfSaveCourse(
     @Body() body: SelfCreateCourseDto,
@@ -58,13 +58,13 @@ export class CoursesController {
     return await this.coursesServices.allCourses();
   }
 
-  @Roles(Role.COORDINATOR, Role.ADMIN)
+  @Roles(Role.CLINICAL_COORDINATOR, Role.ADMIN)
   @Get('coordinator')
   async getOwnCourses(@Req() req): Promise<any> {
     return await this.coursesServices.allCoordinatorCourses(req.user.id);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('department/:departmentId')
   async queryAllCourses(
     @Param() { departmentId }: { departmentId: string },
@@ -72,13 +72,13 @@ export class CoursesController {
     return await this.coursesServices.findAllCourses(departmentId);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get(':id')
   async queryOneCourse(@Param('id') id: string): Promise<any> {
     return await this.coursesServices.findOneCourse(id);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Put()
   async updateCourse(@Body() body: UpdateCourseDto): Promise<any> {
     return await this.coursesServices.updateCourse(body);

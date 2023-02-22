@@ -35,7 +35,7 @@ export class CoordinatorService {
   ): Promise<CoordinatorProfile> {
     try {
       const user = await this.userService.findUserById(id);
-      if (!user || user.role !== UserRole.COORDINATOR)
+      if (!user || user.role !== UserRole.CLINICAL_COORDINATOR)
         throw new NotFoundException('Coordinator not found');
       return await this.coordinatorRepository.save({
         ...body,
@@ -62,7 +62,7 @@ export class CoordinatorService {
   ): Promise<CoordinatorProfile> {
     try {
       const user = await this.userService.findUserById(id);
-      if (!user || user.role !== UserRole.COORDINATOR)
+      if (!user || user.role !== UserRole.CLINICAL_COORDINATOR)
         throw new NotFoundException('Coordinator not found');
       const profile = await this.coordinatorRepository.findOne({
         where: { user: id },
@@ -79,7 +79,7 @@ export class CoordinatorService {
   async getAllUnassignedCoordinator(): Promise<any> {
     try {
       const coordinators = await this.userService.findAllSpecifcUser(
-        UserRole.COORDINATOR,
+        UserRole.CLINICAL_COORDINATOR,
       );
       const allCourseCoordinator = await this.courseRepository.find({
         relations: ['coordinator'],

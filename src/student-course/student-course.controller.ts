@@ -25,13 +25,13 @@ import { StudentCourseService } from './student-course.service';
 export class StudentCourseController {
   constructor(private readonly studentCourseService: StudentCourseService) {}
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Post('assign-students')
   async assignStudents(@Body() body: AssignStudentsDto): Promise<any> {
     return this.studentCourseService.assignStudents(body);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Post('assign-courses')
   async assignCourses(@Body() body: AssignCoursesDto): Promise<any> {
     return this.studentCourseService.assignCourses(body);
@@ -44,7 +44,7 @@ export class StudentCourseController {
     return await this.studentCourseService.findStudentCourses(userId);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('student/:studentId')
   async queryStudentAssignedCourses(
     @Param() { studentId }: { studentId: string },
@@ -52,7 +52,7 @@ export class StudentCourseController {
     return await this.studentCourseService.findStudentCourses(studentId);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('course/:courseId')
   async queryCourseAssignedStudents(
     @Param() { courseId }: { courseId: string },

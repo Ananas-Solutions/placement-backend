@@ -1,6 +1,6 @@
 export enum Role {
-  ADMIN = 'ADMIN',
-  COORDINATOR = 'CLINICAL COORDINATOR',
-  SUPERVISOR = 'CLINICAL SUPERVISOR',
-  STUDENT = 'STUDENT',
+  ADMIN = 'admin',
+  CLINICAL_COORDINATOR = 'clinical_coordinator',
+  CLINICAL_SUPERVISOR = 'clinical_supervisor',
+  STUDENT = 'student',
 }

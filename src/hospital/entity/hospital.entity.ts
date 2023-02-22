@@ -19,12 +19,6 @@ export class Hospital {
   @Column()
   name: string;
 
-  @Column()
-  address1: string;
-
-  @Column({ nullable: true })
-  address2: string;
-
   @Column({ type: 'jsonb' })
   location: any;
 

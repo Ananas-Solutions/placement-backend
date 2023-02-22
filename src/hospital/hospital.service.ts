@@ -65,14 +65,11 @@ export class HospitalService {
 
   async updateOneHospital(bodyDto: UpdateHospitalDto): Promise<any> {
     try {
-      const { authorityId, ...body } = bodyDto;
-      return await this.hospitalRepository.update(
-        { id: bodyDto.id },
-        {
-          ...body,
-          authority: { id: authorityId } as Authority,
-        },
-      );
+      const { authorityId, id, ...rest } = bodyDto;
+      return await this.hospitalRepository.update(bodyDto.id, {
+        ...rest,
+        authority: { id: authorityId } as Authority,
+      });
     } catch (err) {
       throw err;
     }

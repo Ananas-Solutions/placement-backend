@@ -7,7 +7,7 @@ import { SupervisorService } from './clinical-supervisor.service';
 import { SupervisorProfileDto } from './dto/clinicalSupervisorProfile.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.SUPERVISOR)
+@Roles(Role.CLINICAL_SUPERVISOR)
 @Controller('supervisor')
 export class SupervisorController {
   constructor(private readonly supervisorService: SupervisorService) {}

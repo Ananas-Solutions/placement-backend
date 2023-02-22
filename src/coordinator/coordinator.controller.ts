@@ -19,7 +19,7 @@ import { CoordinatorProfileDto } from './dto/coordinator-profile.dto';
 
 @ApiTags('coordinator')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.COORDINATOR, Role.ADMIN)
+@Roles(Role.CLINICAL_COORDINATOR, Role.ADMIN)
 @UseInterceptors(ErrorInterceptor)
 @Controller('coordinator')
 export class CoordinatorController {

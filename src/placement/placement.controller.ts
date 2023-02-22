@@ -26,7 +26,7 @@ import { PlacementService } from './placement.service';
 export class PlacementController {
   constructor(private readonly placementService: PlacementService) {}
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('student-availability')
   async findStudentsAvailability(
     @Query('courseId') courseId: string,
@@ -40,19 +40,19 @@ export class PlacementController {
     );
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Post()
   async assignPlacement(@Body() body: StudentPlacementDto): Promise<any> {
     return await this.placementService.assignPlacment(body);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('student/:studentId')
   async getStudentSites(@Param('studentId') studentId: string): Promise<any> {
     return await this.placementService.findStudentTrainingSite(studentId);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('training-site/:trainingSiteId/group-by-day')
   async getTrainingSiteStudentsGroupByDay(
     @Param('trainingSiteId') trainingSiteId: string,
@@ -62,7 +62,7 @@ export class PlacementController {
     );
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('training-site/:trainingSiteId/:timeSlotId')
   async getTrainingSiteStudents(
     @Param('trainingSiteId') trainingSiteId: string,

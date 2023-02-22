@@ -38,7 +38,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('student/:studentId')
   async getStudent(@Param('studentId') studentId: string): Promise<any> {
     return await this.userService.findStudentById(studentId);

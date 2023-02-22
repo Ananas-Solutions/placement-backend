@@ -21,7 +21,7 @@ import { CreateDepartmentDto, UpdateDepartmentDto } from './dto/department.dto';
 @ApiTags('department')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.COORDINATOR)
+@Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
 @Controller('department')
 export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}

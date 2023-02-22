@@ -21,7 +21,7 @@ import { HospitalService } from './hospital.service';
 @ApiTags('hospital')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.COORDINATOR)
+@Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
 @Controller('hospital')
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}

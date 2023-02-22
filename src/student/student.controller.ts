@@ -33,7 +33,7 @@ import {
 
 @ApiTags('student')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.COORDINATOR, Role.STUDENT)
+@Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR, Role.STUDENT)
 @UseInterceptors(ErrorInterceptor)
 @Controller('student')
 export class StudentController {

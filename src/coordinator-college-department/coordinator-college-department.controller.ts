@@ -28,7 +28,7 @@ import {
 export class CoordinatorCollegeDepartmentController {
   constructor(private readonly service: CoordinatorCollegeDepartmentService) {}
 
-  @Roles(Role.COORDINATOR)
+  @Roles(Role.CLINICAL_COORDINATOR)
   @Post()
   async saveDepartments(
     @Req() req,
@@ -37,7 +37,7 @@ export class CoordinatorCollegeDepartmentController {
     return await this.service.saveDepartments(req.user.id, body.departments);
   }
 
-  @Roles(Role.COORDINATOR)
+  @Roles(Role.CLINICAL_COORDINATOR)
   @Get()
   async getDepartments(@Req() req): Promise<any> {
     return await this.service.findDepartments(req.user.id);

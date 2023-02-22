@@ -21,7 +21,7 @@ export class CoordinatorCollegeDepartmentService {
   ): Promise<{ message: string }> {
     try {
       const user = await this.userService.findUserById(id);
-      if (!user || user.role !== UserRole.COORDINATOR)
+      if (!user || user.role !== UserRole.CLINICAL_COORDINATOR)
         throw new ConflictException('User is not coordinator');
       await Promise.all(
         departments.map(async (departmentId: string) => {

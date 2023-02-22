@@ -24,13 +24,13 @@ import { TrainingDaysEnum } from './types/training-site-days.enum';
 export class TrainingSiteTimeSlotController {
   constructor(private readonly timeslotService: TrainingSiteTimeSlotService) {}
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Post()
   async saveTimeSlots(@Body() body: TrainingSiteTimeSlotDto): Promise<any> {
     return await this.timeslotService.save(body);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('training-site/:trainingSiteId')
   async findTrainingSiteTimeSlots(
     @Param('trainingSiteId') trainingSiteId: string,
@@ -38,7 +38,7 @@ export class TrainingSiteTimeSlotController {
     return await this.timeslotService.findTimeSlots(trainingSiteId);
   }
 
-  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('training-site/:trainingSiteId/:trainingDay')
   async findTrainingSiteDaysTimeSlots(
     @Param('trainingSiteId') trainingSiteId: string,
