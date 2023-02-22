@@ -3,10 +3,12 @@ import { DepartmentUnits } from 'src/department-units/entity/department-units.en
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -28,4 +30,10 @@ export class SupervisorEvaluation {
   @ManyToOne(() => Courses, { cascade: true })
   @JoinColumn()
   course: Courses;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

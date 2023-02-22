@@ -7,6 +7,8 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  CreateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -28,4 +30,10 @@ export class DepartmentUnitEvaluation {
   @ManyToOne(() => Courses, { cascade: true })
   @JoinColumn()
   course: Courses;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

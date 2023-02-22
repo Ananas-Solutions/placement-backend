@@ -25,6 +25,7 @@ import { PlacementModule } from './placement/placement.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserDocumentsModule } from './user-documents/user-documents.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { EvaluationModule } from './evaluation/evaluation.module';
     PlacementModule,
     UserDocumentsModule,
     EvaluationModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

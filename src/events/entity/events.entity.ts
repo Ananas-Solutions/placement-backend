@@ -1,5 +1,4 @@
 import { Courses } from 'src/courses/entity/courses.entity';
-import { User } from 'src/user/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,28 +10,23 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class StudentEvaluation {
+export class Events {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  public id: string;
 
-  @Column({ type: 'jsonb' })
-  evaluation: any;
+  @Column()
+  public name: string;
 
-  @ManyToOne(() => User, { cascade: true })
-  @JoinColumn()
-  evaluator: User;
-
-  @ManyToOne(() => User, { cascade: true })
-  @JoinColumn()
-  evaluatee: User;
+  @Column()
+  public message: string;
 
   @ManyToOne(() => Courses, { cascade: true })
   @JoinColumn()
   course: Courses;
 
   @CreateDateColumn()
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  public updatedAt: Date;
 }
