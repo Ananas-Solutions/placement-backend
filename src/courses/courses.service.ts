@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
+import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
+import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
+import { CourseTrainingSite } from './entity/course-training-site.entity';
 import { Courses } from './entity/courses.entity';
 
 @Injectable()
@@ -12,6 +15,8 @@ export class CoursesService {
   constructor(
     @InjectRepository(Courses)
     private readonly coursesRepository: Repository<Courses>,
+    @InjectRepository(CourseTrainingSite)
+    private readonly trainingSiteRepository: Repository<CourseTrainingSite>,
   ) {}
 
   async createCourse(bodyDto: CreateCourseDto): Promise<Courses> {
@@ -94,5 +99,20 @@ export class CoursesService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async addTrainingSite(body: CourseTrainingSiteDto) {
+    const { courseId, departmentUnitId } = body;
+    return await this.trainingSiteRepository.save({
+      course: { id: courseId } as Courses,
+      departmentUnit: { id: departmentUnitId } as DepartmentUnits,
+    });
+  }
+
+  async getAllTrainingSite(courseId: string) {
+    return await this.trainingSiteRepository.find({
+      where: { course: { id: courseId } },
+      relations: ['departmentUnit'],
+    });
   }
 }

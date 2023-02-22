@@ -5,21 +5,22 @@ import {
   Param,
   Post,
   Req,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { FileUploadService } from 'src/helpers/file-uploader.service';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { DocumentVerifyDto } from './dto/document-verify.dto';
+import { UploadDocumentDto } from './dto/upload-document.dto';
 import { UserDocuments } from './entity/user-documents.entity';
-import { DocumentVerificationEnum } from './types/document-verification.type';
 import { UserDocumentsService } from './user-documents.service';
 
 @ApiTags('user-documents')
@@ -27,17 +28,41 @@ import { UserDocumentsService } from './user-documents.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('user-documents')
 export class UserDocumentsController {
-  constructor(private readonly documentService: UserDocumentsService) {}
+  constructor(
+    private readonly documentService: UserDocumentsService,
+    private readonly fileUpload: FileUploadService,
+  ) {}
 
   @Roles(Role.STUDENT)
   @Post()
-  @UseInterceptors(AnyFilesInterceptor())
+  @UseInterceptors(FileInterceptor('document'))
   async uploadDocuments(
     @Req() req,
-    @UploadedFiles() files: Array<Express.Multer.File>,
-  ): Promise<any> {
-    return await this.documentService.uploadDocuments(req.user.id, files);
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: UploadDocumentDto,
+  ) {
+    const uploadedFile = await this.fileUpload.uploadFile(
+      file.buffer,
+      file.originalname,
+    );
+    return await this.documentService.uploadDocuments(
+      req.user.id,
+      uploadedFile.fileUrl,
+      body,
+    );
   }
+
+  // async uploadDocuments(
+  //   @Req() req,
+  //   @UploadedFiles() files: Array<Express.Multer.File>,
+  //   @Body() { documentExpiryDate }: { documentExpiryDate?: Date },
+  // ): Promise<any> {
+  //   return await this.documentService.uploadDocuments(
+  //     req.user.id,
+  //     files,
+  //     documentExpiryDate,
+  //   );
+  // }
 
   @Roles(Role.STUDENT)
   @Get()

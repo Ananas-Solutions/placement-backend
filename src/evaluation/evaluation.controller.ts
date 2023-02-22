@@ -6,16 +6,21 @@ import {
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { DepartmentUnitEvaluationDto } from './dto/department-unit-evaluation.dto';
 import { StudentEvaluationDto } from './dto/student-evaluation.dto';
 import { SupervisorEvaluationDto } from './dto/supervisor-evaluation.dto';
 import { EvaluationService } from './evaluation.service';
 
+@ApiTags('evaluation')
+@UseInterceptors(ErrorInterceptor)
 @Controller('evaluation')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class EvaluationController {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User } from 'src/user/entity/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import { DocumentVerifyDto } from './dto/document-verify.dto';
+import { UploadDocumentDto } from './dto/upload-document.dto';
 import { UserDocuments } from './entity/user-documents.entity';
 
 @Injectable()
@@ -11,20 +11,15 @@ export class UserDocumentsService {
   constructor(
     @InjectRepository(UserDocuments)
     private readonly documentRepository: Repository<UserDocuments>,
-    private readonly cloudinary: CloudinaryService,
   ) {}
 
-  async uploadDocuments(userId: string, files: Express.Multer.File[]) {
-    await Promise.all(
-      files.map(async (file) => {
-        const cloudinaryResponse = await this.cloudinary.uploadImage(file);
-        return await this.documentRepository.save({
-          name: file.fieldname,
-          url: cloudinaryResponse.url,
-          user: { id: userId } as User,
-        });
-      }),
-    );
+  async uploadDocuments(userId: string, url: string, body: UploadDocumentDto) {
+    await this.documentRepository.save({
+      ...body,
+      url: url,
+      user: { id: userId } as User,
+    });
+
     return { message: 'Documents uploaded successfully' };
   }
 

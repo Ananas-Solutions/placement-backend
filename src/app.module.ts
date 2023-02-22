@@ -17,7 +17,6 @@ import { CoordinatorModule } from './coordinator/coordinator.module';
 import { CollegeDepartmentModule } from './college-department/college-department.module';
 import { DepartmentUnitsModule } from './department-units/department-units.module';
 import { SemesterModule } from './semester/semester.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CoordinatorCollegeDepartmentModule } from './coordinator-college-department/coordinator-college-department.module';
 //import { TrainingSiteModule } from './training-site/training-site.module';
 import { TrainingSiteTimeSlotModule } from './training-time-slot/training-time-slot.module';
@@ -26,6 +25,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserDocumentsModule } from './user-documents/user-documents.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
 import { EventsModule } from './events/events.module';
+import { QueuesModule } from './queues/queues.module';
 
 @Module({
   imports: [
@@ -39,6 +39,7 @@ import { EventsModule } from './events/events.module';
           synchronize: true,
         }),
     }),
+    QueuesModule,
     UserModule,
     SupervisorModule,
     HospitalModule,
@@ -52,7 +53,6 @@ import { EventsModule } from './events/events.module';
     CollegeDepartmentModule,
     DepartmentUnitsModule,
     SemesterModule,
-    CloudinaryModule,
     CoordinatorCollegeDepartmentModule,
     //TrainingSiteModule,
     TrainingSiteTimeSlotModule,

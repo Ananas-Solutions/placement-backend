@@ -18,6 +18,7 @@ import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CoursesService } from './courses.service';
+import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import {
   CreateCourseDto,
   SelfCreateCourseDto,
@@ -52,6 +53,12 @@ export class CoursesController {
     });
   }
 
+  @Post('training-site')
+  @Roles(Role.CLINICAL_COORDINATOR, Role.ADMIN)
+  async addTrainingSite(@Body() body: CourseTrainingSiteDto) {
+    return this.coursesServices.addTrainingSite(body);
+  }
+
   @Roles(Role.ADMIN)
   @Get()
   async getAllCourses(): Promise<any> {
@@ -70,6 +77,12 @@ export class CoursesController {
     @Param() { departmentId }: { departmentId: string },
   ): Promise<any> {
     return await this.coursesServices.findAllCourses(departmentId);
+  }
+
+  @Get('training-site/:courseId')
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async queryAllTrainingSites(@Param('courseId') courseId: string) {
+    return await this.coursesServices.getAllTrainingSite(courseId);
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)

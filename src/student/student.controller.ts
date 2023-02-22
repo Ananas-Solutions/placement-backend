@@ -17,7 +17,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { FileUploadService } from 'src/helpers/file-uploader.service';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { User } from 'src/user/entity/user.entity';
 import {
@@ -39,7 +39,7 @@ import {
 export class StudentController {
   constructor(
     private studentService: StudentService,
-    private readonly cloudinary: CloudinaryService,
+    private readonly fileUpload: FileUploadService,
   ) {}
 
   @Post()
@@ -81,27 +81,20 @@ export class StudentController {
   }
 
   @Post('identity-document')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: identityDocumentFileLimit,
-      fileFilter: identityDocumentFileFilter,
-    }),
-  )
+  @UseInterceptors(FileInterceptor('identityDocument'))
   async updateIdentityDocument(
     @Req() req,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() identityDocument: Express.Multer.File,
   ): Promise<any> {
     try {
-      if (req.fileValidationError) {
-        throw new BadRequestException(req.fileValidationError);
-      }
-      if (!file) {
-        throw new BadRequestException('Invalid file uploaded.');
-      }
+      const uploadedFile = await this.fileUpload.uploadFile(
+        identityDocument.buffer,
+        identityDocument.originalname,
+      );
       const { id } = req.user;
-      const cloudinaryResponse = await this.cloudinary.uploadImage(file);
+
       return await this.studentService.updateProfileAssets(id, {
-        identity: cloudinaryResponse.url,
+        identity: uploadedFile.fileUrl,
       });
     } catch (err) {
       throw new BadRequestException(err.message);
@@ -109,27 +102,20 @@ export class StudentController {
   }
 
   @Post('avatar')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: identityDocumentFileLimit,
-      fileFilter: identityDocumentFileFilter,
-    }),
-  )
+  @UseInterceptors(FileInterceptor('avatar'))
   async updateAvatar(
     @Req() req,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() avatar: Express.Multer.File,
   ): Promise<any> {
     try {
-      if (req.fileValidationError) {
-        throw new BadRequestException(req.fileValidationError);
-      }
-      if (!file) {
-        throw new BadRequestException('Invalid file uploaded.');
-      }
+      const uploadedFile = await this.fileUpload.uploadFile(
+        avatar.buffer,
+        avatar.originalname,
+      );
       const { id } = req.user;
-      const cloudinaryResponse = await this.cloudinary.uploadImage(file);
+
       return await this.studentService.updateProfileAssets(id, {
-        imageUrl: cloudinaryResponse.url,
+        imageUrl: uploadedFile.fileUrl,
       });
     } catch (err) {
       throw new BadRequestException(err.message);

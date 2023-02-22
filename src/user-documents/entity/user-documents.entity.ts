@@ -29,6 +29,9 @@ export class UserDocuments {
   @Column({ nullable: true })
   comments: string;
 
+  @Column({ type: 'date', nullable: true })
+  documentExpiryDate: Date;
+
   @ManyToOne(() => User, (user) => user.documents, {
     cascade: true,
     onDelete: 'CASCADE',
