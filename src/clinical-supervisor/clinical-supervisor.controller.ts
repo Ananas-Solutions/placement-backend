@@ -1,18 +1,37 @@
-import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { SupervisorService } from './clinical-supervisor.service';
 import { SupervisorProfileDto } from './dto/clinicalSupervisorProfile.dto';
+import { CreateSupervisorDto } from './dto/create-supervisor.dto';
 
+@ApiTags('clinical supervisor')
+@UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.CLINICAL_SUPERVISOR)
 @Controller('supervisor')
 export class SupervisorController {
   constructor(private readonly supervisorService: SupervisorService) {}
 
   @Post()
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async createSupervisorAccount(@Body() body: CreateSupervisorDto) {
+    return this.supervisorService.createSupervisor(body);
+  }
+
+  @Post('profile')
+  @Roles(Role.CLINICAL_SUPERVISOR)
   async createProfile(
     @Req() req: any,
     @Body() body: SupervisorProfileDto,
@@ -21,7 +40,8 @@ export class SupervisorController {
     return this.supervisorService.saveSupervisorProfile(id, body);
   }
 
-  @Put()
+  @Put('profile')
+  @Roles(Role.CLINICAL_SUPERVISOR)
   async updateProfile(
     @Req() req: any,
     @Body() body: SupervisorProfileDto,

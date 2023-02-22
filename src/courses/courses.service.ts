@@ -110,9 +110,44 @@ export class CoursesService {
   }
 
   async getAllTrainingSite(courseId: string) {
-    return await this.trainingSiteRepository.find({
+    const allTrainingSites = await this.trainingSiteRepository.find({
       where: { course: { id: courseId } },
-      relations: ['departmentUnit'],
+      relations: [
+        'departmentUnit',
+        'departmentUnit.department',
+        'departmentUnit.department.hospital',
+      ],
     });
+
+    const mappedResult = allTrainingSites.map((trainingSite) => {
+      const { departmentUnit } = trainingSite;
+      const { department } = departmentUnit;
+      const { hospital } = department;
+      console.log;
+      return {
+        id: trainingSite.id,
+        hospital: hospital.name,
+        department: department.name,
+        departmentUnit: departmentUnit.name,
+      };
+    });
+
+    return mappedResult;
+  }
+
+  public async getTrainingSiteSupervisor(trainingSiteId: string) {
+    const trainingSite = await this.trainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+      relations: [
+        'departmentUnit',
+        'departmentUnit.departmentSupervisor',
+        'departmentUnit.departmentSupervisor.supervisor',
+      ],
+    });
+    const mappedSupervisor = (
+      trainingSite.departmentUnit.departmentSupervisor as any
+    ).map(({ supervisor }) => supervisor);
+
+    return mappedSupervisor;
   }
 }

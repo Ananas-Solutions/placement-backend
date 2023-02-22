@@ -1,5 +1,7 @@
+import { SupervisorDepartmentUnit } from 'src/clinical-supervisor/entity/clinical-supervisor-department-unit.entity';
 import { Department } from 'src/department/entity/department.entity';
 import { TrainingTimeSlot } from 'src/training-time-slot/entity/training-time-slot.entity';
+import { User } from 'src/user/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -25,6 +27,9 @@ export class DepartmentUnits {
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   @JoinColumn()
   department: Department;
+
+  @OneToMany(() => SupervisorDepartmentUnit, (ds) => ds.departmentUnit)
+  departmentSupervisor: SupervisorDepartmentUnit;
 
   @CreateDateColumn()
   createdAt: Date;

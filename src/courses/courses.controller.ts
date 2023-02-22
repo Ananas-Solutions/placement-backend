@@ -11,7 +11,7 @@ import {
   Header,
   Req,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
@@ -79,10 +79,18 @@ export class CoursesController {
     return await this.coursesServices.findAllCourses(departmentId);
   }
 
-  @Get('training-site/:courseId')
+  @Get('training-site/course/:courseId')
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   async queryAllTrainingSites(@Param('courseId') courseId: string) {
     return await this.coursesServices.getAllTrainingSite(courseId);
+  }
+
+  @Get('training-site/:trainingSiteId/supervisor')
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async queryAllTrainingSiteSupervisor(
+    @Param('trainingSiteId') trainingSiteId: string,
+  ) {
+    return await this.coursesServices.getTrainingSiteSupervisor(trainingSiteId);
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
