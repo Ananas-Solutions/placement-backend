@@ -53,21 +53,23 @@ export class PlacementController {
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
-  @Get('department-unit/:unitId/group-by-day')
+  @Get('training-site/:trainingSiteId/group-by-day')
   async getTrainingSiteStudentsGroupByDay(
-    @Param('unitId') unitId: string,
+    @Param('trainingSiteId') trainingSiteId: string,
   ): Promise<any> {
-    return await this.placementService.groupTrainingSiteStudentsByDay(unitId);
+    return await this.placementService.groupTrainingSiteStudentsByDay(
+      trainingSiteId,
+    );
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
-  @Get('department-unit/:unitId/:timeSlotId')
+  @Get('training-site/:trainingSiteId/:timeSlotId')
   async getTrainingSiteStudents(
-    @Param('unitId') unitId: string,
+    @Param('trainingSiteId') trainingSiteId: string,
     @Param('timeSlotId') timeSlotId: string,
   ): Promise<any> {
     return await this.placementService.findTrainingSiteStudents(
-      unitId,
+      trainingSiteId,
       timeSlotId,
     );
   }

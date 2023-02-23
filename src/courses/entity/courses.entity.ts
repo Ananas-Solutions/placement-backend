@@ -14,6 +14,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { CourseTrainingSite } from './course-training-site.entity';
 
 @Entity()
 @Unique('unique_course', ['name', 'department', 'semester'])
@@ -45,6 +46,9 @@ export class Courses {
   })
   @JoinColumn()
   semester: Semester;
+
+  @OneToMany(() => CourseTrainingSite, (ts) => ts.course)
+  trainingSite: CourseTrainingSite[];
 
   @CreateDateColumn()
   createdAt: string;

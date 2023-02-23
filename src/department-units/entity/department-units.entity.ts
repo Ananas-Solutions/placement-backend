@@ -29,7 +29,7 @@ export class DepartmentUnits {
   department: Department;
 
   @OneToMany(() => SupervisorDepartmentUnit, (ds) => ds.departmentUnit)
-  departmentSupervisor: SupervisorDepartmentUnit;
+  departmentSupervisor: SupervisorDepartmentUnit[];
 
   @CreateDateColumn()
   createdAt: Date;

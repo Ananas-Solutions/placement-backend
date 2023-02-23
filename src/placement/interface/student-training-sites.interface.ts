@@ -2,7 +2,6 @@ import { TrainingDaysEnum } from 'src/training-time-slot/types/training-site-day
 
 export interface StudentTrainingSites {
   name: string;
-  address: string;
   authority: any;
   hospital: any;
   department: any;

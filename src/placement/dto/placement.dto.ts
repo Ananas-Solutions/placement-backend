@@ -1,13 +1,10 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
 
 export class StudentPlacementDto {
   @IsNotEmpty()
   @IsString()
-  courseId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  departmentUnitId: string;
+  trainingSiteId: string;
 
   @IsNotEmpty()
   @IsString()

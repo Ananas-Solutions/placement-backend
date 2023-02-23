@@ -31,7 +31,11 @@ export class DepartmentUnitsService {
   async findAll(): Promise<DepartmentUnits[]> {
     try {
       return await this.departmentUnitsRepository.find({
-        relations: ['department'],
+        relations: [
+          'department',
+          'department.hospital',
+          'department.hospital.authority',
+        ],
       });
     } catch (err) {
       throw err;
@@ -41,7 +45,11 @@ export class DepartmentUnitsService {
   async findOne(id: string): Promise<DepartmentUnits> {
     try {
       return await this.departmentUnitsRepository.findOne(id, {
-        relations: ['department'],
+        relations: [
+          'department',
+          'department.hospital',
+          'department.hospital.authority',
+        ],
       });
     } catch (err) {
       throw err;

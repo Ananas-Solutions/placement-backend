@@ -70,7 +70,7 @@ export class CoursesService {
     try {
       return await this.coursesRepository.findOne({
         where: { id },
-        relations: ['department', 'semester', 'coordinator', 'timeslots'],
+        relations: ['department', 'semester', 'coordinator'],
       });
     } catch (err) {
       throw err;
@@ -149,5 +149,12 @@ export class CoursesService {
     ).map(({ supervisor }) => supervisor);
 
     return mappedSupervisor;
+  }
+
+  public async exportCourse(courseId: string, trainingSites: string[]) {
+    const course = await this.coursesRepository.findOne({
+      where: { course: { id: courseId } },
+      relations: ['department', 'trainingSite'],
+    });
   }
 }

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as _ from 'lodash';
-
-import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
+import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
 import { StudentCourseService } from 'src/student-course/student-course.service';
 import { TrainingTimeSlot } from 'src/training-time-slot/entity/training-time-slot.entity';
 import { TrainingDaysEnum } from 'src/training-time-slot/types/training-site-days.enum';
@@ -24,12 +23,12 @@ export class PlacementService {
 
   async assignPlacment(bodyDto: StudentPlacementDto): Promise<any> {
     try {
-      const { departmentUnitId, timeSlotId } = bodyDto;
+      const { trainingSiteId, timeSlotId } = bodyDto;
       await Promise.all(
         bodyDto.studentIds.map(async (studentId) => {
           return await this.placementRepository.save({
             student: { id: studentId } as User,
-            departmentUnit: { id: departmentUnitId } as DepartmentUnits,
+            trainingSite: { id: trainingSiteId } as CourseTrainingSite,
             timeSlot: { id: timeSlotId } as TrainingTimeSlot,
           });
         }),
@@ -47,18 +46,19 @@ export class PlacementService {
       const studentTrainingSites = await this.placementRepository.find({
         where: { student: { id: studentId } },
         relations: [
-          'departmentUnit',
-          'departmentUnit.department',
-          'departmentUnit.department.hospital',
-          'departmentUnit.department.hospital.authority',
+          'trainingSite',
+          'trainingSite.departmentUnit',
+          'trainingSite.departmentUnit.department',
+          'trainingSite.departmentUnit.department.hospital',
+          'trainingSite.departmentUnit.department.hospital.authority',
           'timeSlot',
         ],
       });
       const mappedResult = studentTrainingSites.map((studentPlacement) => {
-        const { departmentUnit, timeSlot } = studentPlacement;
+        const { trainingSite, timeSlot } = studentPlacement;
+        const { departmentUnit } = trainingSite;
         return {
           name: departmentUnit.name,
-          address: 'address',
           authority: departmentUnit.department.hospital.authority.name,
           hospital: departmentUnit.department.hospital.name,
           department: departmentUnit.department.name,
@@ -69,7 +69,6 @@ export class PlacementService {
       });
       return mappedResult;
     } catch (err) {
-      console.log('name err', err);
       throw err;
     }
   }
@@ -81,7 +80,7 @@ export class PlacementService {
     try {
       return await this.placementRepository.find({
         where: { student: { id: studentId }, timeSlot: { day } },
-        relations: ['departmentUnit', 'timeSlot'],
+        relations: ['trainingSite', 'trainingSite.departmentUnit', 'timeSlot'],
       });
     } catch (err) {
       throw err;
@@ -89,16 +88,16 @@ export class PlacementService {
   }
 
   async findTrainingSiteStudents(
-    departmentUnit: string,
+    trainingSiteId: string,
     timeSlotId: string,
   ): Promise<TrainingSiteStudents[]> {
     try {
       const studentsPlacement = await this.placementRepository.find({
         where: {
-          departmentUnit: { id: departmentUnit },
+          trainingSite: { id: trainingSiteId },
           timeSlot: { id: timeSlotId },
         },
-        relations: ['departmentUnit', 'student', 'timeSlot'],
+        relations: ['student', 'timeSlot'],
       });
 
       const mappedTrainingSiteStudents = studentsPlacement.map(
@@ -127,8 +126,6 @@ export class PlacementService {
         relations: ['student', 'timeSlot'],
       });
 
-      console.log('placements', placements);
-
       const mappedPlacements = placements.map((p) => {
         return {
           studentId: p.student.id,
@@ -142,16 +139,7 @@ export class PlacementService {
 
       const mappedResult = _.groupBy(mappedPlacements, 'day');
 
-      console.log('mapped result', mappedResult);
-
-      // const mappedPlacements = await getManager().query(
-      //   `
-      // select  COUNT(tsts.id),tsts.id,tsts."startTime", tsts."endTime", tsts."day"  from placement p inner join training_site ts on p."trainingSiteId"=ts.id inner join training_site_time_slot tsts on p."timeSlotId" = tsts .id where ts.id =$1 group by tsts."id" ;
-      // `,
-      //   [departmentUnitId],
-      // );
-
-      // return mappedPlacements;
+      return mappedResult;
     } catch (err) {
       throw err;
     }
@@ -170,7 +158,7 @@ export class PlacementService {
 
   async findStudentsAvailability(
     courseId: string,
-    departmentUnit: string,
+    trainingSiteId: string,
     trainingDay: TrainingDaysEnum,
   ): Promise<StudentAvailabilityInterface> {
     try {
@@ -200,15 +188,15 @@ export class PlacementService {
           // student has been assigned to some training site for that particular day
           const assignedTrainingDepartments = studentTrainingDepartments.map(
             (studentPlacement: Placement) => {
-              if (studentPlacement.departmentUnit.id === departmentUnit) {
+              if (studentPlacement.trainingSite.id === trainingSiteId) {
                 return undefined;
               }
               const {
-                departmentUnit: { name },
+                trainingSite: { departmentUnit },
                 timeSlot: { startTime, endTime },
               } = studentPlacement;
               return {
-                trainingSite: name,
+                trainingSite: departmentUnit.name,
                 timeSlot: {
                   startTime,
                   endTime,
@@ -250,7 +238,7 @@ export class PlacementService {
     try {
       return await this.placementRepository.delete({
         student: { id: studentId },
-        departmentUnit: { id: trainingSiteId },
+        trainingSite: { id: trainingSiteId },
       });
     } catch (err) {
       throw err;
