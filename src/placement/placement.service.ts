@@ -119,10 +119,10 @@ export class PlacementService {
     }
   }
 
-  async groupTrainingSiteStudentsByDay(departmentUnitId: string): Promise<any> {
+  async groupTrainingSiteStudentsByDay(trainingSiteId: string): Promise<any> {
     try {
       const placements = await this.placementRepository.find({
-        where: { departmentUnit: { id: departmentUnitId } },
+        where: { trainingSite: { id: trainingSiteId } },
         relations: ['student', 'timeSlot'],
       });
 
