@@ -4,7 +4,7 @@ import { CollegeDepartment } from 'src/college-department/entity/college-departm
 import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
 import { User } from 'src/user/entity/user.entity';
-import { In, Repository, UpdateResult } from 'typeorm';
+import { createQueryBuilder, Repository, UpdateResult } from 'typeorm';
 import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 import { ExportCourseDataDto } from './dto/export-course.dto';
@@ -165,15 +165,60 @@ export class CoursesService {
   }
 
   public async exportCourseData(data: ExportCourseDataDto) {
-    const { courseId, trainingSites } = data;
-    const course = await this.coursesRepository.findOne({
-      where: { course: { id: courseId }, trainingSite: In(trainingSites) },
-      relations: [
-        'department',
-        'trainingSite',
-        'trainingSite.timeslots',
-        'trainingSite.timeslots.supervisor',
-      ],
+    const { course: courseId, trainingSites } = data;
+
+    const courseData = await createQueryBuilder(Courses, 'course')
+      .where('course.id = :courseId', { courseId })
+      .leftJoinAndSelect('course.department', 'courseDepartment')
+      .leftJoinAndSelect('course.trainingSite', 'courseTrainingSite')
+      .andWhere('courseTrainingSite.id In(:...trainingSitesId)', {
+        trainingSitesId: trainingSites,
+      })
+      .leftJoinAndSelect('courseTrainingSite.departmentUnit', 'departmentUnit')
+      .leftJoinAndSelect('departmentUnit.department', 'hospitalDepartment')
+      .leftJoinAndSelect('hospitalDepartment.hospital', 'hospital')
+      .leftJoinAndSelect('courseTrainingSite.timeslots', 'timeSlots')
+      .leftJoinAndSelect('timeSlots.placements', 'placement')
+      .leftJoinAndSelect('placement.student', 'student')
+      .getOne();
+
+    const { department, trainingSite } = courseData;
+
+    const mappedTrainingSiteInfo = trainingSite.map((site) => {
+      const { departmentUnit, timeslots } = site;
+      const { department } = departmentUnit;
+      const { hospital } = department;
+      const mappedTimeSlots = timeslots.map((slot) => {
+        const { day, startTime, endTime, placements } = slot;
+        const slotStudents = placements.map((p) => {
+          const {
+            student: { id, name, email },
+          } = p;
+          return {
+            studentId: id,
+            studentName: name,
+            studentEmail: email,
+          };
+        });
+        return {
+          day: day,
+          startTime: startTime,
+          endTime: endTime,
+          timeSlotStudents: slotStudents,
+        };
+      });
+
+      return {
+        hospital: hospital.name,
+        hospitalDepartment: department.name,
+        hospitalUnit: departmentUnit.name,
+        timeSlots: mappedTimeSlots,
+      };
     });
+
+    return {
+      collegeDepartment: department.name,
+      trainingSiteInfo: mappedTrainingSiteInfo,
+    };
   }
 }
