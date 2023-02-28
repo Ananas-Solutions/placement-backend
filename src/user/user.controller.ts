@@ -31,7 +31,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get()
   async queryAllStudents(@Query('role') role: UserRole): Promise<any> {
     return await this.userService.findAllSpecifcUser(role);

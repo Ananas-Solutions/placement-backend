@@ -135,6 +135,17 @@ export class CoursesService {
     return mappedResult;
   }
 
+  public async getTrainingSite(trainingSiteId: string) {
+    const trainingSite = await this.trainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+      relations: [
+        'departmentUnit',
+        'departmentUnit.department',
+        'departmentUnit.department.hospital',
+      ],
+    });
+    return trainingSite;
+  }
   public async getTrainingSiteSupervisor(trainingSiteId: string) {
     const trainingSite = await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },

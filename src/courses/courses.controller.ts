@@ -85,6 +85,11 @@ export class CoursesController {
     return await this.coursesServices.getAllTrainingSite(courseId);
   }
 
+  @Get('training-site/:trainingSiteId')
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async queryTrainingSite(@Param('trainingSiteId') trainingSiteId: string) {
+    return await this.coursesServices.getTrainingSite(trainingSiteId);
+  }
   @Get('training-site/:trainingSiteId/supervisor')
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   async queryAllTrainingSiteSupervisor(
