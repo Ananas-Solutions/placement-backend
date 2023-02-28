@@ -75,7 +75,7 @@ export class StudentCourseService {
   async findCourseStudents(courseId: string): Promise<User[]> {
     try {
       const studentCourses = await this.studentCourseRepository.find({
-        where: { course: courseId },
+        where: { course: { id: courseId } },
         relations: ['student', 'student.studentProfile'],
       });
       const users = studentCourses.map(
