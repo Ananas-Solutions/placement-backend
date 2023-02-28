@@ -18,7 +18,6 @@ import { CollegeDepartmentModule } from './college-department/college-department
 import { DepartmentUnitsModule } from './department-units/department-units.module';
 import { SemesterModule } from './semester/semester.module';
 import { CoordinatorCollegeDepartmentModule } from './coordinator-college-department/coordinator-college-department.module';
-//import { TrainingSiteModule } from './training-site/training-site.module';
 import { TrainingSiteTimeSlotModule } from './training-time-slot/training-time-slot.module';
 import { PlacementModule } from './placement/placement.module';
 import { ConfigModule } from '@nestjs/config';
@@ -54,7 +53,6 @@ import { QueuesModule } from './queues/queues.module';
     DepartmentUnitsModule,
     SemesterModule,
     CoordinatorCollegeDepartmentModule,
-    //TrainingSiteModule,
     TrainingSiteTimeSlotModule,
     PlacementModule,
     UserDocumentsModule,

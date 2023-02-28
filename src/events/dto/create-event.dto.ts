@@ -1,11 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateEventDto {
-  @IsNotEmpty()
-  @IsString()
-  @IsUUID()
-  public courseId: string;
-
   @IsNotEmpty()
   @IsString()
   public name: string;
@@ -17,11 +18,9 @@ export class CreateEventDto {
   @IsOptional()
   @IsString()
   public date: string;
-}
 
-export class UpdateEventDto extends CreateEventDto {
   @IsNotEmpty()
-  @IsString()
-  @IsUUID()
-  public id: string;
+  @IsArray()
+  @ArrayMinSize(1)
+  public audiences: string[];
 }

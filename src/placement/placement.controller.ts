@@ -32,7 +32,7 @@ export class PlacementController {
     @Query('trainingDay') trainingDay: TrainingDaysEnum,
   ) {
     return await this.placementService.findStudentsAvailability(
-      courseId,
+      trainingSiteId,
       trainingDay,
     );
   }

@@ -23,10 +23,6 @@ export class Events {
   @Column({ nullable: true })
   public date?: Date;
 
-  @ManyToOne(() => Courses, { cascade: true })
-  @JoinColumn()
-  course: Courses;
-
   @CreateDateColumn()
   public createdAt: Date;
 
