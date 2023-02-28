@@ -28,13 +28,11 @@ export class PlacementController {
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   @Get('student-availability')
   async findStudentsAvailability(
-    @Query('courseId') courseId: string,
-    @Query('departmentUnit') departmentUnit: string,
+    @Query('trainingSiteId') trainingSiteId: string,
     @Query('trainingDay') trainingDay: TrainingDaysEnum,
   ) {
     return await this.placementService.findStudentsAvailability(
       courseId,
-      departmentUnit,
       trainingDay,
     );
   }

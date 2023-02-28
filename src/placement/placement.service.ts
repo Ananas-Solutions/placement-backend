@@ -18,6 +18,8 @@ export class PlacementService {
   constructor(
     @InjectRepository(Placement)
     private readonly placementRepository: Repository<Placement>,
+    @InjectRepository(CourseTrainingSite)
+    private readonly courseTrainingSite: Repository<CourseTrainingSite>,
     private readonly studentCourseService: StudentCourseService,
   ) {}
 
@@ -73,7 +75,7 @@ export class PlacementService {
     }
   }
 
-  async findStudentTrainingDepartmentForParticularDay(
+  async findStudentTrainingForParticularDay(
     studentId: string,
     day: TrainingDaysEnum,
   ): Promise<Placement[]> {
@@ -157,21 +159,27 @@ export class PlacementService {
   }
 
   async findStudentsAvailability(
-    courseId: string,
     trainingSiteId: string,
     trainingDay: TrainingDaysEnum,
   ): Promise<StudentAvailabilityInterface> {
     try {
+      //finding which course does the trainingsite id belongs to;
+      const courseTrainingSite = await this.courseTrainingSite.findOne({
+        where: { id: trainingSiteId },
+        relations: ['course'],
+      });
+      const course = courseTrainingSite.course;
+
       // finding all students under that particular course
       const courseStudents = await this.studentCourseService.findCourseStudents(
-        courseId,
+        course.id,
       );
 
       // now iterating over all students to check whether they are assigned to any trainingSite or not for a given particular day (eg: SUNDAY, MONDAY, etc.)
       const studentTrainingSiteCheck = await Promise.all(
         courseStudents.map(async (student: User) => {
           const studentTrainingDepartments =
-            await this.findStudentTrainingDepartmentForParticularDay(
+            await this.findStudentTrainingForParticularDay(
               student.id,
               trainingDay,
             );
@@ -204,20 +212,20 @@ export class PlacementService {
               };
             },
           );
-          const allAssignedTrainingDepartments =
+          const allAssignedTrainings =
             assignedTrainingDepartments.filter(Boolean);
 
           // if allAssignedTrainingSite is empty it shows that user has trainingSite but not time slots
           // now this contradicts with the functionality of assignedTrainingSites which means that the user is assigned to the training site that is being queryed.
           // so removing those users since they are already inside that trainingSite
-          if (allAssignedTrainingDepartments.length === 0) return undefined;
+          if (allAssignedTrainings.length === 0) return undefined;
 
           return {
             id: student.id,
             email: student.email,
             name: student.name,
             hasPlacementSameDay: true,
-            assigendPlacements: allAssignedTrainingDepartments,
+            assigendPlacements: allAssignedTrainings,
           };
         }),
       );
