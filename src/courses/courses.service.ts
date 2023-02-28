@@ -4,9 +4,10 @@ import { CollegeDepartment } from 'src/college-department/entity/college-departm
 import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
 import { User } from 'src/user/entity/user.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { In, Repository, UpdateResult } from 'typeorm';
 import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
+import { ExportCourseDataDto } from './dto/export-course.dto';
 import { CourseTrainingSite } from './entity/course-training-site.entity';
 import { Courses } from './entity/courses.entity';
 
@@ -142,6 +143,7 @@ export class CoursesService {
         'departmentUnit',
         'departmentUnit.department',
         'departmentUnit.department.hospital',
+        'timeslots',
       ],
     });
     return trainingSite;
@@ -162,10 +164,16 @@ export class CoursesService {
     return mappedSupervisor;
   }
 
-  public async exportCourse(courseId: string, trainingSites: string[]) {
+  public async exportCourseData(data: ExportCourseDataDto) {
+    const { courseId, trainingSites } = data;
     const course = await this.coursesRepository.findOne({
-      where: { course: { id: courseId } },
-      relations: ['department', 'trainingSite'],
+      where: { course: { id: courseId }, trainingSite: In(trainingSites) },
+      relations: [
+        'department',
+        'trainingSite',
+        'trainingSite.timeslots',
+        'trainingSite.timeslots.supervisor',
+      ],
     });
   }
 }
