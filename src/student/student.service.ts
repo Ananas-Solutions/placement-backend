@@ -56,7 +56,7 @@ export class StudentService {
             password: 'student',
           });
 
-          const savedProfile = await this.studentProfileRepository.save({
+          await this.studentProfileRepository.save({
             studentId: student.studentId,
             user: { id: studentUser.id },
           });
@@ -90,16 +90,13 @@ export class StudentService {
   }
 
   async getProfile(id: string): Promise<StudentProfile> {
-    console.log('===Student ID===', id);
     try {
       const studentProfile = await this.studentProfileRepository.findOne({
         where: { user: id },
         relations: ['user'],
       });
-      console.log('===Student Profile===', studentProfile);
       return studentProfile;
     } catch (err) {
-      console.log('===Student Error===', err);
       throw err;
     }
   }

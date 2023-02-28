@@ -1,7 +1,5 @@
-import { Exclude } from 'class-transformer';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
-import { TrainingTimeSlot } from 'src/training-time-slot/entity/training-time-slot.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,

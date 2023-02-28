@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  Header,
   Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -24,6 +23,7 @@ import {
   SelfCreateCourseDto,
   UpdateCourseDto,
 } from './dto/courses.dto';
+import { ExportCourseDataDto } from './dto/export-course.dto';
 
 @ApiTags('course')
 @UseInterceptors(ErrorInterceptor)
@@ -34,7 +34,7 @@ export class CoursesController {
 
   @Roles(Role.ADMIN)
   @Post()
-  async saveCourse(@Body() body: CreateCourseDto, @Req() req): Promise<any> {
+  async saveCourse(@Body() body: CreateCourseDto): Promise<any> {
     return await this.coursesServices.createCourse({
       ...body,
     });
@@ -59,6 +59,12 @@ export class CoursesController {
     return this.coursesServices.addTrainingSite(body);
   }
 
+  @Post('export')
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async exportCourse(@Body() body: ExportCourseDataDto) {
+    return this.coursesServices.exportCourseData(body);
+  }
+
   @Roles(Role.ADMIN)
   @Get()
   async getAllCourses(): Promise<any> {
@@ -79,7 +85,7 @@ export class CoursesController {
     return await this.coursesServices.findAllCourses(departmentId);
   }
 
-  @Get('training-site/course/:courseId')
+  @Get(':courseId/training-sites')
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   async queryAllTrainingSites(@Param('courseId') courseId: string) {
     return await this.coursesServices.getAllTrainingSite(courseId);
