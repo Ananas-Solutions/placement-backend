@@ -149,7 +149,7 @@ export class PlacementService {
     try {
       return await this.placementRepository.find({
         where: { timeSlot: { id: timeSlotId } },
-        relations: ['departmentUnit', 'student', 'timeSlot'],
+        relations: ['trainingSite', 'trainingSite.departmentUnit', 'student'],
       });
     } catch (err) {
       throw err;

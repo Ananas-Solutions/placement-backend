@@ -41,7 +41,7 @@ export class TrainingSiteTimeSlotService {
   async findTimeSlots(trainingSiteId: string): Promise<TrainingTimeSlot[]> {
     try {
       const trainingSiteTimeSlots = await this.timeslotRepository.find({
-        where: { trainingSite: trainingSiteId },
+        where: { trainingSite: { id: trainingSiteId } },
         relations: ['supervisor'],
       });
       const allAvailableTimeSlots = await Promise.all(
