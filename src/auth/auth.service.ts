@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/entity/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -36,7 +35,7 @@ export class AuthService {
         secret: this.configService.get('JWT_SECRET'),
         expiresIn: '1d',
       });
-      return { accessToken: token, role: user.role };
+      return { accessToken: token, role: user.role, id: user.id };
     } catch (err) {
       throw err;
     }
