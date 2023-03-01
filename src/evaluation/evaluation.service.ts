@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
 import { Courses } from 'src/courses/entity/courses.entity';
-import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
+
 import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
-import { DepartmentUnitEvaluationDto } from './dto/department-unit-evaluation.dto';
+import { TrainingSiteEvaluationDto } from './dto/training-site-evaluation.dto';
 import { StudentEvaluationDto } from './dto/student-evaluation.dto';
 import { SupervisorEvaluationDto } from './dto/supervisor-evaluation.dto';
 
-import { DepartmentUnitEvaluation } from './entity/department-unit-evaluation.entity';
 import { StudentEvaluation } from './entity/student-evaluation.entity';
 import { SupervisorEvaluation } from './entity/supervisor-evaluation.entity';
+import { TrainingSiteEvaluation } from './entity/training-site-evaluation.entity';
 
 @Injectable()
 export class EvaluationService {
@@ -19,8 +20,8 @@ export class EvaluationService {
     private readonly studentEvaluationRepository: Repository<StudentEvaluation>,
     @InjectRepository(SupervisorEvaluation)
     private readonly supervisorEvaluationRepository: Repository<SupervisorEvaluation>,
-    @InjectRepository(DepartmentUnitEvaluation)
-    private readonly departmentUnitRepository: Repository<DepartmentUnitEvaluation>,
+    @InjectRepository(TrainingSiteEvaluation)
+    private readonly trainingSiteRepository: Repository<TrainingSiteEvaluation>,
   ) {}
 
   public async evaluateStudent(
@@ -49,15 +50,15 @@ export class EvaluationService {
     });
   }
 
-  public async evaluateDepartmentUnit(
+  public async evaluateTrainingSite(
     evaluatorId: string,
-    body: DepartmentUnitEvaluationDto,
+    body: TrainingSiteEvaluationDto,
   ) {
-    const { departmentUnitId, courseId, evaluation } = body;
-    return await this.departmentUnitRepository.save({
+    const { trainingSiteId, courseId, evaluation } = body;
+    return await this.trainingSiteRepository.save({
       evaluator: { id: evaluatorId } as User,
       evaluation,
-      departmentUnit: { id: departmentUnitId } as DepartmentUnits,
+      trainingSite: { id: trainingSiteId } as CourseTrainingSite,
       course: { id: courseId } as Courses,
     });
   }
@@ -76,13 +77,10 @@ export class EvaluationService {
     });
   }
 
-  public async viewEvaluatedDepartmentUnits(
-    studentId: string,
-    courseId: string,
-  ) {
-    return await this.departmentUnitRepository.find({
+  public async viewEvaluatedTrainingSites(studentId: string, courseId: string) {
+    return await this.trainingSiteRepository.find({
       where: { evaluator: { id: studentId }, course: { id: courseId } },
-      relations: ['departmentUnit'],
+      relations: ['trainingSite'],
     });
   }
 
@@ -99,7 +97,7 @@ export class EvaluationService {
   ) {
     return await this.supervisorEvaluationRepository.find({
       where: { evaluatee: { id: evaluteeId }, course: { id: courseId } },
-      relations: ['evaluator'],
+      //  relations: ['evaluator'],
     });
   }
 }

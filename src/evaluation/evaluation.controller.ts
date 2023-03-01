@@ -14,7 +14,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { DepartmentUnitEvaluationDto } from './dto/department-unit-evaluation.dto';
+import { TrainingSiteEvaluationDto } from './dto/training-site-evaluation.dto';
 import { StudentEvaluationDto } from './dto/student-evaluation.dto';
 import { SupervisorEvaluationDto } from './dto/supervisor-evaluation.dto';
 import { EvaluationService } from './evaluation.service';
@@ -33,14 +33,14 @@ export class EvaluationController {
     return await this.evaluationService.evaluateStudent(id, body);
   }
 
-  @Post('department-unit')
+  @Post('training-site')
   @Roles(Role.STUDENT)
-  async evaluateDepartmentUnit(
+  async evaluateTrainingSite(
     @Req() req,
-    @Body() body: DepartmentUnitEvaluationDto,
+    @Body() body: TrainingSiteEvaluationDto,
   ) {
     const { id } = req.user;
-    return await this.evaluationService.evaluateDepartmentUnit(id, body);
+    return await this.evaluationService.evaluateTrainingSite(id, body);
   }
 
   @Post('supervisor')
@@ -74,7 +74,7 @@ export class EvaluationController {
     @Param('courseId') courseId: string,
   ) {
     const { id } = req.user;
-    return await this.evaluationService.viewEvaluatedDepartmentUnits(
+    return await this.evaluationService.viewEvaluatedTrainingSites(
       id,
       courseId,
     );

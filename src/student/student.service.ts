@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Placement } from 'src/placement/entity/placement.entity';
 import { StudentCourseService } from 'src/student-course/student-course.service';
 import { User } from 'src/user/entity/user.entity';
 
@@ -18,6 +19,8 @@ export class StudentService {
   constructor(
     @InjectRepository(StudentProfile)
     private readonly studentProfileRepository: Repository<StudentProfile>,
+    @InjectRepository(Placement)
+    private readonly placementRepository: Repository<Placement>,
     private readonly userService: UserService,
     private readonly studentCourseService: StudentCourseService,
   ) {}
@@ -140,5 +143,49 @@ export class StudentService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async getStudentTimeSlots(studentId: string) {
+    const studentPlacement = await this.placementRepository.find({
+      where: { student: { id: studentId } },
+      relations: [
+        'trainingSite',
+        'trainingSite.departmentUnit',
+        'trainingSite.departmentUnit.department',
+        'trainingSite.departmentUnit.department.hospital',
+        'trainingSite.course',
+        'timeSlot',
+        'timeSlot.supervisor',
+      ],
+    });
+
+    const mappedResult = studentPlacement.map((placement) => {
+      const { id, trainingSite, timeSlot } = placement;
+      const { course } = trainingSite;
+      const { startTime, endTime, day, supervisor } = timeSlot;
+
+      const { departmentUnit } = trainingSite;
+      const { department } = departmentUnit;
+      const { hospital } = department;
+
+      return {
+        placementId: id,
+        hospital: hospital.name,
+        department: department.name,
+        departmentUnit: departmentUnit.name,
+        supervisor: {
+          name: supervisor.name,
+          email: supervisor.email,
+        },
+        course: {
+          name: course.name,
+        },
+        startTime,
+        endTime,
+        day,
+      };
+    });
+
+    return mappedResult;
   }
 }

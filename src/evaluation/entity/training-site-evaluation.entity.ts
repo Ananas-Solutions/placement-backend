@@ -1,5 +1,5 @@
+import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
 import { Courses } from 'src/courses/entity/courses.entity';
-import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class DepartmentUnitEvaluation {
+export class TrainingSiteEvaluation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,9 +23,9 @@ export class DepartmentUnitEvaluation {
   @JoinColumn()
   evaluator: User;
 
-  @ManyToOne(() => DepartmentUnits, { cascade: true })
+  @ManyToOne(() => CourseTrainingSite, { cascade: true })
   @JoinColumn()
-  departmentUnit: DepartmentUnits;
+  trainingSite: CourseTrainingSite;
 
   @ManyToOne(() => Courses, { cascade: true })
   @JoinColumn()

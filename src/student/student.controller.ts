@@ -26,10 +26,6 @@ import {
 } from './dto/bulk-student-upload.dto';
 import { StudentProfileDto } from './dto/student-profile.dto';
 import { StudentService } from './student.service';
-import {
-  identityDocumentFileFilter,
-  identityDocumentFileLimit,
-} from './utils/identity-document.filter';
 
 @ApiTags('student')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,6 +54,11 @@ export class StudentController {
     @Body() body: StudentProfileDto,
   ): Promise<any> {
     return await this.studentService.saveProfile(req.user.id, body);
+  }
+
+  @Get()
+  async getStudentTimeSlots(@Req() req) {
+    return this.studentService.getStudentTimeSlots(req.user.id);
   }
 
   @Get('profile')

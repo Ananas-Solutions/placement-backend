@@ -1,10 +1,10 @@
 import { IsNotEmpty, IsObject, IsString, IsUUID } from 'class-validator';
 
-export class DepartmentUnitEvaluationDto {
+export class TrainingSiteEvaluationDto {
   @IsNotEmpty()
   @IsString()
   @IsUUID()
-  public departmentUnitId: string;
+  public trainingSiteId: string;
 
   @IsObject()
   @IsNotEmpty()

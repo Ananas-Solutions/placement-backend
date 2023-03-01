@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   Put,
   Req,
@@ -48,5 +50,18 @@ export class SupervisorController {
   ): Promise<any> {
     const { id } = req.user;
     return this.supervisorService.updateSupervisorProfile(id, body);
+  }
+
+  @Get()
+  @Roles(Role.CLINICAL_SUPERVISOR)
+  async getTimeSlots(@Req() req) {
+    const { id } = req.user;
+    return this.supervisorService.fetchAllTimeSlots(id);
+  }
+
+  @Get('time-slot/:timeSlotId')
+  @Roles(Role.CLINICAL_SUPERVISOR)
+  async getOneTimeSlot(@Param('timeSlotId') timeSlotId: string) {
+    return this.supervisorService.fetchOneTimeSlot(timeSlotId);
   }
 }
