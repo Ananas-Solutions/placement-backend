@@ -18,6 +18,9 @@ export class Events {
   public message: string;
 
   @Column({ nullable: true })
+  public courseId: string;
+
+  @Column({ nullable: true })
   public date?: Date;
 
   @CreateDateColumn()
