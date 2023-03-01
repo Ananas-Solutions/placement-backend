@@ -6,7 +6,6 @@ export class SupervisorEvaluationDto {
   @IsUUID()
   public supervisorId: string;
 
-  @IsObject()
   @IsNotEmpty()
   public evaluation: any;
 

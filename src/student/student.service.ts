@@ -176,9 +176,14 @@ export class StudentService {
         supervisor: {
           name: supervisor.name,
           email: supervisor.email,
+          id: supervisor.id,
         },
         course: {
           name: course.name,
+          id: course.id,
+        },
+        trainingSite: {
+          id: trainingSite.id,
         },
         startTime,
         endTime,

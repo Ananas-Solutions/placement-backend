@@ -6,7 +6,6 @@ export class StudentEvaluationDto {
   @IsUUID()
   public studentId: string;
 
-  @IsObject()
   @IsNotEmpty()
   public evaluation: any;
 

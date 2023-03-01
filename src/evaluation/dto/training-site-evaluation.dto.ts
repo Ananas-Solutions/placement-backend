@@ -6,7 +6,6 @@ export class TrainingSiteEvaluationDto {
   @IsUUID()
   public trainingSiteId: string;
 
-  @IsObject()
   @IsNotEmpty()
   public evaluation: any;
 

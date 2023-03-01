@@ -107,7 +107,10 @@ export class SupervisorService {
         day,
         startTime,
         endTime,
-        course: course.name,
+        course: {
+          name: course.name,
+          id: course.id,
+        },
         totalStudents: placements.length,
       };
     });
@@ -151,7 +154,10 @@ export class SupervisorService {
       day,
       startTime,
       endTime,
-      course: course.name,
+      course: {
+        name: course.name,
+        id: course.id,
+      },
       totalStudents: placements.length,
       students: mappedStudents,
     };
