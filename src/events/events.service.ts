@@ -54,7 +54,7 @@ export class EventsService {
     return { message: 'events added successfully.' };
   }
 
-  public async getAllEvents(courseId: string) {
+  public async getAllCourseEvents(courseId: string) {
     return await this.eventsRepository.find({
       where: { course: { id: courseId } },
     });

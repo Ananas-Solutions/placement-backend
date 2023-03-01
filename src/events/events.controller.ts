@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UseGuards,
   UseInterceptors,
@@ -25,5 +27,10 @@ export class EventsController {
   @Post('course')
   async createEvent(@Body() body: CreateCourseEventDto) {
     return this.eventsService.createEvent(body);
+  }
+
+  @Get('course/:courseId')
+  async getAllEvents(@Param('courseId') courseId: string) {
+    return this.eventsService.getAllCourseEvents(courseId);
   }
 }
