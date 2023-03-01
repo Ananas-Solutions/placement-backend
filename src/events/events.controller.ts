@@ -11,7 +11,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
-import { CreateEventDto } from './dto/create-event.dto';
+import { CreateCourseEventDto } from './dto/create-event.dto';
 import { EventsService } from './events.service';
 
 @ApiTags('events')
@@ -22,8 +22,8 @@ import { EventsService } from './events.service';
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
-  @Post()
-  async createEvent(@Body() body: CreateEventDto) {
+  @Post('course')
+  async createEvent(@Body() body: CreateCourseEventDto) {
     return this.eventsService.createEvent(body);
   }
 }

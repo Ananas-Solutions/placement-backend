@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as excel4node from 'excel4node';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
 import { User } from 'src/user/entity/user.entity';
-import { In, Repository, UpdateResult } from 'typeorm';
+import { createQueryBuilder, Repository, UpdateResult } from 'typeorm';
 import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 import { ExportCourseDataDto } from './dto/export-course.dto';
@@ -165,15 +166,80 @@ export class CoursesService {
   }
 
   public async exportCourseData(data: ExportCourseDataDto) {
-    const { courseId, trainingSites } = data;
-    const course = await this.coursesRepository.findOne({
-      where: { course: { id: courseId }, trainingSite: In(trainingSites) },
-      relations: [
-        'department',
-        'trainingSite',
-        'trainingSite.timeslots',
-        'trainingSite.timeslots.supervisor',
-      ],
+    const wb = new excel4node.Workbook();
+    const ws = wb.addWorksheet('Sheet 1');
+    let rowIndex = 1;
+    ws.cell(rowIndex++, 1).string('Export Feature');
+
+    const { course: courseId, trainingSites } = data;
+
+    const courseData = await createQueryBuilder(Courses, 'course')
+      .where('course.id = :courseId', { courseId })
+      .leftJoinAndSelect('course.department', 'courseDepartment')
+      .leftJoinAndSelect('course.trainingSite', 'courseTrainingSite')
+      .andWhere('courseTrainingSite.id In(:...trainingSitesId)', {
+        trainingSitesId: trainingSites,
+      })
+      .leftJoinAndSelect('courseTrainingSite.departmentUnit', 'departmentUnit')
+      .leftJoinAndSelect('departmentUnit.department', 'hospitalDepartment')
+      .leftJoinAndSelect('hospitalDepartment.hospital', 'hospital')
+      .leftJoinAndSelect('courseTrainingSite.timeslots', 'timeSlots')
+      .leftJoinAndSelect('timeSlots.placements', 'placement')
+      .leftJoinAndSelect('placement.student', 'student')
+      .getOne();
+
+    const { department, trainingSite } = courseData;
+
+    ws.cell(rowIndex++, 1).string(department.name);
+
+    const mappedTrainingSiteInfo = trainingSite.map((site) => {
+      const { departmentUnit, timeslots } = site;
+      const { department } = departmentUnit;
+      const { hospital } = department;
+      ws.cell(rowIndex, 1).string(hospital.name);
+      ws.cell(rowIndex, 2).string(department.name);
+      ws.cell(rowIndex++, 3).string(departmentUnit.name);
+
+      const mappedTimeSlots = timeslots.map((slot) => {
+        const { day, startTime, endTime, placements } = slot;
+        ws.cell(rowIndex, 1).string(day);
+        ws.cell(rowIndex++, 2).string(`${startTime}-${endTime}`);
+        const slotStudents = placements.map((p) => {
+          const {
+            student: { id, name, email },
+          } = p;
+          ws.cell(rowIndex, 1).string(id);
+          ws.cell(rowIndex, 2).string(name);
+          ws.cell(rowIndex++, 3).string(email);
+          return {
+            studentId: id,
+            studentName: name,
+            studentEmail: email,
+          };
+        });
+        ws.cell(rowIndex++, 1).string(' ');
+        return {
+          day: day,
+          startTime: startTime,
+          endTime: endTime,
+          timeSlotStudents: slotStudents,
+        };
+      });
+      ws.cell(rowIndex++, 1).string(' ');
+
+      return {
+        hospital: hospital.name,
+        hospitalDepartment: department.name,
+        hospitalUnit: departmentUnit.name,
+        timeSlots: mappedTimeSlots,
+      };
     });
+
+    wb.write('Excel.xlsx');
+
+    return {
+      collegeDepartment: department.name,
+      trainingSiteInfo: mappedTrainingSiteInfo,
+    };
   }
 }

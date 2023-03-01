@@ -1,19 +1,19 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsNotEmpty,
   IsString,
   IsUUID,
-  MinLength,
 } from 'class-validator';
 
 export class ExportCourseDataDto {
   @IsNotEmpty()
   @IsUUID()
   @IsString()
-  public courseId: string;
+  public course: string;
 
   @IsNotEmpty()
   @IsArray()
-  @MinLength(1)
+  @ArrayMinSize(1)
   public trainingSites: string[];
 }

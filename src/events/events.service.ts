@@ -5,11 +5,12 @@ import IORedis from 'ioredis';
 import { Repository } from 'typeorm';
 
 import { QueuesService } from 'src/queues/queues.service';
-import { CreateEventDto } from './dto/create-event.dto';
+import { CreateCourseEventDto } from './dto/create-event.dto';
 import { Events } from './entity/events.entity';
 import { UserService } from 'src/user/user.service';
 import { ExecuteEventDto } from './dto/execute-event.dto';
 import { SendEmailService } from 'src/utils/sendEmail';
+import { StudentCourse } from 'src/student-course/entity/student-course.entity';
 
 @Injectable()
 export class EventsService {
@@ -17,6 +18,8 @@ export class EventsService {
   constructor(
     @InjectRepository(Events)
     private readonly eventsRepository: Repository<Events>,
+    @InjectRepository(StudentCourse)
+    private readonly studentCourseRepository: Repository<StudentCourse>,
     private readonly queueService: QueuesService,
     private readonly userService: UserService,
     private readonly emailService: SendEmailService,
@@ -31,16 +34,24 @@ export class EventsService {
     });
   }
 
-  public async createEvent(body: CreateEventDto) {
+  public async createEvent(
+    body: CreateCourseEventDto,
+  ): Promise<{ message: string }> {
     const { ...rest } = body;
     await this.eventsRepository.save({
       ...rest,
     });
-    const queue = this.queueService.getQueue('events-queue');
-    queue.add('events-queue', {
-      message: body.message,
-      audiences: body.audiences,
+    const courseStudent = await this.studentCourseRepository.find({
+      where: { course: { id: body.courseId } },
+      relations: ['student'],
     });
+    const audiences = courseStudent.map((cs) => cs.student.id);
+    const queue = this.queueService.getQueue('events-queue');
+    await queue.add('events-queue', {
+      message: body.message,
+      audiences: audiences,
+    });
+    return { message: 'events added successfully.' };
   }
 
   public async getAllEvents(courseId: string) {

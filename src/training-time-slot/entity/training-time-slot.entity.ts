@@ -1,5 +1,5 @@
 import { CourseTrainingSite } from 'src/courses/entity/course-training-site.entity';
-import { Courses } from 'src/courses/entity/courses.entity';
+import { Placement } from 'src/placement/entity/placement.entity';
 import { User } from 'src/user/entity/user.entity';
 import {
   Column,
@@ -7,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -38,6 +39,9 @@ export class TrainingTimeSlot {
   )
   @JoinColumn()
   trainingSite: CourseTrainingSite;
+
+  @OneToMany(() => Placement, (placement) => placement.timeSlot)
+  placements: Placement[];
 
   @ManyToOne(() => User, { cascade: true })
   @JoinColumn()
