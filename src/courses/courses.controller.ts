@@ -9,8 +9,10 @@ import {
   UseGuards,
   UseInterceptors,
   Req,
+  Res,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/roles.enum';
@@ -61,8 +63,14 @@ export class CoursesController {
 
   @Post('export')
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
-  async exportCourse(@Body() body: ExportCourseDataDto) {
-    return this.coursesServices.exportCourseData(body);
+  async exportCourse(@Body() body: ExportCourseDataDto, @Res() res: Response) {
+    return this.coursesServices.exportCourseData(body, res);
+  }
+
+  @Get('export/training-sites/:courseId')
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async getExportTrainingSites(@Param('courseId') courseId: string) {
+    return this.coursesServices.getExportTrainingSites(courseId);
   }
 
   @Roles(Role.ADMIN)

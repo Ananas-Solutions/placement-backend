@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as excel4node from 'excel4node';
+import { Response } from 'express';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
@@ -137,6 +138,41 @@ export class CoursesService {
     return mappedResult;
   }
 
+  public async getExportTrainingSites(courseId: string) {
+    const trainingSites = await this.trainingSiteRepository.find({
+      where: {
+        course: { id: courseId },
+      },
+      relations: ['departmentUnit', 'timeslots', 'timeslots.placements'],
+    });
+    const mappedTrainingSites = trainingSites.map((site) => {
+      const { timeslots, departmentUnit } = site;
+      if (timeslots.length === 0) {
+        return undefined;
+      }
+      const mappedTimeSlots = timeslots.map((slot) => {
+        const { placements } = slot;
+        if (placements.length === 0) {
+          return undefined;
+        }
+        return {
+          trainingSiteId: site.id,
+          trainingSiteName: departmentUnit.name,
+        };
+      });
+      return mappedTimeSlots;
+    });
+    const filteredTrainingSites = mappedTrainingSites.flat(10).filter(Boolean);
+
+    const uniqueTrainingSites = [
+      ...new Map(
+        filteredTrainingSites.map((item) => [item['trainingSiteId'], item]),
+      ).values(),
+    ];
+
+    return uniqueTrainingSites;
+  }
+
   public async getTrainingSite(trainingSiteId: string) {
     const trainingSite = await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
@@ -165,81 +201,174 @@ export class CoursesService {
     return mappedSupervisor;
   }
 
-  public async exportCourseData(data: ExportCourseDataDto) {
-    const wb = new excel4node.Workbook();
-    const ws = wb.addWorksheet('Sheet 1');
-    let rowIndex = 1;
-    ws.cell(rowIndex++, 1).string('Export Feature');
+  public async exportCourseData(data: ExportCourseDataDto, response: Response) {
+    try {
+      const { course: courseId, trainingSites } = data;
 
-    const { course: courseId, trainingSites } = data;
+      const courseData = await createQueryBuilder(Courses, 'course')
+        .where('course.id = :courseId', { courseId })
+        .leftJoinAndSelect('course.department', 'courseDepartment')
+        .leftJoinAndSelect('course.trainingSite', 'courseTrainingSite')
+        .andWhere('courseTrainingSite.id In(:...trainingSitesId)', {
+          trainingSitesId: trainingSites,
+        })
+        .leftJoinAndSelect(
+          'courseTrainingSite.departmentUnit',
+          'departmentUnit',
+        )
+        .leftJoinAndSelect('departmentUnit.department', 'hospitalDepartment')
+        .leftJoinAndSelect('hospitalDepartment.hospital', 'hospital')
+        .leftJoinAndSelect('courseTrainingSite.timeslots', 'timeSlots')
+        .leftJoinAndSelect('timeSlots.placements', 'placement')
+        .leftJoinAndSelect('placement.student', 'student')
+        .getOne();
 
-    const courseData = await createQueryBuilder(Courses, 'course')
-      .where('course.id = :courseId', { courseId })
-      .leftJoinAndSelect('course.department', 'courseDepartment')
-      .leftJoinAndSelect('course.trainingSite', 'courseTrainingSite')
-      .andWhere('courseTrainingSite.id In(:...trainingSitesId)', {
-        trainingSitesId: trainingSites,
-      })
-      .leftJoinAndSelect('courseTrainingSite.departmentUnit', 'departmentUnit')
-      .leftJoinAndSelect('departmentUnit.department', 'hospitalDepartment')
-      .leftJoinAndSelect('hospitalDepartment.hospital', 'hospital')
-      .leftJoinAndSelect('courseTrainingSite.timeslots', 'timeSlots')
-      .leftJoinAndSelect('timeSlots.placements', 'placement')
-      .leftJoinAndSelect('placement.student', 'student')
-      .getOne();
+      const { department, trainingSite } = courseData;
 
-    const { department, trainingSite } = courseData;
+      const hospitalCol = 1;
+      const departmentCol = 2;
+      const departmentUnitCol = 3;
+      const dayCol = 4;
+      const timeslotCol = 5;
+      const studentIdCol = 6;
+      const studentNameCol = 7;
+      const studentEmailCol = 8;
 
-    ws.cell(rowIndex++, 1).string(department.name);
-
-    const mappedTrainingSiteInfo = trainingSite.map((site) => {
-      const { departmentUnit, timeslots } = site;
-      const { department } = departmentUnit;
-      const { hospital } = department;
-      ws.cell(rowIndex, 1).string(hospital.name);
-      ws.cell(rowIndex, 2).string(department.name);
-      ws.cell(rowIndex++, 3).string(departmentUnit.name);
-
-      const mappedTimeSlots = timeslots.map((slot) => {
-        const { day, startTime, endTime, placements } = slot;
-        ws.cell(rowIndex, 1).string(day);
-        ws.cell(rowIndex++, 2).string(`${startTime}-${endTime}`);
-        const slotStudents = placements.map((p) => {
-          const {
-            student: { id, name, email },
-          } = p;
-          ws.cell(rowIndex, 1).string(id);
-          ws.cell(rowIndex, 2).string(name);
-          ws.cell(rowIndex++, 3).string(email);
-          return {
-            studentId: id,
-            studentName: name,
-            studentEmail: email,
-          };
-        });
-        ws.cell(rowIndex++, 1).string(' ');
-        return {
-          day: day,
-          startTime: startTime,
-          endTime: endTime,
-          timeSlotStudents: slotStudents,
-        };
+      const wb = new excel4node.Workbook({
+        defaultFont: {
+          size: 12,
+          name: 'Calibri',
+          color: 'FFFFFFFF',
+        },
       });
-      ws.cell(rowIndex++, 1).string(' ');
 
-      return {
-        hospital: hospital.name,
-        hospitalDepartment: department.name,
-        hospitalUnit: departmentUnit.name,
-        timeSlots: mappedTimeSlots,
-      };
-    });
+      const ws = wb.addWorksheet('Sheet 1', {
+        margins: {
+          left: 1.5,
+          right: 1.5,
+        },
+        sheetFormat: {
+          baseColWidth: 15,
+          defaultColWidth: 25,
+        },
+      });
 
-    wb.write('Excel.xlsx');
+      const titleHeaderStyle = wb.createStyle({
+        font: {
+          color: '#FF8888',
+          size: 17,
+          bold: true,
+        },
+        alignment: {
+          horizontal: 'center',
+        },
+      });
 
-    return {
-      collegeDepartment: department.name,
-      trainingSiteInfo: mappedTrainingSiteInfo,
-    };
+      const rowHeaderStyle = wb.createStyle({
+        font: {
+          color: '#444444',
+          size: 15,
+          bold: true,
+        },
+        alignment: {
+          horizontal: 'center',
+        },
+      });
+
+      const mergedCellStyle = wb.createStyle({
+        font: {
+          color: '#444444',
+          size: 13,
+        },
+        alignment: {
+          horizontal: 'center',
+          vertical: 'center',
+        },
+      });
+
+      ws.cell(1, hospitalCol, 3, studentEmailCol, true)
+        .string(
+          `\n Course: ${courseData.name} \n \n Department: ${department.name} \n`,
+        )
+        .style(titleHeaderStyle);
+
+      let rowIndex = 4;
+      ws.cell(rowIndex, hospitalCol).string('Hospital').style(rowHeaderStyle);
+      ws.cell(rowIndex, departmentCol)
+        .string('Department')
+        .style(rowHeaderStyle);
+      ws.cell(rowIndex, departmentUnitCol).string('Unit').style(rowHeaderStyle);
+      ws.cell(rowIndex, dayCol).string('Day').style(rowHeaderStyle);
+      ws.cell(rowIndex, timeslotCol).string('Time slot').style(rowHeaderStyle);
+      ws.cell(rowIndex, studentIdCol)
+        .string('Student ID')
+        .style(rowHeaderStyle);
+      ws.cell(rowIndex, studentNameCol)
+        .string('Student Name')
+        .style(rowHeaderStyle);
+      ws.cell(rowIndex, studentEmailCol)
+        .string('Student Email')
+        .style(rowHeaderStyle);
+
+      rowIndex += 1;
+
+      let siteRow = rowIndex;
+      trainingSite.forEach((site) => {
+        const { departmentUnit, timeslots } = site;
+        const { department } = departmentUnit;
+        const { hospital } = department;
+
+        let slotRow = siteRow;
+        timeslots.forEach((slot) => {
+          const { day, startTime, endTime, placements } = slot;
+
+          let studentRow = slotRow;
+          placements.forEach((p) => {
+            const {
+              student: { id, name, email },
+            } = p;
+
+            ws.cell(studentRow, studentIdCol).string(id);
+            ws.cell(studentRow, studentNameCol).string(name);
+            ws.cell(studentRow, studentEmailCol).string(email);
+
+            studentRow += 1;
+          });
+
+          ws.cell(slotRow, dayCol, studentRow - 1, dayCol, true)
+            .string(day)
+            .style(mergedCellStyle);
+          ws.cell(slotRow, timeslotCol, studentRow - 1, timeslotCol, true)
+            .string(`${startTime}-${endTime}`)
+            .style(mergedCellStyle);
+
+          slotRow = studentRow;
+        });
+
+        ws.cell(siteRow, hospitalCol, slotRow - 1, hospitalCol, true)
+          .string(hospital.name)
+          .style(mergedCellStyle);
+        ws.cell(siteRow, departmentCol, slotRow - 1, departmentCol, true)
+          .string(department.name)
+          .style(mergedCellStyle);
+        ws.cell(
+          siteRow,
+          departmentUnitCol,
+          slotRow - 1,
+          departmentUnitCol,
+          true,
+        )
+          .string(departmentUnit.name)
+          .style(mergedCellStyle);
+
+        siteRow = slotRow;
+      });
+
+      wb.write('Excel.xlsx');
+
+      return { message: 'Excel exported successfully' };
+    } catch (error) {
+      console.log('error here', error);
+    }
   }
 }
