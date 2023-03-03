@@ -143,7 +143,13 @@ export class CoursesService {
       where: {
         course: { id: courseId },
       },
-      relations: ['departmentUnit', 'timeslots', 'timeslots.placements'],
+      relations: [
+        'departmentUnit',
+        'departmentUnit.department',
+        'departmentUnit.department.hospital',
+        'timeslots',
+        'timeslots.placements',
+      ],
     });
     const mappedTrainingSites = trainingSites.map((site) => {
       const { timeslots, departmentUnit } = site;
@@ -157,7 +163,9 @@ export class CoursesService {
         }
         return {
           trainingSiteId: site.id,
-          trainingSiteName: departmentUnit.name,
+          departmentUnit: departmentUnit.name,
+          hospital: departmentUnit.department.hospital.name,
+          department: departmentUnit.department.name,
         };
       });
       return mappedTimeSlots;
@@ -364,7 +372,7 @@ export class CoursesService {
         siteRow = slotRow;
       });
 
-      wb.write('Excel.xlsx');
+      wb.write('Excel.xlsx', response);
 
       return { message: 'Excel exported successfully' };
     } catch (error) {

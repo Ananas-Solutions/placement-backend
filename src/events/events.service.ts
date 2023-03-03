@@ -47,16 +47,16 @@ export class EventsService {
     });
     const audiences = courseStudent.map((cs) => cs.student.id);
     const queue = this.queueService.getQueue('events-queue');
-    await queue.add('events-queue', {
-      message: body.message,
-      audiences: audiences,
-    });
+    // await queue.add('events-queue', {
+    //   message: body.message,
+    //   audiences: audiences,
+    // });
     return { message: 'events added successfully.' };
   }
 
   public async getAllCourseEvents(courseId: string) {
     return await this.eventsRepository.find({
-      where: { course: { id: courseId } },
+      where: { courseId },
     });
   }
 
