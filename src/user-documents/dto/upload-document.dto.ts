@@ -6,6 +6,10 @@ export class UploadDocumentDto {
   public name: string;
 
   @IsOptional()
+  @IsString()
+  public url: string;
+
+  @IsOptional()
   @IsDate()
-  public date: Date;
+  public expiryDate: Date;
 }

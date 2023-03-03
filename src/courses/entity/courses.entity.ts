@@ -8,7 +8,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -29,7 +28,7 @@ export class Courses {
   @Column({ type: 'date', default: new Date() })
   endsAt: Date;
 
-  @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: User;
 

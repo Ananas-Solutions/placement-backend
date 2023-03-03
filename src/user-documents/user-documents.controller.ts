@@ -6,7 +6,6 @@ import {
   Post,
   Req,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -38,24 +37,32 @@ export class UserDocumentsController {
   @UseInterceptors(FileInterceptor('document'))
   async uploadDocuments(
     @Req() req,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() document: Express.Multer.File,
     @Body() body: UploadDocumentDto,
   ) {
-    const uploadedFile = await this.fileUpload.uploadFile(
-      file.buffer,
-      file.originalname,
-    );
-    return await this.documentService.uploadDocuments(
-      req.user.id,
-      uploadedFile.fileUrl,
-      body,
-    );
+    if (document) {
+      const uploadedFile = await this.fileUpload.uploadFile(
+        document.buffer,
+        document.originalname,
+      );
+      body['url'] = uploadedFile?.fileUrl;
+    }
+    return await this.documentService.uploadDocuments(req.user.id, body);
   }
 
-  @Roles(Role.STUDENT)
+  @Roles(Role.STUDENT, Role.CLINICAL_COORDINATOR, Role.ADMIN)
   @Get()
   async viewUploadDocuments(@Req() req): Promise<any> {
     return await this.documentService.getUserDocuments(req.user.id);
+  }
+
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  @Post('add-comments/:documentId')
+  async addCommentsInDocument(
+    @Param('documentId') documentId: string,
+    @Body() body: DocumentVerifyDto,
+  ): Promise<any> {
+    return await this.documentService.verifyDocument(documentId, body);
   }
 
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)

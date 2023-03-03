@@ -24,7 +24,6 @@ export class CoursesService {
 
   async createCourse(bodyDto: CreateCourseDto): Promise<Courses> {
     try {
-      console.log('bodydto', bodyDto);
       const { semesterId, departmentId, coordinatorId, name } = bodyDto;
       return await this.coursesRepository.save({
         name: name,
