@@ -18,8 +18,8 @@ export class TrainingTimeSlot {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: TrainingDaysEnum })
-  day: TrainingDaysEnum;
+  @Column({ type: 'enum', enum: TrainingDaysEnum, array: true })
+  day: TrainingDaysEnum[];
 
   @Column()
   startTime: string;

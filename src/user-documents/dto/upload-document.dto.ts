@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UploadDocumentDto {
   @IsNotEmpty()
@@ -10,6 +10,6 @@ export class UploadDocumentDto {
   public url: string;
 
   @IsOptional()
-  @IsDate()
+  @IsString()
   public expiryDate: Date;
 }

@@ -7,5 +7,5 @@ export interface StudentTrainingSites {
   department: any;
   startTime: string;
   endTime: string;
-  day: TrainingDaysEnum;
+  day: TrainingDaysEnum[];
 }

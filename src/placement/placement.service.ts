@@ -25,16 +25,27 @@ export class PlacementService {
 
   async assignPlacment(bodyDto: StudentPlacementDto): Promise<any> {
     try {
-      const { trainingSiteId, timeSlotId } = bodyDto;
+      const { trainingSiteIds, timeSlotId } = bodyDto;
       await Promise.all(
-        bodyDto.studentIds.map(async (studentId) => {
-          return await this.placementRepository.save({
-            student: { id: studentId } as User,
-            trainingSite: { id: trainingSiteId } as CourseTrainingSite,
-            timeSlot: { id: timeSlotId } as TrainingTimeSlot,
+        trainingSiteIds.map((trainingSiteId) => {
+          bodyDto.studentIds.map(async (studentId) => {
+            return await this.placementRepository.save({
+              student: { id: studentId } as User,
+              trainingSite: { id: trainingSiteId } as CourseTrainingSite,
+              timeSlot: { id: timeSlotId } as TrainingTimeSlot,
+            });
           });
         }),
       );
+
+      // bodyDto.studentIds.map(async (studentId) => {
+      //   return await this.placementRepository.save({
+      //     student: { id: studentId } as User,
+      //     trainingSite: { id: trainingSiteId } as CourseTrainingSite,
+      //     timeSlot: { id: timeSlotId } as TrainingTimeSlot,
+      //   });
+      // }),
+
       return { message: 'Student assigned to training placement succesfully.' };
     } catch (err) {
       throw err;
@@ -184,14 +195,14 @@ export class PlacementService {
               trainingDay,
             );
           //  student has no training site for that particular day
-          if (studentTrainingDepartments.length === 0) {
-            return {
-              id: student.id,
-              email: student.email,
-              name: student.name,
-              hasPlacementSameDay: false,
-            };
-          }
+          // if (studentTrainingDepartments.length === 0) {
+          return {
+            id: student.id,
+            email: student.email,
+            name: student.name,
+            hasPlacementSameDay: false,
+          };
+          // }
 
           // student has been assigned to some training site for that particular day
           const assignedTrainingDepartments = studentTrainingDepartments.map(

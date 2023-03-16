@@ -10,9 +10,10 @@ import {
 import { TrainingDaysEnum } from '../types/training-site-days.enum';
 
 class TimeSlot {
-  @IsNotEmpty()
-  @IsEnum(TrainingDaysEnum)
-  day: TrainingDaysEnum;
+  @IsArray()
+  @ArrayMinSize(1)
+  // @IsEnum(TrainingDaysEnum)
+  day: TrainingDaysEnum[];
 
   @IsNotEmpty()
   @IsString()

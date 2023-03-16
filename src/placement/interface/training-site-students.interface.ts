@@ -6,5 +6,5 @@ export interface TrainingSiteStudents {
   email: string;
   startTime: string;
   endTime: string;
-  day: TrainingDaysEnum;
+  day: TrainingDaysEnum[];
 }
