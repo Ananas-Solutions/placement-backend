@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -68,6 +69,14 @@ export class PlacementController {
     return await this.placementService.findTrainingSiteStudents(
       trainingSiteId,
       timeSlotId,
+    );
+  }
+
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  @Delete(':placementId')
+  async deletePlacement(@Param('placementId') placementId: string) {
+    return await this.placementService.removeStudentFromTrainingSite(
+      placementId,
     );
   }
 }

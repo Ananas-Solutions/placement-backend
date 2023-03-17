@@ -25,14 +25,14 @@ export class PlacementService {
 
   async assignPlacment(bodyDto: StudentPlacementDto): Promise<any> {
     try {
-      const { trainingSiteIds, timeSlotId } = bodyDto;
+      const { trainingSiteId, timeSlotIds } = bodyDto;
       await Promise.all(
-        trainingSiteIds.map((trainingSiteId) => {
+        timeSlotIds.map((timeslotId) => {
           bodyDto.studentIds.map(async (studentId) => {
             return await this.placementRepository.save({
               student: { id: studentId } as User,
               trainingSite: { id: trainingSiteId } as CourseTrainingSite,
-              timeSlot: { id: timeSlotId } as TrainingTimeSlot,
+              timeSlot: { id: timeslotId } as TrainingTimeSlot,
             });
           });
         }),
@@ -115,8 +115,9 @@ export class PlacementService {
 
       const mappedTrainingSiteStudents = studentsPlacement.map(
         (studentPlacement) => {
-          const { student, timeSlot } = studentPlacement;
+          const { id, student, timeSlot } = studentPlacement;
           return {
+            placementId: id,
             studentId: student.id,
             name: student.name,
             email: student.email,
@@ -251,13 +252,11 @@ export class PlacementService {
   }
 
   async removeStudentFromTrainingSite(
-    studentId: string,
-    trainingSiteId: string,
+    placementId: string,
   ): Promise<DeleteResult> {
     try {
       return await this.placementRepository.delete({
-        student: { id: studentId },
-        trainingSite: { id: trainingSiteId },
+        id: placementId,
       });
     } catch (err) {
       throw err;

@@ -42,8 +42,10 @@ export class TrainingSiteTimeSlotService {
     try {
       const trainingSiteTimeSlots = await this.timeslotRepository.find({
         where: { trainingSite: { id: trainingSiteId } },
-        relations: ['supervisor'],
+        relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
       });
+      const { trainingSite } = trainingSiteTimeSlots[0];
+      const { course } = trainingSite;
       const allAvailableTimeSlots = await Promise.all(
         trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
           const assingedStudents =
@@ -51,7 +53,10 @@ export class TrainingSiteTimeSlotService {
 
           return {
             ...timeSlot,
-            capacity: timeSlot.capacity - assingedStudents.length,
+            totalCapacity: timeSlot.capacity,
+            assignedCapacity: assingedStudents.length,
+            remainingcapacity: timeSlot.capacity - assingedStudents.length,
+            courseId: course.id,
           };
         }),
       );

@@ -4,11 +4,11 @@ import { CourseTrainingSite } from 'src/courses/entity/course-training-site.enti
 export class StudentPlacementDto {
   @IsArray()
   @ArrayMinSize(1)
-  trainingSiteIds: string[];
+  timeSlotIds: string[];
 
   @IsNotEmpty()
   @IsString()
-  timeSlotId: string;
+  trainingSiteId: string;
 
   @IsNotEmpty()
   @IsArray()
