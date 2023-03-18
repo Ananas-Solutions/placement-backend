@@ -15,5 +15,5 @@ export class AddStudentDto {
 
   @IsNotEmpty()
   @IsString()
-  studentid: string;
+  studentId: string;
 }

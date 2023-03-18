@@ -58,12 +58,21 @@ export class CoursesService {
     } else {
       newStudent = student;
     }
+    const studentCourse = await this.studentCourseRepository.findOne({
+      where: {
+        student: { id: newStudent.id },
+        course: { id: bodyDto.courseId },
+      },
+    });
+    if (studentCourse) {
+      return { message: 'Student has already been assigned to the course.' };
+    }
     await this.studentCourseRepository.save({
       course: { id: bodyDto.courseId } as Courses,
       student: { id: newStudent.id } as User,
     });
 
-    return { message: 'Student added successfully' };
+    return { message: 'Student has been added to the course successfully.' };
   }
 
   async allCourses(): Promise<Courses[]> {
