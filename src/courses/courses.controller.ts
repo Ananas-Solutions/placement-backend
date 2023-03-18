@@ -19,6 +19,7 @@ import { Role } from 'src/auth/roles.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorInterceptor } from 'src/interceptors/error-interceptor';
 import { CoursesService } from './courses.service';
+import { AddStudentDto } from './dto/add-student.dto';
 import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import {
   CreateCourseDto,
@@ -65,6 +66,12 @@ export class CoursesController {
   @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
   async exportCourse(@Body() body: ExportCourseDataDto, @Res() res: Response) {
     return this.coursesServices.exportCourseData(body, res);
+  }
+
+  @Post('add-student')
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  async addStudent(@Body() body: AddStudentDto) {
+    return this.coursesServices.addStudent(body);
   }
 
   @Get('export/training-sites/:courseId')

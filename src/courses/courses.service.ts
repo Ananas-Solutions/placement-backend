@@ -5,8 +5,12 @@ import { Response } from 'express';
 import { CollegeDepartment } from 'src/college-department/entity/college-department.entity';
 import { DepartmentUnits } from 'src/department-units/entity/department-units.entity';
 import { Semester } from 'src/semester/entity/semester.entity';
+import { StudentCourse } from 'src/student-course/entity/student-course.entity';
 import { User } from 'src/user/entity/user.entity';
+import { UserRole } from 'src/user/types/user.role';
+import { UserService } from 'src/user/user.service';
 import { createQueryBuilder, Repository, UpdateResult } from 'typeorm';
+import { AddStudentDto } from './dto/add-student.dto';
 import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import { CreateCourseDto, UpdateCourseDto } from './dto/courses.dto';
 import { ExportCourseDataDto } from './dto/export-course.dto';
@@ -20,6 +24,9 @@ export class CoursesService {
     private readonly coursesRepository: Repository<Courses>,
     @InjectRepository(CourseTrainingSite)
     private readonly trainingSiteRepository: Repository<CourseTrainingSite>,
+    @InjectRepository(StudentCourse)
+    private readonly studentCourseRepository: Repository<StudentCourse>,
+    private readonly userService: UserService,
   ) {}
 
   async createCourse(bodyDto: CreateCourseDto): Promise<Courses> {
@@ -35,6 +42,28 @@ export class CoursesService {
       console.log('err', err);
       throw err;
     }
+  }
+
+  async addStudent(bodyDto: AddStudentDto): Promise<{ message: string }> {
+    // find and insert the student
+    const student = await this.userService.findUserByEmail(bodyDto.email);
+    let newStudent;
+    if (!student) {
+      newStudent = await this.userService.saveUser({
+        name: bodyDto.name,
+        email: bodyDto.email,
+        password: 'student',
+        role: UserRole.STUDENT,
+      });
+    } else {
+      newStudent = student;
+    }
+    await this.studentCourseRepository.save({
+      course: { id: bodyDto.courseId } as Courses,
+      student: { id: newStudent.id } as User,
+    });
+
+    return { message: 'Student added successfully' };
   }
 
   async allCourses(): Promise<Courses[]> {
