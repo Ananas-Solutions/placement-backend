@@ -44,10 +44,11 @@ export class TrainingSiteTimeSlotService {
         where: { trainingSite: { id: trainingSiteId } },
         relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
       });
-      const { trainingSite } = trainingSiteTimeSlots[0];
-      const { course } = trainingSite;
+
       const allAvailableTimeSlots = await Promise.all(
         trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlot) => {
+          const { trainingSite } = timeSlot;
+          const { course } = trainingSite;
           const assingedStudents =
             await this.placementService.findTimeSlotStudents(timeSlot.id);
 
