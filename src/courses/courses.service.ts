@@ -54,6 +54,7 @@ export class CoursesService {
         email: bodyDto.email,
         password: 'student',
         role: UserRole.STUDENT,
+        studentId: bodyDto.studentId,
       });
     } else {
       if (student.role !== UserRole.STUDENT) {
@@ -68,7 +69,9 @@ export class CoursesService {
       },
     });
     if (studentCourse) {
-      return { message: 'Student has already been assigned to the course.' };
+      throw new ConflictException(
+        'Student has already been assigned to this course.',
+      );
     }
     await this.studentCourseRepository.save({
       course: { id: bodyDto.courseId } as Courses,

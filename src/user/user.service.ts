@@ -79,4 +79,14 @@ export class UserService {
       throw err;
     }
   }
+
+  async updateStudent(body) {
+    const student = await this.userRepository.findOne({
+      where: { email: body.email },
+    });
+    return await this.userRepository.update(student.id, {
+      studentId: body.studentId,
+      name: body.name,
+    });
+  }
 }

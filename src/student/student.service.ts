@@ -32,6 +32,7 @@ export class StudentService {
         name: body.name,
         role: UserRole.STUDENT,
         password: 'student',
+        studentId: body.studentId,
       });
       await this.studentProfileRepository.save({
         user: { id: studentUser.id },
@@ -57,6 +58,7 @@ export class StudentService {
             name: student.name,
             role: UserRole.STUDENT,
             password: 'student',
+            studentId: student.studentId,
           });
 
           await this.studentProfileRepository.save({

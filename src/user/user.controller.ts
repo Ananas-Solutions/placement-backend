@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -41,5 +42,12 @@ export class UserController {
   @Get('student/:studentId')
   async getStudent(@Param('studentId') studentId: string): Promise<any> {
     return await this.userService.findStudentById(studentId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  @Patch('student')
+  async updateStudent(@Body() body) {
+    return this.userService.updateStudent(body);
   }
 }

@@ -5,3 +5,17 @@ export class UpdateUserDto {
   @IsString()
   name: string;
 }
+
+export class UpdateStudentDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  studentId: string;
+}
