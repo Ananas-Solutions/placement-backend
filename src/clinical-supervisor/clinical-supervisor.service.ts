@@ -34,6 +34,7 @@ export class SupervisorService {
       email,
       password: 'password',
       role: UserRole.CLINICAL_SUPERVISOR,
+      studentId: '',
     });
     await this.supervisorDepartmentUnit.save({
       supervisor: { id: newUser.id } as User,
