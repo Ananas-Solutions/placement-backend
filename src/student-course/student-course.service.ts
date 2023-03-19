@@ -98,6 +98,8 @@ export class StudentCourseService {
     if (!existingStudent) {
       throw new ConflictException('No student id found for this course');
     }
-    return await this.studentCourseRepository.delete(existingStudent.id);
+    await this.studentCourseRepository.delete(existingStudent.id);
+
+    return { message: 'Student removed from the course successfully' };
   }
 }
