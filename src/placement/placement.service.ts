@@ -172,7 +172,6 @@ export class PlacementService {
 
   async findStudentsAvailability(
     trainingSiteId: string,
-    trainingDay: TrainingDaysEnum,
   ): Promise<StudentAvailabilityInterface> {
     try {
       //finding which course does the trainingsite id belongs to;
