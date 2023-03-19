@@ -172,7 +172,7 @@ export class PlacementService {
 
   async findStudentsAvailability(
     trainingSiteId: string,
-  ): Promise<StudentAvailabilityInterface> {
+  ): Promise<StudentAvailabilityInterface[]> {
     try {
       //finding which course does the trainingsite id belongs to;
       const courseTrainingSite = await this.courseTrainingSite.findOne({
@@ -186,15 +186,12 @@ export class PlacementService {
         course.id,
       );
 
-      // now iterating over all students to check whether they are assigned to any trainingSite or not for a given particular day (eg: SUNDAY, MONDAY, etc.)
-      const [studentTrainingSiteCheck] = await Promise.all(
+      const allResults = await Promise.all(
         courseStudents.map(async (student: User) => {
           const studentTrainingSitePlacement = await this.findStudentPlacement(
             student.id,
             trainingSiteId,
           );
-          //  student has no training site for that particular day
-          // if (studentTrainingDepartments.length === 0) {
           return {
             id: student.id,
             email: student.email,
@@ -202,45 +199,10 @@ export class PlacementService {
             isStudentPlaced:
               studentTrainingSitePlacement.length > 0 ? true : false,
           };
-          // }
-
-          // // student has been assigned to some training site for that particular day
-          // const assignedTrainingDepartments = studentTrainingDepartments.map(
-          //   (studentPlacement: Placement) => {
-          //     if (studentPlacement.trainingSite.id === trainingSiteId) {
-          //       return undefined;
-          //     }
-          //     const {
-          //       trainingSite: { departmentUnit },
-          //       timeSlot: { startTime, endTime },
-          //     } = studentPlacement;
-          //     return {
-          //       trainingSite: departmentUnit.name,
-          //       timeSlot: {
-          //         startTime,
-          //         endTime,
-          //       },
-          //     };
-          //   },
-          // );
-          // const allAssignedTrainings =
-          //   assignedTrainingDepartments.filter(Boolean);
-
-          // // if allAssignedTrainingSite is empty it shows that user has trainingSite but not time slots
-          // // now this contradicts with the functionality of assignedTrainingSites which means that the user is assigned to the training site that is being queryed.
-          // // so removing those users since they are already inside that trainingSite
-          // if (allAssignedTrainings.length === 0) return undefined;
-
-          // return {
-          //   id: student.id,
-          //   email: student.email,
-          //   name: student.name,
-          //   hasPlacementSameDay: true,
-          //   assigendPlacements: allAssignedTrainings,
-          // };
         }),
       );
-      return studentTrainingSiteCheck;
+
+      return allResults;
     } catch (err) {
       throw err;
     }

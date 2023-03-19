@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CoursesService } from 'src/courses/courses.service';
 import { Courses } from 'src/courses/entity/courses.entity';
@@ -85,5 +89,15 @@ export class StudentCourseService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async deleteCourseStudent(courseId: string, studentId: string) {
+    const existingStudent = await this.studentCourseRepository.findOne({
+      where: { student: { id: studentId }, course: { id: courseId } },
+    });
+    if (!existingStudent) {
+      throw new ConflictException('No student id found for this course');
+    }
+    return await this.studentCourseRepository.delete(existingStudent.id);
   }
 }

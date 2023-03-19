@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -58,5 +59,17 @@ export class StudentCourseController {
     @Param() { courseId }: { courseId: string },
   ): Promise<any> {
     return await this.studentCourseService.findCourseStudents(courseId);
+  }
+
+  @Roles(Role.ADMIN, Role.CLINICAL_COORDINATOR)
+  @Delete(':courseId/:studentId')
+  async deleteStudentFromCourse(
+    @Param('courseId') courseId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return await this.studentCourseService.deleteCourseStudent(
+      courseId,
+      studentId,
+    );
   }
 }
