@@ -18,8 +18,8 @@ export class TrainingTimeSlot {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'jsonb', enum: TrainingDaysEnum, array: true })
-  day: TrainingDaysEnum[];
+  @Column({ type: 'jsonb' })
+  day: string[];
 
   @Column()
   startTime: string;
