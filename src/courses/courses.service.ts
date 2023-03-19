@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as excel4node from 'excel4node';
 import { Response } from 'express';
@@ -56,6 +56,9 @@ export class CoursesService {
         role: UserRole.STUDENT,
       });
     } else {
+      if (student.role !== UserRole.STUDENT) {
+        throw new ConflictException('Email already used.');
+      }
       newStudent = student;
     }
     const studentCourse = await this.studentCourseRepository.findOne({
