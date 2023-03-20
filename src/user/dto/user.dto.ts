@@ -3,7 +3,6 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  min,
   MinLength,
 } from 'class-validator';
 import { UserRole } from '../types/user.role';
@@ -24,7 +23,7 @@ export class UserDto {
   @IsEnum(UserRole)
   role: UserRole;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   studentId: string;
 }

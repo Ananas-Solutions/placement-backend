@@ -3,14 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Job, Worker } from 'bullmq';
 import IORedis from 'ioredis';
 import { Repository } from 'typeorm';
-
 import { QueuesService } from 'src/queues/queues.service';
 import { CreateCourseEventDto } from './dto/create-event.dto';
 import { Events } from './entity/events.entity';
 import { UserService } from 'src/user/user.service';
 import { ExecuteEventDto } from './dto/execute-event.dto';
-import { SendEmailService } from 'src/utils/sendEmail';
 import { StudentCourse } from 'src/student-course/entity/student-course.entity';
+import { EmailService } from 'src/helpers/send-email.service';
 
 @Injectable()
 export class EventsService {
@@ -22,7 +21,7 @@ export class EventsService {
     private readonly studentCourseRepository: Repository<StudentCourse>,
     private readonly queueService: QueuesService,
     private readonly userService: UserService,
-    private readonly emailService: SendEmailService,
+    private readonly emailService: EmailService,
   ) {
     const workerName = this.queueService.getWorkerName('events-queue');
     this.messagesQueue = new Worker(workerName, this.processMessage, {
@@ -47,10 +46,11 @@ export class EventsService {
     });
     const audiences = courseStudent.map((cs) => cs.student.id);
     const queue = this.queueService.getQueue('events-queue');
-    // await queue.add('events-queue', {
-    //   message: body.message,
-    //   audiences: audiences,
-    // });
+    await queue.add('events-queue', {
+      message: body.message,
+      date: body.date,
+      audiences: audiences,
+    });
     return { message: 'events added successfully.' };
   }
 
@@ -69,19 +69,18 @@ export class EventsService {
   }
 
   public processMessage = async (job: Job<ExecuteEventDto>) => {
-    const message = job.data;
-    message.audiences.forEach(async (audience) => {
+    const jobData = job.data;
+    jobData.audiences.forEach(async (audience) => {
       const user = await this.userService.findUserById(audience);
       const userEmail = user.email;
 
       const emailData = {
-        password: 'password',
-        email: userEmail,
-        role: 'role',
-        name: 'Bibash',
+        username: user.name,
+        eventMessage: jobData.message,
+        eventDate: jobData.date,
       };
 
-      await this.emailService.sendTemplateEmail({ to: userEmail, emailData });
+      await this.emailService.sendEventEmails(userEmail, emailData);
     });
   };
 }

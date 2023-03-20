@@ -38,8 +38,8 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.ADMIN })
   role: UserRole;
 
-  @Column({ nullable: true })
-  studentId: string;
+  @Column({ nullable: true, default: '' })
+  studentId?: string;
 
   @Column({ default: false })
   locked: boolean;
