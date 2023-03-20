@@ -289,7 +289,6 @@ export class CoursesService {
         defaultFont: {
           size: 12,
           name: 'Calibri',
-          color: 'FFFFFFFF',
         },
       });
 
@@ -339,7 +338,7 @@ export class CoursesService {
 
       ws.cell(1, hospitalCol, 3, studentEmailCol, true)
         .string(
-          `\n Course: ${courseData.name} \n \n Department: ${department.name} \n`,
+          `\r Course: ${courseData.name} \r \r Department: ${department.name} \r`,
         )
         .style(titleHeaderStyle);
 
@@ -376,18 +375,20 @@ export class CoursesService {
           let studentRow = slotRow;
           placements.forEach((p) => {
             const {
-              student: { id, name, email },
+              student: { studentId, name, email },
             } = p;
 
-            ws.cell(studentRow, studentIdCol).string(id);
+            ws.cell(studentRow, studentIdCol).string(studentId);
             ws.cell(studentRow, studentNameCol).string(name);
             ws.cell(studentRow, studentEmailCol).string(email);
 
             studentRow += 1;
           });
 
+          const updatedDay = day.join(', ');
+
           ws.cell(slotRow, dayCol, studentRow - 1, dayCol, true)
-            .string(day)
+            .string(updatedDay)
             .style(mergedCellStyle);
           ws.cell(slotRow, timeslotCol, studentRow - 1, timeslotCol, true)
             .string(`${startTime}-${endTime}`)
