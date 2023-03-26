@@ -1,0 +1,16 @@
+import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+
+import { CustomBaseEntity } from './base.entity';
+import { CourseEntity } from './courses.entity';
+import { UserEntity } from './user.entity';
+
+@Entity()
+export class StudentCourseEntity extends CustomBaseEntity {
+  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @JoinColumn()
+  student: UserEntity;
+
+  @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
+  @JoinColumn()
+  course: CourseEntity;
+}

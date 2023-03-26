@@ -10,6 +10,37 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "auth/*": ["./src/modules/auth/*"],
+      "authority/*": ["./src/modules/authority/*"],
+      "commons/*": ["./src/commons/*"],
+      "college-department/*": ["./src/modules/college-department/*"],
+      "coordinator/*": ["./src/modules/coordinator/*"],
+      "course/*": ["./src/modules/course/*"],
+      "department/*": ["./src/modules/department/*"],
+      "department-unit/*": ["./src/modules/department-unit/*"],
+      "entities/*": ["./src/entities/*"],
+      "evaluation/*": ["./src/modules/evaluation/*"],
+      "event/*": ["./src/modules/event/*"],
+      "helper/*": ["./src/modules/helper/*"],
+      "hospital/*": ["./src/modules/hospital/*"],
+      "interceptor/*": ["./src/modules/interceptor/*"],
+      "placement/*": ["./src/modules/placement/*"],
+      "queues/*": ["./src/queues/*"],
+      "semester/*": ["./src/modules/semester/*"],
+      "student/*": ["./src/modules/student/*"],
+      "supervisor/*": ["./src/modules/clinical-supervisor/*"],
+      "student-course/*": ["./src/modules/student-course/*"],
+      "training-time-slot/*": ["./src/modules/training-time-slot/*"],
+      "user/*": ["./src/modules/user/*"],
+      "user-document/*": ["./src/modules/user-document/*"]
+    },
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
   }
 }
