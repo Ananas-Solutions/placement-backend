@@ -26,6 +26,7 @@
       "helper/*": ["./src/modules/helper/*"],
       "hospital/*": ["./src/modules/hospital/*"],
       "interceptor/*": ["./src/modules/interceptor/*"],
+      // "notification/*": ["./src/modules/notification/*"],
       "placement/*": ["./src/modules/placement/*"],
       "queues/*": ["./src/queues/*"],
       "semester/*": ["./src/modules/semester/*"],
@@ -35,6 +36,7 @@
       "training-time-slot/*": ["./src/modules/training-time-slot/*"],
       "user/*": ["./src/modules/user/*"],
       "user-document/*": ["./src/modules/user-document/*"]
+      // "websocket/*": ["./src/modules/websocket/*"]
     },
     "skipLibCheck": true,
     "strictNullChecks": false,

@@ -19,6 +19,7 @@ import {
   IStudentProfileResponse,
   IStudentTrainingTimeSlotsResponse,
 } from './response';
+import { IUserResponse } from 'user/response';
 
 @Injectable()
 export class StudentService {
@@ -89,12 +90,17 @@ export class StudentService {
   }
 
   async getProfile(id: string): Promise<IStudentProfileResponse> {
+    const student = await this.userService.findUserById(id);
     const studentProfile = await this.studentProfileRepository.findOne({
       where: { user: { id } },
       relations: ['user'],
     });
 
-    return this.transformToResponse(studentProfile);
+    // if (!studentProfile) {
+    //   return;
+    // }
+
+    return this.transformToResponse(student, studentProfile);
   }
 
   async updateProfileAvatar(
@@ -135,8 +141,31 @@ export class StudentService {
   }
 
   private transformToResponse(
+    student: IUserResponse,
     profile: StudentProfileEntity,
   ): IStudentProfileResponse {
+    if (!profile) {
+      return {
+        userId: student.id,
+        name: student.name,
+        email: student.email,
+        studentId: student.studentId,
+        alternateEmail: null,
+        phone: null,
+        alternatePhone: null,
+        gender: null,
+        dob: null,
+        address: {
+          address1: null,
+          address2: null,
+          city: null,
+          state: null,
+          country: null,
+          postalCode: null,
+        },
+        kin: null,
+      };
+    }
     const {
       gender,
       dob,
@@ -157,6 +186,7 @@ export class StudentService {
       userId: user.id,
       name: user.name,
       email: user.email,
+      studentId: user.studentId,
       alternateEmail,
       phone,
       alternatePhone,

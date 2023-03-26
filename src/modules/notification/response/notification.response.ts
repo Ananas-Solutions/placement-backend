@@ -4,4 +4,5 @@ export interface INotificationResponse {
   contentUrl: string;
   isRead: boolean;
   readAt?: Date;
+  createdAt: Date;
 }

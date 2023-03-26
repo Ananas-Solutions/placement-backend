@@ -1,17 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Server } from 'socket.io';
 import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { UserDocumentEntity } from 'entities/user-document.entity';
 import { UserEntity } from 'entities/user.entity';
+import { UserService } from 'user/user.service';
 
 import { DocumentVerifyDto } from './dto/document-verify.dto';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { IDocumentResponse } from './response/document.response';
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { UserService } from 'user/user.service';
+import { StudentCourseEntity } from 'entities/student-course.entity';
+import { NotificationEntity } from 'entities/notification.entity';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 
 @Injectable()
 @WebSocketGateway({
@@ -26,7 +29,12 @@ export class UserDocumentService {
   constructor(
     @InjectRepository(UserDocumentEntity)
     private readonly documentRepository: Repository<UserDocumentEntity>,
+    @InjectRepository(StudentCourseEntity)
+    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
+    @InjectRepository(NotificationEntity)
+    private readonly notificationRepository: Repository<NotificationEntity>,
     private readonly userService: UserService,
+    private readonly websocketGateway: WebsocketGateway,
   ) {}
 
   async uploadDocuments(userId: string, body: UploadDocumentDto) {
@@ -40,8 +48,29 @@ export class UserDocumentService {
     const message = `${user.name} has uploaded document for verification.`;
     const contentUrl = body.url;
 
-    //emmiting messages now
-    this.server.emit('document-message', { message });
+    // find all coordinators for this student
+    const studentAllCourses = await this.studentCourseRepository.find({
+      where: { student: { id: userId } },
+      relations: ['course', 'course.coordinator'],
+    });
+
+    const studentCoordinatorsId = studentAllCourses.map(
+      (s) => s.course.coordinator.id,
+    );
+
+    await Promise.all(
+      studentCoordinatorsId.map(async (coordinatorId) => {
+        this.websocketGateway.emitEvent(`${coordinatorId}/document-message`, {
+          message,
+        });
+
+        await this.notificationRepository.save({
+          message,
+          contentUrl,
+          user: { id: coordinatorId } as UserEntity,
+        });
+      }),
+    );
 
     return { message: 'Documents uploaded successfully' };
   }

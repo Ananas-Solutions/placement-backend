@@ -3,4 +3,5 @@ export interface IUserResponse {
   name: string;
   email: string;
   role?: string;
+  studentId?: string;
 }

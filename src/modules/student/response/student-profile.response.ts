@@ -2,6 +2,7 @@ export interface IStudentProfileResponse {
   userId: string;
   name: string;
   email: string;
+  studentId: string;
   alternateEmail: string;
   phone: string;
   alternatePhone: string;
