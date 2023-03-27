@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ISuccessMessageResponse } from 'commons/response';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
 import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
 import { UserEntity } from 'entities/user.entity';
@@ -67,6 +68,15 @@ export class TrainingSiteTimeSlotService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {
+    const timeslot = await this.timeslotRepository.findOne({
+      where: { id: timeslotId },
+    });
+    await this.timeslotRepository.softRemove(timeslot);
+
+    return { message: 'Time slot removed successfully.' };
   }
 
   // async findDaysTimeSlots(

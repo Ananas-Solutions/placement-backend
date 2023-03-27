@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -21,21 +22,25 @@ import { TrainingSiteTimeSlotService } from './training-time-slot.service';
 @UseInterceptors(ErrorInterceptor)
 @Controller('training-site-time-slot')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
 export class TrainingSiteTimeSlotController {
   constructor(private readonly timeslotService: TrainingSiteTimeSlotService) {}
 
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post()
   async saveTimeSlots(@Body() body: TrainingSiteTimeSlotDto) {
     return await this.timeslotService.save(body);
   }
 
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('training-site/:trainingsiteId')
   async findTrainingSiteTimeSlots(
     @Param('trainingsiteId') trainingsiteId: string,
   ) {
     return await this.timeslotService.findTimeSlots(trainingsiteId);
+  }
+
+  @Delete(':id')
+  async deleteTrainingSiteTimeSlot(@Param('id') id: string) {
+    return this.timeslotService.deleteTimeSlot(id);
   }
 
   // @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)

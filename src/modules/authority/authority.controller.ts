@@ -48,7 +48,7 @@ export class AuthorityController {
   }
 
   @Delete(':id')
-  async deleteAuthority(@Param() id: string) {
+  async deleteAuthority(@Param('id') id: string) {
     return this.authorityService.deleteOneAuthority(id);
   }
 }
