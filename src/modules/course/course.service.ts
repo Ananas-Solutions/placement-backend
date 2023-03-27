@@ -53,14 +53,25 @@ export class CourseService {
   }
 
   async addStudent(bodyDto: AddStudentDto): Promise<{ message: string }> {
-    const student = await this.userService.findUserByEmail(bodyDto.email);
+    const studentFromEmail = await this.userService.findUserByEmail(
+      bodyDto.email,
+    );
+    const studentFromStudentId = await this.userService.findUserByStudentId(
+      bodyDto.studentId,
+    );
     let newStudent;
 
-    if (student && student.role !== UserRoleEnum.STUDENT) {
+    if (studentFromEmail && studentFromEmail.role !== UserRoleEnum.STUDENT) {
       throw new ConflictException('Email already used.');
     }
 
-    if (!student) {
+    if (studentFromStudentId) {
+      throw new ConflictException(
+        'Student with the given id already exists in the system.',
+      );
+    }
+
+    if (!studentFromEmail && !studentFromStudentId) {
       newStudent = await this.userService.saveUser({
         name: bodyDto.name,
         email: bodyDto.email,
@@ -69,7 +80,7 @@ export class CourseService {
         studentId: bodyDto.studentId,
       });
     } else {
-      newStudent = student;
+      newStudent = studentFromEmail;
     }
 
     const studentCourse = await this.studentCourseRepository.findOne({

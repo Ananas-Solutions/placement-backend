@@ -34,7 +34,7 @@ export class UserEntity extends CustomBaseEntity {
   @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.ADMIN })
   role: UserRoleEnum;
 
-  @Column({ nullable: true, default: '' })
+  @Column({ nullable: true, default: '', unique: true })
   studentId?: string;
 
   @Column({ default: false })

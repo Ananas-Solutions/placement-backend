@@ -50,6 +50,10 @@ export class UserService {
     return await this.userRepository.findOne({ where: { email } });
   }
 
+  async findUserByStudentId(studentId: string): Promise<UserEntity> {
+    return await this.userRepository.findOne({ where: { studentId } });
+  }
+
   async findAllSpecificUser(role: UserRoleEnum): Promise<IUserResponse[]> {
     const allUsers = await this.userRepository.find({
       where: { role },
