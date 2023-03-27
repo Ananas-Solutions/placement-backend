@@ -34,7 +34,7 @@ import {
 export class CourseController {
   constructor(private readonly coursesServices: CourseService) {}
 
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post()
   async saveCourse(@Req() req, @Body() body: CreateCourseDto) {
     const userId = req.user.id;
