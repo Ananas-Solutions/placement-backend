@@ -23,14 +23,22 @@ export class TrainingSiteTimeSlotService {
       const { trainingSiteId, ...body } = bodyDto;
       await Promise.all(
         body.timeslots.map(async (timeslot) => {
-          return await this.timeslotRepository.save({
+          let entityData = {};
+          entityData = {
+            ...entityData,
             startTime: timeslot.startTime,
             endTime: timeslot.endTime,
             day: timeslot.day,
             capacity: timeslot.capacity,
             trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
-            supervisor: { id: timeslot.supervisor } as UserEntity,
-          });
+          };
+          if (timeslot.supervisor) {
+            entityData = {
+              ...entityData,
+              supervisor: { id: timeslot.supervisor } as UserEntity,
+            };
+          }
+          return await this.timeslotRepository.save(entityData);
         }),
       );
       return { message: 'Time slots added successfully' };
