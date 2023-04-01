@@ -11,7 +11,7 @@ export class HospitalEntity extends CustomBaseEntity {
   @Column({ type: 'jsonb' })
   location: any;
 
-  @ManyToOne(() => AuthorityEntity, (authority) => authority.id, {
+  @ManyToOne(() => AuthorityEntity, (authority) => authority.hospitals, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

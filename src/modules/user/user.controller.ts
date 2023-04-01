@@ -44,6 +44,13 @@ export class UserController {
     return await this.userService.findStudentById(studentId);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Get(':id')
+  async getUser(@Param('id') id: string) {
+    return await this.userService.findUserById(id);
+  }
+
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   // @Patch('student')

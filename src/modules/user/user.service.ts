@@ -31,6 +31,12 @@ export class UserService {
     return this.transformToResponse(newUser);
   }
 
+  async getUserById(id: string): Promise<IUserResponse> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    return this.transformToUserResponse(user);
+  }
+
   async findUserById(id: string): Promise<IUserResponse> {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -79,6 +85,16 @@ export class UserService {
       email,
       role,
       studentId,
+    };
+  }
+
+  private transformToUserResponse(user: UserEntity): IUserResponse {
+    const { id, name, email, role } = user;
+    return {
+      id,
+      name,
+      email,
+      role,
     };
   }
 }
