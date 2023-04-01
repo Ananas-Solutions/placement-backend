@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -18,6 +19,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { UpdateUserDto } from './dto';
 
 @ApiTags('user')
 @UseInterceptors(ErrorInterceptor)
@@ -49,6 +51,16 @@ export class UserController {
   @Get(':id')
   async getUser(@Param('id') id: string) {
     return await this.userService.findUserById(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @Patch('admin/:userId')
+  async updateUser(
+    @Param('userId') userId: string,
+    @Body() body: UpdateUserDto,
+  ) {
+    return await this.userService.updateUser(userId, body);
   }
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
