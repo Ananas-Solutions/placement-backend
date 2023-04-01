@@ -15,10 +15,12 @@ import { SemesterEntity } from 'entities/semester.entity';
 import { DepartmentUnitEntity } from 'entities/department-units.entity';
 import { UserService } from 'user/user.service';
 
-import { AddStudentDto } from './dto/add-student.dto';
-import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
-import { CreateCourseDto } from './dto';
-import { ExportCourseDataDto } from './dto';
+import {
+  CreateCourseDto,
+  AddStudentDto,
+  CourseTrainingSiteDto,
+  ExportCourseDataDto,
+} from './dto';
 import { ICourseDetailResponse, ICourseResponse } from './response';
 
 import { CourseTrainingSiteResponse } from './response/course-training-site.response';
@@ -182,23 +184,31 @@ export class CourseService {
     body: CourseTrainingSiteDto,
   ): Promise<ISuccessMessageResponse> {
     const { courseId, departmentUnitId } = body;
-    const existingTrainingSite = await this.trainingSiteRepository.findOne({
-      where: {
-        course: { id: courseId },
-        departmentUnit: { id: departmentUnitId },
-      },
-    });
+    const existingTrainingSite = await this.findExistingTrainingSite(
+      courseId,
+      departmentUnitId,
+    );
     if (existingTrainingSite) {
       throw new ConflictException(
         'The following training site already exists in this course.',
       );
     }
+
     await this.trainingSiteRepository.save({
       course: { id: courseId } as CourseEntity,
       departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
     });
 
     return { message: 'Training site added successfully.' };
+  }
+
+  async findExistingTrainingSite(courseId: string, departmentUnitId: string) {
+    return await this.trainingSiteRepository.findOne({
+      where: {
+        course: { id: courseId },
+        departmentUnit: { id: departmentUnitId },
+      },
+    });
   }
 
   async getAllTrainingSite(
@@ -226,6 +236,36 @@ export class CourseService {
     });
 
     return mappedResult;
+  }
+
+  public async updateTrainingSite(
+    trainingSiteId: string,
+    body: CourseTrainingSiteDto,
+  ) {
+    const { courseId, departmentUnitId } = body;
+    const existingTrainingSite = await this.findExistingTrainingSite(
+      courseId,
+      departmentUnitId,
+    );
+    if (existingTrainingSite) {
+      throw new ConflictException(
+        'The following department is already marked as the training site for the course.',
+      );
+    }
+
+    await this.trainingSiteRepository.update(
+      { id: trainingSiteId },
+      {
+        course: { id: courseId } as CourseEntity,
+        departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
+      },
+    );
+
+    const updatedTrainingSite = await this.trainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+    });
+
+    return { message: 'Training site updated successfully.' };
   }
 
   public async getExportTrainingSites(courseId: string) {

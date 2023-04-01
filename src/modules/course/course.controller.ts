@@ -104,6 +104,15 @@ export class CourseController {
     return await this.coursesServices.updateCourse(id, body);
   }
 
+  @Put('training-site/:trainingSiteId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async updateCourseTrainingSite(
+    @Param('trainingSiteId') trainingSiteId: string,
+    @Body() body: CourseTrainingSiteDto,
+  ) {
+    return await this.coursesServices.updateTrainingSite(trainingSiteId, body);
+  }
+
   @Roles(UserRoleEnum.ADMIN)
   @Delete(':id')
   async deleteCourse(@Param('id') id: string) {
