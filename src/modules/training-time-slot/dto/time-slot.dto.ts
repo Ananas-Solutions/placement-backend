@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class TimeSlotDto {
   day: string[];
@@ -22,7 +16,6 @@ export class TimeSlotDto {
   capacity: number;
 
   @IsOptional()
-  @IsUUID()
   @IsString()
   supervisor: string;
 }

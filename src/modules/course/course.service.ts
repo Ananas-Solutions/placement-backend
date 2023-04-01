@@ -5,6 +5,7 @@ import { Response } from 'express';
 import { createQueryBuilder, Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
+import { ISuccessMessageResponse } from 'commons/response';
 import { CourseEntity } from 'entities/courses.entity';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
 import { StudentCourseEntity } from 'entities/student-course.entity';
@@ -19,7 +20,7 @@ import { CourseTrainingSiteDto } from './dto/course-training-site.dto';
 import { CreateCourseDto } from './dto';
 import { ExportCourseDataDto } from './dto';
 import { ICourseDetailResponse, ICourseResponse } from './response';
-import { ISuccessMessageResponse } from 'commons/response';
+
 import { CourseTrainingSiteResponse } from './response/course-training-site.response';
 
 @Injectable()
@@ -38,7 +39,8 @@ export class CourseService {
     userId: string,
     bodyDto: CreateCourseDto,
   ): Promise<ICourseResponse> {
-    if (!bodyDto.coordinatorId) {
+    const user = await this.userService.findUserById(userId);
+    if (user.role !== UserRoleEnum.ADMIN && !bodyDto.coordinatorId) {
       bodyDto.coordinatorId = userId;
     }
     const { semesterId, departmentId, coordinatorId, name } = bodyDto;
@@ -147,15 +149,23 @@ export class CourseService {
     courseId: string,
     bodyDto: CreateCourseDto,
   ): Promise<ICourseDetailResponse> {
-    const { semesterId, departmentId, ...body } = bodyDto;
-    await this.courseRepository.update(
-      { id: courseId },
-      {
-        ...body,
-        department: { id: departmentId } as CollegeDepartmentEntity,
-        semester: { id: semesterId } as SemesterEntity,
-      },
-    );
+    const { semesterId, departmentId, coordinatorId, ...body } = bodyDto;
+
+    let updateBody = {};
+    updateBody = {
+      ...updateBody,
+      ...body,
+      department: { id: departmentId } as CollegeDepartmentEntity,
+      semester: { id: semesterId } as SemesterEntity,
+    };
+
+    if (coordinatorId) {
+      updateBody = {
+        ...updateBody,
+        coordinator: { id: coordinatorId } as UserEntity,
+      };
+    }
+    await this.courseRepository.update({ id: courseId }, updateBody);
 
     return this.findOneCourse(courseId);
   }
@@ -172,6 +182,17 @@ export class CourseService {
     body: CourseTrainingSiteDto,
   ): Promise<ISuccessMessageResponse> {
     const { courseId, departmentUnitId } = body;
+    const existingTrainingSite = await this.trainingSiteRepository.findOne({
+      where: {
+        course: { id: courseId },
+        departmentUnit: { id: departmentUnitId },
+      },
+    });
+    if (existingTrainingSite) {
+      throw new ConflictException(
+        'The following training site already exists in this course.',
+      );
+    }
     await this.trainingSiteRepository.save({
       course: { id: courseId } as CourseEntity,
       departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,

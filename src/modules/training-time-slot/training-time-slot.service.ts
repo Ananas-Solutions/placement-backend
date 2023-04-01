@@ -8,7 +8,7 @@ import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
 import { UserEntity } from 'entities/user.entity';
 import { PlacementService } from 'placement/placement.service';
 
-import { TrainingSiteTimeSlotDto } from './dto';
+import { TrainingSiteTimeSlotDto, UpdateTimeSlotDto } from './dto';
 
 @Injectable()
 export class TrainingSiteTimeSlotService {
@@ -76,6 +76,18 @@ export class TrainingSiteTimeSlotService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async updateTimeSlot(timeSlotId: string, body: UpdateTimeSlotDto) {
+    const { trainingSiteId, supervisor, ...rest } = body;
+    await this.timeslotRepository.update(
+      { id: timeSlotId },
+      {
+        ...rest,
+        supervisor: { id: supervisor } as UserEntity,
+        trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
+      },
+    );
   }
 
   async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {

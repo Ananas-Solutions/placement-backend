@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,7 +16,7 @@ import { Roles } from 'commons/decorator';
 import { UserRoleEnum } from 'commons/enums';
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
-import { TrainingSiteTimeSlotDto } from './dto';
+import { TrainingSiteTimeSlotDto, UpdateTimeSlotDto } from './dto';
 import { TrainingSiteTimeSlotService } from './training-time-slot.service';
 
 @ApiTags('training site time slots')
@@ -36,6 +37,14 @@ export class TrainingSiteTimeSlotController {
     @Param('trainingsiteId') trainingsiteId: string,
   ) {
     return await this.timeslotService.findTimeSlots(trainingsiteId);
+  }
+
+  @Put(':id')
+  async updateTrainingSiteTimeSlot(
+    @Param('id') id: string,
+    @Body() body: UpdateTimeSlotDto,
+  ) {
+    return await this.timeslotService.updateTimeSlot(id, body);
   }
 
   @Delete(':id')
