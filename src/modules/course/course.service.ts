@@ -261,7 +261,7 @@ export class CourseService {
       },
     );
 
-    const updatedTrainingSite = await this.trainingSiteRepository.findOne({
+    await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
     });
 
