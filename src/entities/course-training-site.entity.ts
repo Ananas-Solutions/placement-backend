@@ -4,20 +4,31 @@ import { CustomBaseEntity } from './base.entity';
 import { CourseEntity } from './courses.entity';
 import { DepartmentUnitEntity } from './department-units.entity';
 import { TrainingTimeSlotEntity } from './training-time-slot.entity';
+import { PlacementEntity } from './placement.entity';
 
 @Entity()
 export class CourseTrainingSiteEntity extends CustomBaseEntity {
-  @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => CourseEntity, (course) => course.trainingSite, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   public course: CourseEntity;
 
-  @ManyToOne(() => DepartmentUnitEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => DepartmentUnitEntity, (unit) => unit.trainingSites, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   public departmentUnit: DepartmentUnitEntity;
 
   @OneToMany(
     () => TrainingTimeSlotEntity,
     (timeslots) => timeslots.trainingSite,
+    { cascade: ['update', 'soft-remove'] },
   )
   timeslots: TrainingTimeSlotEntity[];
+
+  @OneToMany(() => PlacementEntity, (placement) => placement.trainingSite, {
+    cascade: ['update', 'soft-remove'],
+  })
+  placement: PlacementEntity[];
 }

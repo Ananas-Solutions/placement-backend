@@ -17,7 +17,7 @@ export class StudentEvaluationEntity extends CustomBaseEntity {
   @JoinColumn()
   evaluatee: UserEntity;
 
-  @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => CourseEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   course: CourseEntity;
 }

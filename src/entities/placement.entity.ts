@@ -10,15 +10,23 @@ export class PlacementEntity extends CustomBaseEntity {
   @JoinColumn()
   student: UserEntity;
 
-  @ManyToOne(() => CourseTrainingSiteEntity, {
-    cascade: ['soft-remove'],
-  })
+  @ManyToOne(
+    () => CourseTrainingSiteEntity,
+    (trainingSite) => trainingSite.placement,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn()
   trainingSite: CourseTrainingSiteEntity;
 
-  @ManyToOne(() => TrainingTimeSlotEntity, {
-    cascade: ['soft-remove'],
-  })
+  @ManyToOne(
+    () => TrainingTimeSlotEntity,
+    (timeslot) => timeslot.trainingSite,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn()
   timeSlot: TrainingTimeSlotEntity;
 }

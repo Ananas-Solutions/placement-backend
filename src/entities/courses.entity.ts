@@ -12,6 +12,7 @@ import { CollegeDepartmentEntity } from './college-department.entity';
 import { CourseTrainingSiteEntity } from './course-training-site.entity';
 import { SemesterEntity } from './semester.entity';
 import { UserEntity } from './user.entity';
+import { StudentCourseEntity } from './student-course.entity';
 
 @Entity()
 @Unique('unique_course', ['name', 'department', 'semester'])
@@ -25,22 +26,33 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({ type: 'date', default: new Date() })
   endsAt: Date;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: UserEntity;
 
-  @ManyToOne(() => CollegeDepartmentEntity, {
-    cascade: ['soft-remove'],
-  })
+  @ManyToOne(
+    () => CollegeDepartmentEntity,
+    (department) => department.coordinators,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn()
   department: CollegeDepartmentEntity;
 
-  @ManyToOne(() => SemesterEntity, {
-    cascade: ['soft-remove'],
+  @ManyToOne(() => SemesterEntity, (semester) => semester.course, {
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   semester: SemesterEntity;
 
-  @OneToMany(() => CourseTrainingSiteEntity, (ts) => ts.course)
+  @OneToMany(() => CourseTrainingSiteEntity, (ts) => ts.course, {
+    cascade: ['update', 'soft-remove'],
+  })
   trainingSite: CourseTrainingSiteEntity[];
+
+  @OneToMany(() => StudentCourseEntity, (students) => students.course, {
+    cascade: ['update', 'soft-remove'],
+  })
+  student: StudentCourseEntity[];
 }

@@ -14,6 +14,8 @@ export class AuthorityEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
-  @OneToMany(() => HospitalEntity, (hospital) => hospital.authority)
+  @OneToMany(() => HospitalEntity, (hospital) => hospital.authority, {
+    cascade: ['update', 'soft-remove'],
+  })
   hospitals: HospitalEntity[];
 }

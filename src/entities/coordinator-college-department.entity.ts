@@ -10,7 +10,11 @@ export class CoordinatorCollegeDepartmentEntity extends CustomBaseEntity {
   @JoinColumn()
   coordinator: UserEntity;
 
-  @ManyToOne(() => CollegeDepartmentEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(
+    () => CollegeDepartmentEntity,
+    (department) => department.coordinators,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn()
   department: CollegeDepartmentEntity;
 }

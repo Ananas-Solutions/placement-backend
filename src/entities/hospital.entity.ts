@@ -12,12 +12,13 @@ export class HospitalEntity extends CustomBaseEntity {
   location: any;
 
   @ManyToOne(() => AuthorityEntity, (authority) => authority.id, {
-    cascade: ['soft-remove'],
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   authority: AuthorityEntity;
 
-  @OneToMany(() => DepartmentEntity, (department) => department.hospital)
+  @OneToMany(() => DepartmentEntity, (department) => department.hospital, {
+    cascade: ['update', 'soft-remove'],
+  })
   departments: DepartmentEntity[];
 }

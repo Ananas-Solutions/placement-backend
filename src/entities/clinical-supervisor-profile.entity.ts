@@ -28,16 +28,16 @@ export class SupervisorProfileEntity extends CustomBaseEntity {
   @Column({ nullable: true })
   alternativeEmail: string;
 
-  @OneToOne(() => HospitalEntity, { cascade: ['soft-remove'] })
+  @OneToOne(() => HospitalEntity, { cascade: ['update', 'soft-remove'] })
   @JoinColumn()
   hospital: HospitalEntity;
 
-  @OneToOne(() => DepartmentEntity, { cascade: ['soft-remove'] })
+  @OneToOne(() => DepartmentEntity, { cascade: ['update', 'soft-remove'] })
   @JoinColumn()
   department: DepartmentEntity;
 
   @OneToOne(() => UserEntity, (user) => user.id, {
-    cascade: ['soft-remove'],
+    cascade: ['update', 'soft-remove'],
   })
   @JoinColumn()
   user: UserEntity;

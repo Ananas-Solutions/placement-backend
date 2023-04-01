@@ -11,7 +11,7 @@ export class DepartmentEntity extends CustomBaseEntity {
   name: string;
 
   @ManyToOne(() => HospitalEntity, (hospital) => hospital.departments, {
-    cascade: ['soft-remove'],
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   hospital: HospitalEntity;
@@ -19,6 +19,9 @@ export class DepartmentEntity extends CustomBaseEntity {
   @OneToMany(
     () => DepartmentUnitEntity,
     (departmentUnit) => departmentUnit.department,
+    {
+      cascade: ['update', 'soft-remove'],
+    },
   )
   departmentUnits: DepartmentUnitEntity[];
 
