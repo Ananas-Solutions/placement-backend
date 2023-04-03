@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import {
+  StudentEvaluationEntity,
+  SupervisorEvaluationEntity,
+  TrainingSiteEvaluationEntity,
+} from 'entities/index.entity';
 import { QueuesModule } from 'queues/queues.module';
 import { UserModule } from 'user/user.module';
-import { StudentEvaluationEntity } from 'entities/student-evaluation.entity';
-import { SupervisorEvaluationEntity } from 'entities/supervisor-evaluation.entity';
-import { TrainingSiteEvaluationEntity } from 'entities/training-site-evaluation.entity';
 
 import { EvaluationController } from './evaluation.controller';
 import { EvaluationService } from './evaluation.service';

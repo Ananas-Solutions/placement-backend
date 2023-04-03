@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { PlacementEntity } from 'entities/placement.entity';
-import { StudentProfileEntity } from 'entities/student-profile.entity';
+import { PlacementEntity, StudentProfileEntity } from 'entities/index.entity';
 import { FileUploadService } from 'helper/file-uploader.service';
 import { StudentCourseModule } from 'student-course/student-course.module';
 import { UserModule } from 'user/user.module';

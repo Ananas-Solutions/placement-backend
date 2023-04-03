@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
+import { TrainingTimeSlotEntity } from 'entities/index.entity';
 import { PlacementModule } from 'placement/placement.module';
 import { UserModule } from 'user/user.module';
 

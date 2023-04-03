@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CollegeDepartmentEntity } from 'entities/college-department.entity';
+import { CollegeDepartmentEntity } from 'entities/index.entity';
 import { UserModule } from 'user/user.module';
 
 import { CollegeDepartmentController } from './college-department.controller';

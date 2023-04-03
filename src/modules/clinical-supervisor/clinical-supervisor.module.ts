@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DepartmentModule } from 'department/department.module';
-import { SupervisorDepartmentUnitEntity } from 'entities/clinical-supervisor-department-unit.entity';
-import { SupervisorProfileEntity } from 'entities/clinical-supervisor-profile.entity';
-import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
+import {
+  SupervisorDepartmentUnitEntity,
+  SupervisorProfileEntity,
+  TrainingTimeSlotEntity,
+} from 'entities/index.entity';
 import { HospitalModule } from 'hospital/hospital.module';
 import { UserModule } from 'user/user.module';
 

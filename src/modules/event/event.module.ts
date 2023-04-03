@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { EventEntity } from 'entities/events.entity';
-import { StudentCourseEntity } from 'entities/student-course.entity';
+import { EventEntity, StudentCourseEntity } from 'entities/index.entity';
 import { EmailService } from 'helper/send-email.service';
 import { QueuesModule } from 'queues/queues.module';
 import { UserModule } from 'user/user.module';

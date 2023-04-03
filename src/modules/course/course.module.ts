@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import {
+  CourseEntity,
+  CourseTrainingSiteEntity,
+  StudentCourseEntity,
+} from 'entities/index.entity';
 import { UserModule } from 'user/user.module';
-import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
-import { CourseEntity } from 'entities/courses.entity';
-import { StudentCourseEntity } from 'entities/student-course.entity';
 
 import { CourseController } from './course.controller';
 import { CourseService } from './course.service';

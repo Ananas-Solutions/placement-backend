@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
-import { DepartmentEntity } from 'entities/department.entity';
+import {
+  CoordinatorCollegeDepartmentEntity,
+  DepartmentEntity,
+} from 'entities/index.entity';
 import { UserModule } from 'user/user.module';
 
 import { DepartmentController } from './department.controller';
