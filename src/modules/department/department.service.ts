@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -25,6 +25,15 @@ export class DepartmentService {
 
   async saveDepartment(bodyDto: DepartmentDto): Promise<IDepartmentResponse> {
     const { hospitalId, name } = bodyDto;
+    const existingDepartment = await this.departmentRepository.findOne({
+      where: { name, hospital: { id: hospitalId } },
+    });
+    if (existingDepartment) {
+      throw new ConflictException(
+        'Department with the same name exists for this hospital.',
+      );
+    }
+
     const newDepartment = await this.departmentRepository.save({
       name,
       hospital: { id: hospitalId } as HospitalEntity,

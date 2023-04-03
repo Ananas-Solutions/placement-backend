@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -18,6 +18,15 @@ export class HospitalService {
 
   async saveHospital(bodyDto: HospitalDto): Promise<IHospitalResponse> {
     const { authorityId, name, location } = bodyDto;
+    const existingHospital = await this.hospitalRepository.findOne({
+      where: { location },
+    });
+    if (existingHospital) {
+      throw new ConflictException(
+        'Hospital with the same address already exists.',
+      );
+    }
+
     const newHospital = this.hospitalRepository.create({
       name,
       location,

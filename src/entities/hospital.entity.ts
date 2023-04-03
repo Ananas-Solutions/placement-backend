@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 import {
   CustomBaseEntity,
@@ -6,15 +13,25 @@ import {
   DepartmentEntity,
 } from './index.entity';
 
+interface HospitalLocationInterface {
+  latLng: {
+    lat: number;
+    lng: number;
+  };
+  detailedName: string;
+}
+
 @Entity()
 export class HospitalEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
+  @Index()
   @Column({ type: 'jsonb' })
-  location: any;
+  location: HospitalLocationInterface;
 
   @ManyToOne(() => AuthorityEntity, (authority) => authority.hospitals, {
+    cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()

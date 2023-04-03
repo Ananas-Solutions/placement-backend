@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -17,6 +17,15 @@ export class AuthorityService {
   ) {}
 
   async saveAuthority(body: AuthorityDto): Promise<IAuthorityResponse> {
+    const existingAuthority = await this.authorityRepository.findOne({
+      where: { name: body.name },
+    });
+    if (existingAuthority) {
+      throw new ConflictException(
+        'Authority with the same name already exists in the system.',
+      );
+    }
+
     const newAuthority = await this.authorityRepository.save(body);
     return this.transformToResponse(newAuthority);
   }

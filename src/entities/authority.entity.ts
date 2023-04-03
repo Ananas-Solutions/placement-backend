@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { CustomBaseEntity } from './base.entity';
 import { HospitalEntity } from './index.entity';
@@ -11,6 +17,7 @@ export class AuthorityEntity extends CustomBaseEntity {
   @Column()
   initials: string;
 
+  @Index()
   @Column()
   name: string;
 

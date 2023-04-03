@@ -3,9 +3,9 @@ export interface IHospitalResponse {
   name: string;
   location: {
     detailedName: string;
-    coordinates: {
-      lat: string;
-      lng: string;
+    latLng: {
+      lat: number;
+      lng: number;
     };
   };
 }

@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 import {
   CoordinatorCollegeDepartmentEntity,
@@ -9,6 +16,7 @@ import {
 
 @Entity()
 export class DepartmentEntity extends CustomBaseEntity {
+  @Index()
   @Column()
   name: string;
 

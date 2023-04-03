@@ -1,15 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { DepartmentEntity } from 'entities/department.entity';
-import { DepartmentUnitEntity } from 'entities/department-units.entity';
+import { ISuccessMessageResponse } from 'commons/response';
+import { IDepartmentResponse } from 'department/response';
+import { DepartmentUnitEntity, DepartmentEntity } from 'entities/index.entity';
 
 import { DepartmentUnitsDto } from './dto';
-import { ISuccessMessageResponse } from 'commons/response';
-import { IDepartmentUnitResponse } from './response';
-import { IDepartmentResponse } from 'department/response';
-import { IDepartmentUnitDetailResponse } from './response';
+import {
+  IDepartmentUnitDetailResponse,
+  IDepartmentUnitResponse,
+} from './response';
 
 @Injectable()
 export class DepartmentUnitsService {
@@ -20,6 +21,15 @@ export class DepartmentUnitsService {
 
   async save(bodyDto: DepartmentUnitsDto): Promise<IDepartmentUnitResponse> {
     const { departmentId, name } = bodyDto;
+    const existingDepartmentUnit = await this.departmentUnitsRepository.findOne(
+      { where: { name, department: { id: departmentId } } },
+    );
+    if (existingDepartmentUnit) {
+      throw new ConflictException(
+        'Department Unit with same name exists for this department.',
+      );
+    }
+
     const newDepartmentUnit = await this.departmentUnitsRepository.save({
       name,
       department: { id: departmentId } as DepartmentEntity,
