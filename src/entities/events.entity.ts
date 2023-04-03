@@ -1,6 +1,5 @@
 import { Column, Entity } from 'typeorm';
-
-import { CustomBaseEntity } from './base.entity';
+import { CustomBaseEntity } from './index.entity';
 
 @Entity()
 export class EventEntity extends CustomBaseEntity {

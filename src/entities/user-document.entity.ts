@@ -1,9 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { DocumentVerificationEnum } from 'commons/enums';
-
-import { CustomBaseEntity } from './base.entity';
-import { UserEntity } from './user.entity';
+import { CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()
 export class UserDocumentEntity extends CustomBaseEntity {

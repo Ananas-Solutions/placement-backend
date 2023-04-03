@@ -1,7 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
-import { CustomBaseEntity } from './base.entity';
-import { UserEntity } from './user.entity';
+import { CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()
 export class CoordinatorProfileEntity extends CustomBaseEntity {

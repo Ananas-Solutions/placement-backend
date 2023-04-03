@@ -1,7 +1,5 @@
 import { Entity, Column, ManyToOne } from 'typeorm';
-
-import { CustomBaseEntity } from './base.entity';
-import { UserEntity } from './user.entity';
+import { CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()
 export class NotificationEntity extends CustomBaseEntity {

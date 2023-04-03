@@ -1,11 +1,17 @@
-import { Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { CustomBaseEntity } from './base.entity';
-import { CourseTrainingSiteEntity } from './course-training-site.entity';
-import { TrainingTimeSlotEntity } from './training-time-slot.entity';
-import { UserEntity } from './user.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+
+import {
+  CourseTrainingSiteEntity,
+  CustomBaseEntity,
+  TrainingTimeSlotEntity,
+  UserEntity,
+} from './index.entity';
 
 @Entity()
 export class PlacementEntity extends CustomBaseEntity {
+  @Column({ type: 'boolean', default: false })
+  isPublished!: boolean;
+
   @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
   @JoinColumn()
   student: UserEntity;

@@ -1,9 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
-import { CustomBaseEntity } from './base.entity';
-import { SupervisorDepartmentUnitEntity } from './clinical-supervisor-department-unit.entity';
-import { DepartmentEntity } from './department.entity';
-import { CourseTrainingSiteEntity } from './course-training-site.entity';
+import {
+  CourseTrainingSiteEntity,
+  CustomBaseEntity,
+  DepartmentEntity,
+  SupervisorDepartmentUnitEntity,
+} from './index.entity';
 
 @Entity()
 export class DepartmentUnitEntity extends CustomBaseEntity {

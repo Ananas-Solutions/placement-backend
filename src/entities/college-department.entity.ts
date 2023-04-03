@@ -1,7 +1,9 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
-import { CustomBaseEntity } from './base.entity';
-import { CoordinatorCollegeDepartmentEntity } from './coordinator-college-department.entity';
+import {
+  CoordinatorCollegeDepartmentEntity,
+  CustomBaseEntity,
+} from './index.entity';
 
 @Entity()
 export class CollegeDepartmentEntity extends CustomBaseEntity {

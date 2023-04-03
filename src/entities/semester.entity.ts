@@ -1,9 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
 import { SemesterEnum } from 'commons/enums';
-
-import { CustomBaseEntity } from './base.entity';
-import { CourseEntity } from './courses.entity';
+import { CourseEntity, CustomBaseEntity } from './index.entity';
 
 @Entity()
 export class SemesterEntity extends CustomBaseEntity {

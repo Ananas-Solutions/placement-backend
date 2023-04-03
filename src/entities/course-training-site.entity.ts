@@ -1,10 +1,12 @@
 import { Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
-import { CustomBaseEntity } from './base.entity';
-import { CourseEntity } from './courses.entity';
-import { DepartmentUnitEntity } from './department-units.entity';
-import { TrainingTimeSlotEntity } from './training-time-slot.entity';
-import { PlacementEntity } from './placement.entity';
+import {
+  CourseEntity,
+  CustomBaseEntity,
+  DepartmentUnitEntity,
+  PlacementEntity,
+  TrainingTimeSlotEntity,
+} from './index.entity';
 
 @Entity()
 export class CourseTrainingSiteEntity extends CustomBaseEntity {

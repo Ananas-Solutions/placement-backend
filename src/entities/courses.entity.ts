@@ -7,12 +7,14 @@ import {
   Unique,
 } from 'typeorm';
 
-import { CustomBaseEntity } from './base.entity';
-import { CollegeDepartmentEntity } from './college-department.entity';
-import { CourseTrainingSiteEntity } from './course-training-site.entity';
-import { SemesterEntity } from './semester.entity';
-import { UserEntity } from './user.entity';
-import { StudentCourseEntity } from './student-course.entity';
+import {
+  CollegeDepartmentEntity,
+  CourseTrainingSiteEntity,
+  CustomBaseEntity,
+  SemesterEntity,
+  StudentCourseEntity,
+  UserEntity,
+} from './index.entity';
 
 @Entity()
 @Unique('unique_course', ['name', 'department', 'semester'])
@@ -25,6 +27,9 @@ export class CourseEntity extends CustomBaseEntity {
 
   @Column({ type: 'date', default: new Date() })
   endsAt: Date;
+
+  @Column({ type: 'boolean', default: false })
+  isPublished!: boolean;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()

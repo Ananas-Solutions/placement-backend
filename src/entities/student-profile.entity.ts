@@ -1,7 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-
-import { CustomBaseEntity } from './base.entity';
-import { UserEntity } from './user.entity';
+import { CustomBaseEntity, UserEntity } from './index.entity';
 
 interface StudentKin {
   email?: string;

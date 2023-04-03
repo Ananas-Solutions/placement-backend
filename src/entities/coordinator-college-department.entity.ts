@@ -1,8 +1,10 @@
 import { Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { CustomBaseEntity } from './base.entity';
-import { CollegeDepartmentEntity } from './college-department.entity';
-import { UserEntity } from './user.entity';
+import {
+  CollegeDepartmentEntity,
+  CustomBaseEntity,
+  UserEntity,
+} from './index.entity';
 
 @Entity()
 export class CoordinatorCollegeDepartmentEntity extends CustomBaseEntity {

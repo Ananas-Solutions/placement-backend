@@ -9,10 +9,11 @@ import {
 import * as bcrypt from 'bcrypt';
 
 import { UserRoleEnum } from 'commons/enums';
-
-import { CustomBaseEntity } from './base.entity';
-import { UserDocumentEntity } from './user-document.entity';
-import { StudentProfileEntity } from './student-profile.entity';
+import {
+  CustomBaseEntity,
+  StudentProfileEntity,
+  UserDocumentEntity,
+} from './index.entity';
 
 @Entity()
 export class UserEntity extends CustomBaseEntity {

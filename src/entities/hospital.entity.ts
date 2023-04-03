@@ -1,7 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { AuthorityEntity } from './authority.entity';
-import { CustomBaseEntity } from './base.entity';
-import { DepartmentEntity } from './department.entity';
+
+import {
+  AuthorityEntity,
+  CustomBaseEntity,
+  DepartmentEntity,
+} from './index.entity';
 
 @Entity()
 export class HospitalEntity extends CustomBaseEntity {
