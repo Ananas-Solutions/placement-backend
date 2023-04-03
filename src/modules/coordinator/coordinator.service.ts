@@ -46,6 +46,21 @@ export class CoordinatorService {
     return { message: 'Coordinator added successfully.' };
   }
 
+  async findCoordinator(coordinatorId: string) {
+    const coordinator = await this.userService.findUserById(coordinatorId);
+    const coordinatorDepartment = await this.coordinatorDepartment.findOne({
+      where: { coordinator: { id: coordinatorId } },
+      relations: ['department'],
+    });
+    return {
+      ...coordinator,
+      department: {
+        id: coordinatorDepartment?.department?.id,
+        name: coordinatorDepartment?.department?.name,
+      },
+    };
+  }
+
   async findCoordinatorCourse(coordinatorId: string): Promise<any> {
     return await this.courseRepository.findOne({
       where: { coordinator: { id: coordinatorId } },

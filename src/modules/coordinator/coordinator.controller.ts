@@ -31,6 +31,11 @@ export class CoordinatorController {
     return this.coordinatorService.saveCoordinator(body);
   }
 
+  @Get('self/department')
+  async getCoordinatorDepartmentBySelf(@Req() req) {
+    return this.coordinatorService.findCoordinatorDepartment(req.user.id);
+  }
+
   @Get('admin/:coordinatorId/department')
   async getCoordinatorDepartmentByAdmin(
     @Param('coordinatorId') coordinatorId: string,
@@ -38,9 +43,9 @@ export class CoordinatorController {
     return this.coordinatorService.findCoordinatorDepartment(coordinatorId);
   }
 
-  @Get('self/department')
-  async getCoordinatorDepartmentBySelf(@Req() req) {
-    return this.coordinatorService.findCoordinatorDepartment(req.user.id);
+  @Get('admin/:coordinatorId')
+  async getCoordinator(@Param('coordinatorId') coordinatorId: string) {
+    return this.coordinatorService.findCoordinator(coordinatorId);
   }
 
   // @Post('profile')

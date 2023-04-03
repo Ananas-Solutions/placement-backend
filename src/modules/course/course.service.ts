@@ -46,12 +46,20 @@ export class CourseService {
       bodyDto.coordinatorId = userId;
     }
     const { semesterId, departmentId, coordinatorId, name } = bodyDto;
-    const newCourse = await this.courseRepository.save({
-      name: name,
-      coordinator: { id: coordinatorId } as UserEntity,
+    let course = {};
+    course = {
+      ...course,
+      name,
       department: { id: departmentId } as CollegeDepartmentEntity,
       semester: { id: semesterId } as SemesterEntity,
-    });
+    };
+    if (coordinatorId) {
+      course = {
+        ...course,
+        coordinator: { id: coordinatorId } as UserEntity,
+      };
+    }
+    const newCourse = await this.courseRepository.save(course);
 
     return this.transformToResponse(newCourse);
   }
@@ -529,9 +537,9 @@ export class CourseService {
       id,
       name,
       coordinator: {
-        id: coordinator.id,
-        name: coordinator.name,
-        email: coordinator.email,
+        id: coordinator?.id,
+        name: coordinator?.name,
+        email: coordinator?.email,
       },
       department: { id: department.id, name: department.name },
       semester: {
