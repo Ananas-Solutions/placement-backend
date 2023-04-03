@@ -31,6 +31,7 @@ export class DepartmentEntity extends CustomBaseEntity {
     (departmentUnit) => departmentUnit.department,
     {
       cascade: ['update', 'soft-remove'],
+      eager: true,
     },
   )
   departmentUnits: DepartmentUnitEntity[];
@@ -40,6 +41,7 @@ export class DepartmentEntity extends CustomBaseEntity {
     (departmentCoordinator) => departmentCoordinator.department,
     {
       cascade: ['update', 'soft-remove'],
+      eager: true,
     },
   )
   departmentCoordinators: CoordinatorCollegeDepartmentEntity[];

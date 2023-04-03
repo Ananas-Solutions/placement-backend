@@ -53,11 +53,13 @@ export class CourseEntity extends CustomBaseEntity {
 
   @OneToMany(() => CourseTrainingSiteEntity, (ts) => ts.course, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   trainingSite: CourseTrainingSiteEntity[];
 
   @OneToMany(() => StudentCourseEntity, (students) => students.course, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   student: StudentCourseEntity[];
 }

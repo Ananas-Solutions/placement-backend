@@ -13,7 +13,7 @@ export class CollegeDepartmentEntity extends CustomBaseEntity {
   @OneToMany(
     () => CoordinatorCollegeDepartmentEntity,
     (coordinatorCollege) => coordinatorCollege.department,
-    { cascade: ['update', 'soft-remove'] },
+    { cascade: ['update', 'soft-remove'], eager: true },
   )
   coordinators: CoordinatorCollegeDepartmentEntity[];
 }

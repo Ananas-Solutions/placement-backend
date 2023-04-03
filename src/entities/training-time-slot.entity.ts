@@ -33,6 +33,7 @@ export class TrainingTimeSlotEntity extends CustomBaseEntity {
 
   @OneToMany(() => PlacementEntity, (placement) => placement.timeSlot, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   placements: PlacementEntity[];
 

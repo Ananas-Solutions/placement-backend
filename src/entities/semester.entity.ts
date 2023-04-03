@@ -16,6 +16,7 @@ export class SemesterEntity extends CustomBaseEntity {
 
   @OneToMany(() => CourseEntity, (course) => course.semester, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   course: CourseEntity[];
 }

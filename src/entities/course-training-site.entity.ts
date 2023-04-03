@@ -25,12 +25,13 @@ export class CourseTrainingSiteEntity extends CustomBaseEntity {
   @OneToMany(
     () => TrainingTimeSlotEntity,
     (timeslots) => timeslots.trainingSite,
-    { cascade: ['update', 'soft-remove'] },
+    { cascade: ['update', 'soft-remove'], eager: true },
   )
   timeslots: TrainingTimeSlotEntity[];
 
   @OneToMany(() => PlacementEntity, (placement) => placement.trainingSite, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   placement: PlacementEntity[];
 }

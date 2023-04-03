@@ -38,6 +38,7 @@ export class HospitalEntity extends CustomBaseEntity {
 
   @OneToMany(() => DepartmentEntity, (department) => department.hospital, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   departments: DepartmentEntity[];
 }

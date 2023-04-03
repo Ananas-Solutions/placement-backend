@@ -42,9 +42,19 @@ export class UserEntity extends CustomBaseEntity {
   @Column({ default: false })
   locked: boolean;
 
-  @OneToMany(() => UserDocumentEntity, (userDocument) => userDocument.user)
+  @OneToMany(() => UserDocumentEntity, (userDocument) => userDocument.user, {
+    cascade: ['update', 'soft-remove'],
+    eager: true,
+  })
   documents: UserDocumentEntity[];
 
-  @OneToOne(() => StudentProfileEntity, (studentProfile) => studentProfile.user)
+  @OneToOne(
+    () => StudentProfileEntity,
+    (studentProfile) => studentProfile.user,
+    {
+      cascade: ['update', 'soft-remove'],
+      eager: true,
+    },
+  )
   studentProfile: StudentProfileEntity;
 }
