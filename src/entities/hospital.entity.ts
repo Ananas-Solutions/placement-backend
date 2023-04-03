@@ -31,7 +31,6 @@ export class HospitalEntity extends CustomBaseEntity {
   location: HospitalLocationInterface;
 
   @ManyToOne(() => AuthorityEntity, (authority) => authority.hospitals, {
-    cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()

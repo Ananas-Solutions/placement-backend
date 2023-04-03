@@ -23,6 +23,7 @@ export class AuthorityEntity extends CustomBaseEntity {
 
   @OneToMany(() => HospitalEntity, (hospital) => hospital.authority, {
     cascade: ['update', 'soft-remove'],
+    eager: true,
   })
   hospitals: HospitalEntity[];
 }

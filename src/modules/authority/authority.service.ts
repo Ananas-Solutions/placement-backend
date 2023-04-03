@@ -61,9 +61,7 @@ export class AuthorityService {
   async deleteOneAuthority(id: string): Promise<ISuccessMessageResponse> {
     const authority = await this.authorityRepository.findOne({
       where: { id },
-      loadEagerRelations: true,
     });
-    console.log('authority', authority);
     await this.authorityRepository.softRemove(authority);
     return { message: 'Authority deleted successfully' };
   }

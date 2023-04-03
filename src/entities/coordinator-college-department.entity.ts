@@ -8,7 +8,7 @@ import {
 
 @Entity()
 export class CoordinatorCollegeDepartmentEntity extends CustomBaseEntity {
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: UserEntity;
 
