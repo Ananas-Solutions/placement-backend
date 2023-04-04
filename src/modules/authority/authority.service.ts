@@ -31,7 +31,9 @@ export class AuthorityService {
   }
 
   async findAllAuthority(): Promise<IAuthorityResponse[]> {
-    const allAuthorities = await this.authorityRepository.find();
+    const allAuthorities = await this.authorityRepository.find({
+      loadEagerRelations: false,
+    });
     return allAuthorities.map((authority) =>
       this.transformToResponse(authority),
     );
@@ -40,6 +42,7 @@ export class AuthorityService {
   async findOneAuthority(id: string): Promise<IAuthorityResponse> {
     const authority = await this.authorityRepository.findOne({
       where: { id },
+      loadEagerRelations: false,
       relations: ['hospitals'],
     });
 
@@ -53,6 +56,7 @@ export class AuthorityService {
     await this.authorityRepository.update({ id: authorityId }, body);
     const authority = await this.authorityRepository.findOne({
       where: { id: authorityId },
+      loadEagerRelations: false,
     });
 
     return this.transformToResponse(authority);

@@ -93,6 +93,7 @@ export class StudentService {
     const student = await this.userService.findUserById(id);
     const studentProfile = await this.studentProfileRepository.findOne({
       where: { user: { id } },
+      loadEagerRelations: false,
       relations: ['user'],
     });
 
@@ -122,6 +123,7 @@ export class StudentService {
   ): Promise<IStudentTrainingTimeSlotsResponse[]> {
     const studentPlacement = await this.placementRepository.find({
       where: { student: { id: studentId } },
+      loadEagerRelations: false,
       relations: [
         'trainingSite',
         'trainingSite.departmentUnit',

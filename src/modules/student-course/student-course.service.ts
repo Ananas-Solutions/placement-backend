@@ -59,6 +59,7 @@ export class StudentCourseService {
   ): Promise<IStudentCourseResponse[]> {
     const studentCourses = await this.studentCourseRepository.find({
       where: { student: { id: studentId } },
+      loadEagerRelations: false,
       relations: ['course'],
     });
     const allCourses = studentCourses.map((studentCourse) =>
@@ -73,6 +74,7 @@ export class StudentCourseService {
   ): Promise<ICourseStudentResponse[]> {
     const studentCourses = await this.studentCourseRepository.find({
       where: { course: { id: courseId } },
+      loadEagerRelations: false,
       relations: ['student', 'student.studentProfile'],
     });
     const users = studentCourses.map((studentCourse) =>

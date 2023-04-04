@@ -59,6 +59,7 @@ export class CoordinatorService {
       allCoordinators.map(async (coordinator) => {
         const coordinatorDepartment = await this.coordinatorDepartment.findOne({
           where: { coordinator: { id: coordinator.id } },
+          loadEagerRelations: false,
           relations: ['department'],
         });
         const { id, name, email } = coordinator;
@@ -80,6 +81,7 @@ export class CoordinatorService {
     const coordinator = await this.userService.findUserById(coordinatorId);
     const coordinatorDepartment = await this.coordinatorDepartment.findOne({
       where: { coordinator: { id: coordinatorId } },
+      loadEagerRelations: false,
       relations: ['department'],
     });
     return {
@@ -94,6 +96,7 @@ export class CoordinatorService {
   async findCoordinatorCourse(coordinatorId: string): Promise<any> {
     return await this.courseRepository.findOne({
       where: { coordinator: { id: coordinatorId } },
+      loadEagerRelations: false,
       relations: ['department', 'semester'],
     });
   }
@@ -101,6 +104,7 @@ export class CoordinatorService {
   async findCoordinatorDepartment(coordinatorId: string) {
     const coordinatorDepartment = await this.coordinatorDepartment.findOne({
       where: { coordinator: { id: coordinatorId } },
+      loadEagerRelations: false,
       relations: ['department'],
     });
 
@@ -120,6 +124,7 @@ export class CoordinatorService {
             coordinator: { id: coordinatorId },
             department: { id: departmentId },
           },
+          loadEagerRelations: false,
         });
 
       if (existingCoordinatorDepartment) {

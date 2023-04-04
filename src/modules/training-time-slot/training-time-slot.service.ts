@@ -52,6 +52,7 @@ export class TrainingSiteTimeSlotService {
       where: {
         id: timeslotId,
       },
+      loadEagerRelations: false,
       relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
     });
     return timeslot;
@@ -63,6 +64,7 @@ export class TrainingSiteTimeSlotService {
     try {
       const trainingSiteTimeSlots = await this.timeslotRepository.find({
         where: { trainingSite: { id: trainingSiteId } },
+        loadEagerRelations: false,
         relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
       });
 
@@ -88,7 +90,10 @@ export class TrainingSiteTimeSlotService {
     }
   }
 
-  async updateTimeSlot(timeSlotId: string, body: UpdateTimeSlotDto) {
+  async updateTimeSlot(
+    timeSlotId: string,
+    body: UpdateTimeSlotDto,
+  ): Promise<ISuccessMessageResponse> {
     const { trainingSiteId, supervisor, ...rest } = body;
     let entityData = {};
     entityData = {
@@ -101,12 +106,15 @@ export class TrainingSiteTimeSlotService {
         supervisor: { id: supervisor } as UserEntity,
       };
     }
-    return await this.timeslotRepository.update(
+
+    await this.timeslotRepository.update(
       { id: timeSlotId },
       {
         ...entityData,
       },
     );
+
+    return { message: 'Time slot updated successfully.' };
   }
 
   async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {

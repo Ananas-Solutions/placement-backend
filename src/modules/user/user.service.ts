@@ -54,16 +54,23 @@ export class UserService {
   }
 
   async findUserByEmail(email: string): Promise<UserEntity> {
-    return await this.userRepository.findOne({ where: { email } });
+    return await this.userRepository.findOne({
+      where: { email },
+      loadEagerRelations: false,
+    });
   }
 
   async findUserByStudentId(studentId: string): Promise<UserEntity> {
-    return await this.userRepository.findOne({ where: { studentId } });
+    return await this.userRepository.findOne({
+      where: { studentId },
+      loadEagerRelations: false,
+    });
   }
 
   async findAllSpecificUser(role: UserRoleEnum): Promise<IUserResponse[]> {
     const allUsers = await this.userRepository.find({
       where: { role },
+      loadEagerRelations: false,
       order: { name: 'ASC' },
     });
 
@@ -72,13 +79,18 @@ export class UserService {
 
   async updateUser(id: string, body: UpdateUserDto): Promise<IUserResponse> {
     await this.userRepository.update(id, body);
-    const updatedUser = await this.userRepository.findOne({ where: { id } });
+    const updatedUser = await this.userRepository.findOne({
+      where: { id },
+      loadEagerRelations: false,
+    });
 
     return this.transformToResponse(updatedUser);
   }
 
   async deleteUser(userId: string): Promise<ISuccessMessageResponse> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
 
     await this.userRepository.softRemove(user);
 

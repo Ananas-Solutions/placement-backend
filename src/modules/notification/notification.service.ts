@@ -43,6 +43,7 @@ export class NotificationService {
     }
     const allUserNotifications = await this.notificationRepository.find({
       where: { ...whereClause, user: { id: userId } },
+      loadEagerRelations: false,
       order: {
         createdAt: 'DESC',
       },

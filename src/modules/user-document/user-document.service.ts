@@ -114,6 +114,7 @@ export class UserDocumentService {
       where: {
         user: { id: userId },
       },
+      loadEagerRelations: false,
     });
 
     return allDocuments.map((document) => this.transformToResponse(document));

@@ -20,6 +20,7 @@ export class HospitalService {
     const { authorityId, name, location } = bodyDto;
     const existingHospital = await this.hospitalRepository.findOne({
       where: { location },
+      loadEagerRelations: false,
     });
     if (existingHospital) {
       throw new ConflictException(
@@ -40,6 +41,7 @@ export class HospitalService {
   async getAllHospital(): Promise<IHospitalDetailResponse[]> {
     const allHospitals = await this.hospitalRepository.find({
       relations: ['authority'],
+      loadEagerRelations: false,
     });
     return allHospitals.map((hospital) =>
       this.transformToDetailResponse(hospital),
@@ -49,6 +51,7 @@ export class HospitalService {
   async findAllHospital(authorityId: string): Promise<IHospitalResponse[]> {
     const authorityAllHospitals = await this.hospitalRepository.find({
       where: { authority: { id: authorityId } },
+      loadEagerRelations: false,
     });
     return authorityAllHospitals.map((hospital) =>
       this.transformToResponse(hospital),
@@ -58,6 +61,7 @@ export class HospitalService {
   async findOneHospital(id: string): Promise<IHospitalDetailResponse> {
     const hospital = await this.hospitalRepository.findOne({
       where: { id },
+      loadEagerRelations: false,
       relations: ['authority', 'departments'],
     });
     return this.transformToDetailResponse(hospital);
@@ -79,6 +83,7 @@ export class HospitalService {
 
     const updatedHospital = await this.hospitalRepository.findOne({
       where: { id: hospitalId },
+      loadEagerRelations: false,
     });
 
     return this.transformToResponse(updatedHospital);

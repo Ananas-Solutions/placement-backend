@@ -30,13 +30,16 @@ export class CollegeDepartmentService {
   async findOne(id: string): Promise<ICollegeDepartmentResponse> {
     const collegeDepartment = await this.collegeDepartmentRepository.findOne({
       where: { id },
+      loadEagerRelations: false,
     });
 
     return this.transformToResponse(collegeDepartment);
   }
 
   async findAll(): Promise<ICollegeDepartmentResponse[]> {
-    const allCollegeDepartments = await this.collegeDepartmentRepository.find();
+    const allCollegeDepartments = await this.collegeDepartmentRepository.find({
+      loadEagerRelations: false,
+    });
 
     return allCollegeDepartments.map((department) =>
       this.transformToResponse(department),
@@ -58,6 +61,7 @@ export class CollegeDepartmentService {
     const updatedCollegeDepartment =
       await this.collegeDepartmentRepository.findOne({
         where: { id: departmentId },
+        loadEagerRelations: false,
       });
 
     return this.transformToResponse(updatedCollegeDepartment);

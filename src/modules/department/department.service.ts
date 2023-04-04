@@ -44,6 +44,7 @@ export class DepartmentService {
 
   async findAllHospitals(): Promise<IDepartmentDetailResponse[]> {
     const allDepartments = await this.departmentRepository.find({
+      loadEagerRelations: false,
       relations: ['hospital'],
     });
 
@@ -57,6 +58,7 @@ export class DepartmentService {
   ): Promise<IDepartmentResponse[]> {
     const allDepartmentsOfHospital = await this.departmentRepository.find({
       where: { hospital: { id: hospitalId } },
+      loadEagerRelations: false,
     });
 
     return allDepartmentsOfHospital.map((department) =>
@@ -69,6 +71,7 @@ export class DepartmentService {
   ): Promise<IDepartmentDetailResponse> {
     const department = await this.departmentRepository.findOne({
       where: { id: departmentId },
+      loadEagerRelations: false,
       relations: ['hospital'],
     });
 
@@ -79,6 +82,7 @@ export class DepartmentService {
     const departmentCoordinators =
       await this.coordinatorDepartmentRepository.find({
         where: { department: { id: departmentId } },
+        loadEagerRelations: false,
         relations: ['coordinator'],
       });
 
@@ -102,6 +106,7 @@ export class DepartmentService {
 
     const updatedDepartment = await this.departmentRepository.findOne({
       where: { id: departmentId },
+      loadEagerRelations: false,
     });
 
     return this.transformToResponse(updatedDepartment);

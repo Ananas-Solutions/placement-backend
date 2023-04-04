@@ -60,6 +60,7 @@ export class PlacementService {
     try {
       const studentTrainingSites = await this.placementRepository.find({
         where: { student: { id: studentId } },
+        loadEagerRelations: false,
         relations: [
           'trainingSite',
           'trainingSite.departmentUnit',
@@ -95,6 +96,7 @@ export class PlacementService {
     try {
       return await this.placementRepository.find({
         where: { student: { id: studentId }, timeSlot: { day } },
+        loadEagerRelations: false,
         relations: ['trainingSite', 'trainingSite.departmentUnit', 'timeSlot'],
       });
     } catch (err) {
@@ -111,6 +113,7 @@ export class PlacementService {
         trainingSite: { id: trainingSiteId },
         timeSlot: { id: timeSlotId },
       },
+      loadEagerRelations: false,
       relations: ['student', 'timeSlot'],
     });
 
@@ -136,6 +139,7 @@ export class PlacementService {
     try {
       const placements = await this.placementRepository.find({
         where: { trainingSite: { id: trainingSiteId } },
+        loadEagerRelations: false,
         relations: ['student', 'timeSlot'],
       });
 
@@ -162,6 +166,7 @@ export class PlacementService {
     try {
       return await this.placementRepository.find({
         where: { timeSlot: { id: timeSlotId } },
+        loadEagerRelations: false,
         relations: ['trainingSite', 'trainingSite.departmentUnit', 'student'],
       });
     } catch (err) {
@@ -176,6 +181,7 @@ export class PlacementService {
       //finding which course does the trainingsite id belongs to;
       const courseTrainingSite = await this.courseTrainingSite.findOne({
         where: { id: trainingSiteId },
+        loadEagerRelations: false,
         relations: ['course'],
       });
       const course = courseTrainingSite.course;
@@ -227,6 +233,7 @@ export class PlacementService {
         student: { id: studentId },
         trainingSite: { id: trainingSiteId },
       },
+      loadEagerRelations: false,
     });
   }
 }

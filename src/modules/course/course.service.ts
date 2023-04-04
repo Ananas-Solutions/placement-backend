@@ -129,6 +129,7 @@ export class CourseService {
     }
     const allCourses = await this.courseRepository.find({
       where: whereClause,
+      loadEagerRelations: false,
       relations: ['department', 'semester', 'coordinator'],
     });
 
@@ -139,6 +140,7 @@ export class CourseService {
     try {
       return await this.courseRepository.find({
         where: { department: { id: departmentId } },
+        loadEagerRelations: false,
         relations: ['semester', 'coordinator'],
       });
     } catch (err) {
@@ -149,6 +151,7 @@ export class CourseService {
   async findOneCourse(id: string): Promise<ICourseDetailResponse> {
     const course = await this.courseRepository.findOne({
       where: { id },
+      loadEagerRelations: false,
       relations: ['department', 'semester', 'coordinator'],
     });
 
@@ -216,6 +219,7 @@ export class CourseService {
         course: { id: courseId },
         departmentUnit: { id: departmentUnitId },
       },
+      loadEagerRelations: false,
     });
   }
 
@@ -224,6 +228,7 @@ export class CourseService {
   ): Promise<CourseTrainingSiteResponse[]> {
     const allTrainingSites = await this.trainingSiteRepository.find({
       where: { course: { id: courseId } },
+      loadEagerRelations: false,
       relations: [
         'departmentUnit',
         'departmentUnit.department',
@@ -271,6 +276,7 @@ export class CourseService {
 
     await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
+      loadEagerRelations: false,
     });
 
     return { message: 'Training site updated successfully.' };
@@ -281,6 +287,7 @@ export class CourseService {
       where: {
         course: { id: courseId },
       },
+      loadEagerRelations: false,
       relations: [
         'departmentUnit',
         'departmentUnit.department',
@@ -322,6 +329,7 @@ export class CourseService {
   public async getTrainingSite(trainingSiteId: string) {
     const trainingSite = await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
+      loadEagerRelations: false,
       relations: [
         'departmentUnit',
         'departmentUnit.department',
@@ -335,6 +343,7 @@ export class CourseService {
   public async getTrainingSiteSupervisor(trainingSiteId: string) {
     const trainingSite = await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
+      loadEagerRelations: false,
       relations: [
         'departmentUnit',
         'departmentUnit.departmentSupervisor',

@@ -23,12 +23,15 @@ export class SemesterService {
   async findOne(semesterId: string): Promise<ISemesterResponse> {
     const semester = await this.semesterRepository.findOne({
       where: { id: semesterId },
+      loadEagerRelations: false,
     });
     return this.transformToResponse(semester);
   }
 
   async findAll(): Promise<ISemesterResponse[]> {
-    const allSemesters = await this.semesterRepository.find();
+    const allSemesters = await this.semesterRepository.find({
+      loadEagerRelations: false,
+    });
     return allSemesters.map((semester) => this.transformToResponse(semester));
   }
 
@@ -44,6 +47,7 @@ export class SemesterService {
 
     const updatedSemester = await this.semesterRepository.findOne({
       where: { id: semesterId },
+      loadEagerRelations: false,
     });
 
     return this.transformToResponse(updatedSemester);
