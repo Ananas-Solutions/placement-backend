@@ -43,7 +43,7 @@ export class CoordinatorService {
 
     if (departmentId) {
       await this.coordinatorDepartment.save({
-        user: { id: coordinatorUser.id } as UserEntity,
+        coordinator: { id: coordinatorUser.id } as UserEntity,
         department: { id: departmentId } as CollegeDepartmentEntity,
       });
     }
@@ -114,15 +114,50 @@ export class CoordinatorService {
     const { departmentId, ...rest } = body;
 
     if (departmentId) {
-      await this.coordinatorDepartment.update(
-        { coordinator: { id: coordinatorId } },
-        { department: { id: departmentId } as CollegeDepartmentEntity },
-      );
+      const existingCoordinatorDepartment =
+        await this.coordinatorDepartment.findOne({
+          where: {
+            coordinator: { id: coordinatorId },
+            department: { id: departmentId },
+          },
+        });
+
+      if (existingCoordinatorDepartment) {
+        await this.coordinatorDepartment.update(
+          existingCoordinatorDepartment.id,
+          {
+            department: { id: departmentId } as CollegeDepartmentEntity,
+          },
+        );
+      }
+
+      if (!existingCoordinatorDepartment) {
+        await this.coordinatorDepartment.save({
+          coordinator: { id: coordinatorId },
+          department: { id: departmentId } as CollegeDepartmentEntity,
+        });
+      }
     }
 
     await this.userService.updateUser(coordinatorId, { name: rest.name });
 
     return { message: 'Coordinator updated successfully.' };
+  }
+
+  async deleteCoordinator(
+    coordinatorId: string,
+  ): Promise<ISuccessMessageResponse> {
+    await this.userService.deleteUser(coordinatorId);
+
+    const coordinatorDepartment = await this.coordinatorDepartment.findOne({
+      where: {
+        coordinator: { id: coordinatorId },
+      },
+    });
+
+    await this.coordinatorDepartment.softRemove(coordinatorDepartment);
+
+    return { message: 'Coordinator removed successfully.' };
   }
 
   private transformToDepartmentResponse(

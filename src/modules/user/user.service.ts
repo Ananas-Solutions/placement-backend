@@ -9,6 +9,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { IUserResponse } from './response';
 import { UserRoleEnum } from 'commons/enums';
+import { ISuccessMessageResponse } from 'commons/response';
 
 @Injectable()
 export class UserService {
@@ -74,6 +75,14 @@ export class UserService {
     const updatedUser = await this.userRepository.findOne({ where: { id } });
 
     return this.transformToResponse(updatedUser);
+  }
+
+  async deleteUser(userId: string): Promise<ISuccessMessageResponse> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    await this.userRepository.softRemove(user);
+
+    return { message: 'User removed successfully.' };
   }
 
   private transformToResponse(user: UserEntity): IUserResponse {
