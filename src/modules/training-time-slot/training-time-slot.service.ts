@@ -47,6 +47,16 @@ export class TrainingSiteTimeSlotService {
     }
   }
 
+  async findTimeSlot(timeslotId: string): Promise<any> {
+    const timeslot = await this.timeslotRepository.findOne({
+      where: {
+        id: timeslotId,
+      },
+      relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
+    });
+    return timeslot;
+  }
+
   async findTimeSlots(
     trainingSiteId: string,
   ): Promise<TrainingTimeSlotEntity[]> {
@@ -80,12 +90,21 @@ export class TrainingSiteTimeSlotService {
 
   async updateTimeSlot(timeSlotId: string, body: UpdateTimeSlotDto) {
     const { trainingSiteId, supervisor, ...rest } = body;
-    await this.timeslotRepository.update(
+    let entityData = {};
+    entityData = {
+      ...rest,
+      trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
+    };
+    if (supervisor) {
+      entityData = {
+        ...entityData,
+        supervisor: { id: supervisor } as UserEntity,
+      };
+    }
+    return await this.timeslotRepository.update(
       { id: timeSlotId },
       {
-        ...rest,
-        supervisor: { id: supervisor } as UserEntity,
-        trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
+        ...entityData,
       },
     );
   }

@@ -39,6 +39,11 @@ export class TrainingSiteTimeSlotController {
     return await this.timeslotService.findTimeSlots(trainingsiteId);
   }
 
+  @Get(':id')
+  async findTrainingSiteTimeSlot(@Param('id') timeslotId: string) {
+    return await this.timeslotService.findTimeSlot(timeslotId);
+  }
+
   @Put(':id')
   async updateTrainingSiteTimeSlot(
     @Param('id') id: string,
