@@ -53,7 +53,6 @@ export class UserEntity extends CustomBaseEntity {
     (studentProfile) => studentProfile.user,
     {
       cascade: ['update', 'soft-remove'],
-      eager: true,
     },
   )
   studentProfile: StudentProfileEntity;

@@ -11,8 +11,11 @@ import { CoordinatorProfileEntity } from 'entities/coordinator-profile.entity';
 import { CourseEntity } from 'entities/courses.entity';
 import { UserService } from 'user/user.service';
 
-import { CreateCoordinatorDto } from './dto';
-import { ICoordinatorCollegeDepartmentResponse } from './response';
+import { CreateCoordinatorDto, UpdateCoordinatorDto } from './dto';
+import {
+  ICoordinatorCollegeDepartmentResponse,
+  ICoordinatorResponse,
+} from './response';
 
 @Injectable()
 export class CoordinatorService {
@@ -46,6 +49,31 @@ export class CoordinatorService {
     return { message: 'Coordinator added successfully.' };
   }
 
+  async getAllCoordinators(): Promise<ICoordinatorResponse[]> {
+    const allCoordinators = await this.userService.findAllSpecificUser(
+      UserRoleEnum.CLINICAL_COORDINATOR,
+    );
+    const result = await Promise.all(
+      allCoordinators.map(async (coordinator) => {
+        const coordinatorDepartment = await this.coordinatorDepartment.findOne({
+          where: { coordinator: { id: coordinator.id } },
+          relations: ['department'],
+        });
+        const { id, name, email } = coordinator;
+        return {
+          id,
+          name,
+          email,
+          department: {
+            id: coordinatorDepartment?.department?.id,
+            name: coordinatorDepartment?.department?.name,
+          },
+        };
+      }),
+    );
+    return result;
+  }
+
   async findCoordinator(coordinatorId: string) {
     const coordinator = await this.userService.findUserById(coordinatorId);
     const coordinatorDepartment = await this.coordinatorDepartment.findOne({
@@ -77,74 +105,23 @@ export class CoordinatorService {
     return this.transformToDepartmentResponse(coordinatorDepartment);
   }
 
-  // async saveProfile(
-  //   id: string,
-  //   body: CoordinatorProfileDto,
-  // ): Promise<CoordinatorProfile> {
-  //   try {
-  //     const user = await this.userService.findUserById(id);
-  //     if (!user || user.role !== UserRole.CLINICAL_COORDINATOR)
-  //       throw new NotFoundException('Coordinator not found');
-  //     return await this.coordinatorRepository.save({
-  //       ...body,
-  //       user,
-  //     });
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+  async updateCoordinator(
+    coordinatorId: string,
+    body: UpdateCoordinatorDto,
+  ): Promise<ISuccessMessageResponse> {
+    const { departmentId, ...rest } = body;
 
-  // async getProfile(id: string): Promise<CoordinatorProfile> {
-  //   try {
-  //     return await this.coordinatorRepository.findOne({
-  //       where: { user: id },
-  //     });
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+    if (departmentId) {
+      await this.coordinatorDepartment.update(
+        { coordinator: { id: coordinatorId } },
+        { department: { id: departmentId } as CollegeDepartmentEntity },
+      );
+    }
 
-  // async updateProfile(
-  //   id: string,
-  //   body: CoordinatorProfileDto,
-  // ): Promise<CoordinatorProfile> {
-  //   try {
-  //     const user = await this.userService.findUserById(id);
-  //     if (!user || user.role !== UserRole.CLINICAL_COORDINATOR)
-  //       throw new NotFoundException('Coordinator not found');
-  //     const profile = await this.coordinatorRepository.findOne({
-  //       where: { user: id },
-  //     });
-  //     return await this.coordinatorRepository.save({
-  //       ...profile,
-  //       ...body,
-  //     });
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+    await this.userService.updateUser(coordinatorId, { name: rest.name });
 
-  // async getAllUnassignedCoordinator(): Promise<any> {
-  //   try {
-  //     const coordinators = await this.userService.findAllSpecifcUser(
-  //       UserRoleEnum.CLINICAL_COORDINATOR,
-  //     );
-  //     const allCourseCoordinator = await this.courseRepository.find({
-  //       relations: ['coordinator'],
-  //     });
-  //     const courseCoordinatorIds = allCourseCoordinator.map(
-  //       (c) => c.coordinator.id,
-  //     );
-  //     const unassignedCoordinators = coordinators.map((coordinator) => {
-  //       if (!courseCoordinatorIds.includes(coordinator.id)) {
-  //         return coordinator;
-  //       }
-  //     });
-  //     return unassignedCoordinators.filter(Boolean);
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+    return { message: 'Coordinator updated successfully.' };
+  }
 
   private transformToDepartmentResponse(
     entity: CoordinatorCollegeDepartmentEntity,

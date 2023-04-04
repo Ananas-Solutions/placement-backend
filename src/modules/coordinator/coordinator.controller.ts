@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
   UseInterceptors,
@@ -13,29 +14,37 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, RolesGuard } from 'auth/guards';
 import { Roles } from 'commons/decorator';
 import { UserRoleEnum } from 'commons/enums';
-
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
+
 import { CoordinatorService } from './coordinator.service';
-import { CreateCoordinatorDto } from './dto';
+import { CreateCoordinatorDto, UpdateCoordinatorDto } from './dto';
 
 @ApiTags('coordinator')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
 @UseInterceptors(ErrorInterceptor)
 @Controller('coordinator')
 export class CoordinatorController {
   constructor(private coordinatorService: CoordinatorService) {}
 
+  @Roles(UserRoleEnum.ADMIN)
   @Post()
   async createCoordinator(@Req() req, @Body() body: CreateCoordinatorDto) {
     return this.coordinatorService.saveCoordinator(body);
   }
 
+  @Roles(UserRoleEnum.ADMIN)
+  @Get('admin/all')
+  async getAllCoordinators() {
+    return this.coordinatorService.getAllCoordinators();
+  }
+
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
   @Get('self/department')
   async getCoordinatorDepartmentBySelf(@Req() req) {
     return this.coordinatorService.findCoordinatorDepartment(req.user.id);
   }
 
+  @Roles(UserRoleEnum.ADMIN)
   @Get('admin/:coordinatorId/department')
   async getCoordinatorDepartmentByAdmin(
     @Param('coordinatorId') coordinatorId: string,
@@ -43,39 +52,18 @@ export class CoordinatorController {
     return this.coordinatorService.findCoordinatorDepartment(coordinatorId);
   }
 
+  @Roles(UserRoleEnum.ADMIN)
   @Get('admin/:coordinatorId')
   async getCoordinator(@Param('coordinatorId') coordinatorId: string) {
     return this.coordinatorService.findCoordinator(coordinatorId);
   }
 
-  // @Post('profile')
-  // async createProfile(
-  //   @Req() req,
-  //   @Body() body: CoordinatorProfileDto,
-  // ): Promise<any> {
-  //   return await this.coordinatorService.saveProfile(req.user.id, body);
-  // }
-
-  // @Get('course')
-  // async findCoordinatorCourse(@Req() req): Promise<any> {
-  //   return await this.coordinatorService.findCoordinatorCourse(req.user.id);
-  // }
-
-  // @Get('profile')
-  // async queryProfile(@Req() req): Promise<any> {
-  //   return await this.coordinatorService.getProfile(req.user.id);
-  // }
-
-  // @Get('unassigned')
-  // async getAllUnassignedCoordinator() {
-  //   return await this.coordinatorService.getAllUnassignedCoordinator();
-  // }
-
-  // @Put('profile')
-  // async updateProfile(
-  //   @Req() req,
-  //   @Body() body: CoordinatorProfileDto,
-  // ): Promise<any> {
-  //   return await this.coordinatorService.updateProfile(req.user.id, body);
-  // }
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
+  @Put(':id')
+  async updateCoordinator(
+    @Param('id') id: string,
+    @Body() body: UpdateCoordinatorDto,
+  ) {
+    return this.coordinatorService.updateCoordinator(id, body);
+  }
 }
