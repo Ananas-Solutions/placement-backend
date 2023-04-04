@@ -37,7 +37,7 @@ export class CourseEntity extends CustomBaseEntity {
 
   @ManyToOne(
     () => CollegeDepartmentEntity,
-    (department) => department.coordinators,
+    (department) => department.courses,
     {
       onDelete: 'CASCADE',
     },
