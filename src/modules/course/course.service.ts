@@ -282,6 +282,17 @@ export class CourseService {
     return { message: 'Training site updated successfully.' };
   }
 
+  public async deleteTrainingSite(
+    trainingSiteId: string,
+  ): Promise<ISuccessMessageResponse> {
+    const trainingSite = await this.trainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+    });
+    await this.trainingSiteRepository.softRemove(trainingSite);
+
+    return { message: 'Training site removed successfully.' };
+  }
+
   public async getExportTrainingSites(courseId: string) {
     const trainingSites = await this.trainingSiteRepository.find({
       where: {

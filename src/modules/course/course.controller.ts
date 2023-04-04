@@ -113,6 +113,12 @@ export class CourseController {
     return await this.coursesServices.updateTrainingSite(trainingSiteId, body);
   }
 
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
+  @Delete('training-site/:trainingSiteId')
+  async deleteTrainingSite(@Param('trainingSiteId') trainingSiteId: string) {
+    return await this.coursesServices.deleteTrainingSite(trainingSiteId);
+  }
+
   @Roles(UserRoleEnum.ADMIN)
   @Delete(':id')
   async deleteCourse(@Param('id') id: string) {
