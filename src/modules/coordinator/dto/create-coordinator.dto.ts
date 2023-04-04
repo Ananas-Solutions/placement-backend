@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCoordinatorDto {
   @IsNotEmpty()
@@ -9,7 +9,7 @@ export class CreateCoordinatorDto {
   @IsEmail()
   public email!: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   public departmentId!: string;
 }

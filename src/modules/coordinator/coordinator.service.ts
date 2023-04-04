@@ -41,10 +41,12 @@ export class CoordinatorService {
       password: `uos@${email}`,
     });
 
-    await this.coordinatorDepartment.save({
-      user: { id: coordinatorUser.id } as UserEntity,
-      department: { id: departmentId } as CollegeDepartmentEntity,
-    });
+    if (departmentId) {
+      await this.coordinatorDepartment.save({
+        user: { id: coordinatorUser.id } as UserEntity,
+        department: { id: departmentId } as CollegeDepartmentEntity,
+      });
+    }
 
     return { message: 'Coordinator added successfully.' };
   }
