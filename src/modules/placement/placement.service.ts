@@ -195,7 +195,7 @@ export class PlacementService {
         courseStudents.map(async (student: UserEntity) => {
           const studentTrainingSitePlacement = await this.findStudentPlacement(
             student.id,
-            trainingSiteId,
+            course.id,
           );
           return {
             id: student.id,
@@ -224,14 +224,11 @@ export class PlacementService {
     return { message: 'Student removed from placement successfully.' };
   }
 
-  private async findStudentPlacement(
-    studentId: string,
-    trainingSiteId: string,
-  ) {
+  private async findStudentPlacement(studentId: string, courseId: string) {
     return await this.placementRepository.find({
       where: {
         student: { id: studentId },
-        trainingSite: { id: trainingSiteId },
+        trainingSite: { course: { id: courseId } },
       },
       loadEagerRelations: false,
     });
