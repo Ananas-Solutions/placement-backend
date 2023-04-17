@@ -6,34 +6,36 @@ import { createQueryBuilder, Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
-import { CourseEntity } from 'entities/courses.entity';
-import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
-import { StudentCourseEntity } from 'entities/student-course.entity';
-import { UserEntity } from 'entities/user.entity';
-import { CollegeDepartmentEntity } from 'entities/college-department.entity';
-import { SemesterEntity } from 'entities/semester.entity';
-import { DepartmentUnitEntity } from 'entities/department-units.entity';
+import {
+  CollegeDepartmentEntity,
+  CourseEntity,
+  SemesterEntity,
+  StudentCourseEntity,
+  UserEntity,
+} from 'entities/index.entity';
 import { UserService } from 'user/user.service';
 
 import {
   CreateCourseDto,
   AddStudentDto,
-  CourseTrainingSiteDto,
   ExportCourseDataDto,
-} from './dto';
-import { ICourseDetailResponse, ICourseResponse } from './response';
-
-import { CourseTrainingSiteResponse } from './response/course-training-site.response';
+  TransferStudentToCourseDto,
+  TransferCourseSettingDto,
+} from '../dto';
+import { ICourseDetailResponse, ICourseResponse } from '../response';
+import { IUserResponse } from 'user/response';
+import { CourseTrainingSiteService } from './course-training-site.service';
+import { TrainingSiteTimeSlotService } from 'training-time-slot/training-time-slot.service';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectRepository(CourseEntity)
     private readonly courseRepository: Repository<CourseEntity>,
-    @InjectRepository(CourseTrainingSiteEntity)
-    private readonly trainingSiteRepository: Repository<CourseTrainingSiteEntity>,
     @InjectRepository(StudentCourseEntity)
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
+    private readonly courseTrainingSiteService: CourseTrainingSiteService,
+    private readonly timeslotService: TrainingSiteTimeSlotService,
     private readonly userService: UserService,
   ) {}
 
@@ -64,7 +66,7 @@ export class CourseService {
     return this.transformToResponse(newCourse);
   }
 
-  async addStudent(bodyDto: AddStudentDto): Promise<{ message: string }> {
+  async addStudent(bodyDto: AddStudentDto): Promise<ISuccessMessageResponse> {
     const studentFromEmail = await this.userService.findUserByEmail(
       bodyDto.email,
     );
@@ -116,6 +118,77 @@ export class CourseService {
     return { message: 'Student has been added to the course successfully.' };
   }
 
+  async transferStudentsToCourse(
+    body: TransferStudentToCourseDto,
+  ): Promise<ISuccessMessageResponse> {
+    await Promise.all(
+      body.studentIds.map(
+        async (studentId) =>
+          await this.studentCourseRepository.save({
+            course: { id: body.courseId } as CourseEntity,
+            student: { id: studentId } as UserEntity,
+          }),
+      ),
+    );
+
+    return { message: 'Students are transfered to the course successfully.' };
+  }
+
+  public async transferCourseSetting(body: TransferCourseSettingDto) {
+    const { sourceCourseId, destinationCourseId } = body;
+    const course = await this.courseRepository.findOne({
+      where: { id: sourceCourseId },
+      relations: [
+        'trainingSite',
+        'trainingSite.departmentUnit',
+        'trainingSite.timeslots',
+        'trainingSite.timeslots',
+        'student',
+      ],
+    });
+
+    if (body.transferProperties.includes('trainingSites')) {
+      const trainingSites = course.trainingSite;
+      await Promise.all(
+        trainingSites.map(async (site) => {
+          const departmentUnitId = site.departmentUnit.id;
+          const { trainingSiteId } =
+            await this.courseTrainingSiteService.addTrainingSite({
+              courseId: destinationCourseId,
+              departmentUnitId,
+            });
+
+          if (body.transferProperties.includes('timeslots')) {
+            const timeslots = site.timeslots;
+
+            await Promise.all(
+              timeslots.map(async (slot) => {
+                const { startTime, endTime, capacity, day } = slot;
+                await this.timeslotService.save({
+                  timeslots: [{ startTime, endTime, capacity, day }],
+                  trainingSiteId,
+                });
+              }),
+            );
+          }
+        }),
+      );
+    }
+
+    if (body.transferProperties.includes('students')) {
+      const students = course.student;
+
+      await Promise.all(
+        students.map(async (student) => {
+          await this.studentCourseRepository.save({
+            course: { id: destinationCourseId } as CourseEntity,
+            student: { id: student.id } as UserEntity,
+          });
+        }),
+      );
+    }
+  }
+
   async allCourses(userId: string): Promise<ICourseDetailResponse[]> {
     let whereClause = {};
     const user = await this.userService.findUserById(userId);
@@ -158,6 +231,25 @@ export class CourseService {
     return this.transformToDetailResponse(course);
   }
 
+  async findCourseStudents(courseId: string): Promise<IUserResponse[]> {
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId },
+      relations: ['student', 'student.student'],
+    });
+
+    const allStudents = course?.student.map((student) => {
+      const { id, name, email, studentId } = student.student;
+      return {
+        id,
+        email,
+        name,
+        studentId,
+      };
+    });
+
+    return allStudents;
+  }
+
   async updateCourse(
     courseId: string,
     bodyDto: CreateCourseDto,
@@ -189,183 +281,6 @@ export class CourseService {
     await this.courseRepository.softRemove(course);
 
     return { message: 'Course deleted successfully' };
-  }
-
-  async addTrainingSite(
-    body: CourseTrainingSiteDto,
-  ): Promise<ISuccessMessageResponse> {
-    const { courseId, departmentUnitId } = body;
-    const existingTrainingSite = await this.findExistingTrainingSite(
-      courseId,
-      departmentUnitId,
-    );
-    if (existingTrainingSite) {
-      throw new ConflictException(
-        'The following training site already exists in this course.',
-      );
-    }
-
-    await this.trainingSiteRepository.save({
-      course: { id: courseId } as CourseEntity,
-      departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
-    });
-
-    return { message: 'Training site added successfully.' };
-  }
-
-  async findExistingTrainingSite(courseId: string, departmentUnitId: string) {
-    return await this.trainingSiteRepository.findOne({
-      where: {
-        course: { id: courseId },
-        departmentUnit: { id: departmentUnitId },
-      },
-      loadEagerRelations: false,
-    });
-  }
-
-  async getAllTrainingSite(
-    courseId: string,
-  ): Promise<CourseTrainingSiteResponse[]> {
-    const allTrainingSites = await this.trainingSiteRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.department',
-        'departmentUnit.department.hospital',
-      ],
-    });
-
-    const mappedResult = allTrainingSites.map((trainingSite) => {
-      const { departmentUnit } = trainingSite;
-      const { department } = departmentUnit;
-      const { hospital } = department;
-      return {
-        id: trainingSite.id,
-        hospital: hospital.name,
-        department: department.name,
-        departmentUnit: departmentUnit.name,
-      };
-    });
-
-    return mappedResult;
-  }
-
-  public async updateTrainingSite(
-    trainingSiteId: string,
-    body: CourseTrainingSiteDto,
-  ) {
-    const { courseId, departmentUnitId } = body;
-    const existingTrainingSite = await this.findExistingTrainingSite(
-      courseId,
-      departmentUnitId,
-    );
-    if (existingTrainingSite) {
-      throw new ConflictException(
-        'The following department is already marked as the training site for the course.',
-      );
-    }
-
-    await this.trainingSiteRepository.update(
-      { id: trainingSiteId },
-      {
-        course: { id: courseId } as CourseEntity,
-        departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
-      },
-    );
-
-    await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
-    });
-
-    return { message: 'Training site updated successfully.' };
-  }
-
-  public async deleteTrainingSite(
-    trainingSiteId: string,
-  ): Promise<ISuccessMessageResponse> {
-    const trainingSite = await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-    });
-    await this.trainingSiteRepository.softRemove(trainingSite);
-
-    return { message: 'Training site removed successfully.' };
-  }
-
-  public async getExportTrainingSites(courseId: string) {
-    const trainingSites = await this.trainingSiteRepository.find({
-      where: {
-        course: { id: courseId },
-      },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.department',
-        'departmentUnit.department.hospital',
-        'timeslots',
-        'timeslots.placements',
-      ],
-    });
-    const mappedTrainingSites = trainingSites.map((site) => {
-      const { timeslots, departmentUnit } = site;
-      if (timeslots.length === 0) {
-        return undefined;
-      }
-      const mappedTimeSlots = timeslots.map((slot) => {
-        const { placements } = slot;
-        if (placements.length === 0) {
-          return undefined;
-        }
-        return {
-          trainingSiteId: site.id,
-          departmentUnit: departmentUnit.name,
-          hospital: departmentUnit.department.hospital.name,
-          department: departmentUnit.department.name,
-        };
-      });
-      return mappedTimeSlots;
-    });
-    const filteredTrainingSites = mappedTrainingSites.flat(10).filter(Boolean);
-
-    const uniqueTrainingSites = [
-      ...new Map(
-        filteredTrainingSites.map((item) => [item['trainingSiteId'], item]),
-      ).values(),
-    ];
-
-    return uniqueTrainingSites;
-  }
-
-  public async getTrainingSite(trainingSiteId: string) {
-    const trainingSite = await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.department',
-        'departmentUnit.department.hospital',
-        'timeslots',
-      ],
-    });
-    return trainingSite;
-  }
-
-  public async getTrainingSiteSupervisor(trainingSiteId: string) {
-    const trainingSite = await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.departmentSupervisor',
-        'departmentUnit.departmentSupervisor.supervisor',
-      ],
-    });
-    const mappedSupervisor = (
-      trainingSite.departmentUnit.departmentSupervisor as any
-    ).map(({ supervisor }) => supervisor);
-
-    return mappedSupervisor;
   }
 
   public async exportCourseData(data: ExportCourseDataDto, response: Response) {

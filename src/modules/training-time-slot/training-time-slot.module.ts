@@ -16,5 +16,6 @@ import { TrainingSiteTimeSlotService } from './training-time-slot.service';
   ],
   controllers: [TrainingSiteTimeSlotController],
   providers: [TrainingSiteTimeSlotService],
+  exports: [TrainingSiteTimeSlotService],
 })
 export class TrainingSiteTimeSlotModule {}

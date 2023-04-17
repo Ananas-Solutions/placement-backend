@@ -17,5 +17,5 @@ export class TimeSlotDto {
 
   @IsOptional()
   @IsString()
-  supervisor: string;
+  supervisor?: string;
 }

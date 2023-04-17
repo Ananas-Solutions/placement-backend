@@ -9,7 +9,9 @@ import {
 import { UserModule } from 'user/user.module';
 
 import { CourseController } from './course.controller';
-import { CourseService } from './course.service';
+import { CourseService } from './services/course.service';
+import { CourseTrainingSiteService } from './services/course-training-site.service';
+import { TrainingSiteTimeSlotModule } from 'training-time-slot/training-time-slot.module';
 
 @Module({
   imports: [
@@ -19,9 +21,10 @@ import { CourseService } from './course.service';
       StudentCourseEntity,
     ]),
     UserModule,
+    TrainingSiteTimeSlotModule,
   ],
   controllers: [CourseController],
-  providers: [CourseService],
-  exports: [CourseService],
+  providers: [CourseService, CourseTrainingSiteService],
+  exports: [CourseService, CourseTrainingSiteService],
 })
 export class CourseModule {}
