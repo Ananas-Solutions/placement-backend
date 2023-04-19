@@ -19,7 +19,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './dto';
+import { UpdateStudentUserDto, UpdateUserDto } from './dto';
 
 @ApiTags('user')
 @UseInterceptors(ErrorInterceptor)
@@ -63,10 +63,13 @@ export class UserController {
     return await this.userService.updateUser(userId, body);
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  // @Patch('student')
-  // async updateStudent(@Body() body) {
-  //   return this.userService.updateUser(body);
-  // }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Patch('student/:userId')
+  async updateStudent(
+    @Param('userId') userId: string,
+    @Body() body: UpdateStudentUserDto,
+  ) {
+    return this.userService.updateStudentUser(userId, body);
+  }
 }

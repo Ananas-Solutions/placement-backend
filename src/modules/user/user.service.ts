@@ -10,6 +10,7 @@ import { UserDto } from './dto/user.dto';
 import { IUserResponse } from './response';
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
+import { UpdateStudentUserDto } from './dto';
 
 @Injectable()
 export class UserService {
@@ -78,6 +79,45 @@ export class UserService {
   }
 
   async updateUser(id: string, body: UpdateUserDto): Promise<IUserResponse> {
+    await this.userRepository.update(id, body);
+    const updatedUser = await this.userRepository.findOne({
+      where: { id },
+      loadEagerRelations: false,
+    });
+
+    return this.transformToResponse(updatedUser);
+  }
+
+  async updateStudentUser(
+    id: string,
+    body: UpdateStudentUserDto,
+  ): Promise<IUserResponse> {
+    const student = await this.userRepository.findOne({ where: { id } });
+
+    if (student.studentId !== body.studentId) {
+      const existingStudentByStudentId = await this.userRepository.findOne({
+        where: { studentId: body.studentId },
+      });
+
+      if (existingStudentByStudentId) {
+        throw new ConflictException(
+          'Student with the same student id already exists.',
+        );
+      }
+    }
+
+    if (student.email !== body.email) {
+      const existingUserByEmail = await this.userRepository.findOne({
+        where: { email: body.email },
+      });
+
+      if (existingUserByEmail) {
+        throw new ConflictException(
+          'User with the same email address already exists.',
+        );
+      }
+    }
+
     await this.userRepository.update(id, body);
     const updatedUser = await this.userRepository.findOne({
       where: { id },
