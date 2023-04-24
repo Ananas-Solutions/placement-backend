@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as excel4node from 'excel4node';
 import { Response } from 'express';
@@ -135,59 +139,67 @@ export class CourseService {
   }
 
   public async transferCourseSetting(body: TransferCourseSettingDto) {
-    const { sourceCourseId, destinationCourseId } = body;
-    const course = await this.courseRepository.findOne({
-      where: { id: sourceCourseId },
-      relations: [
-        'trainingSite',
-        'trainingSite.departmentUnit',
-        'trainingSite.timeslots',
-        'student',
-      ],
-    });
+    try {
+      const { sourceCourseId, destinationCourseId } = body;
+      const course = await this.courseRepository.findOne({
+        where: { id: sourceCourseId },
+        loadEagerRelations: false,
+        relations: [
+          'trainingSite',
+          'trainingSite.departmentUnit',
+          'trainingSite.timeslots',
+          'student',
+          'student.student',
+        ],
+      });
 
-    if (body.transferProperties.includes('trainingSites')) {
-      const trainingSites = course.trainingSite;
-      await Promise.all(
-        trainingSites.map(async (site) => {
-          const departmentUnitId = site.departmentUnit.id;
-          const { trainingSiteId } =
-            await this.courseTrainingSiteService.addTrainingSite({
-              courseId: destinationCourseId,
-              departmentUnitId,
+      if (body.transferProperties.includes('trainingSites')) {
+        const trainingSites = course.trainingSite;
+        await Promise.all(
+          trainingSites.map(async (site) => {
+            console.log('site', site);
+            const departmentUnitId = site.departmentUnit.id;
+            const { trainingSiteId } =
+              await this.courseTrainingSiteService.addTrainingSite({
+                courseId: destinationCourseId,
+                departmentUnitId,
+              });
+
+            if (body.transferProperties.includes('timeslots')) {
+              const timeslots = site.timeslots;
+
+              await Promise.all(
+                timeslots.map(async (slot) => {
+                  const { startTime, endTime, capacity, day } = slot;
+                  await this.timeslotService.save({
+                    timeslots: [{ startTime, endTime, capacity, day }],
+                    trainingSiteId,
+                  });
+                }),
+              );
+            }
+          }),
+        );
+      }
+
+      if (body.transferProperties.includes('students')) {
+        const students = course.student;
+
+        await Promise.all(
+          students.map(async ({ student }) => {
+            await this.studentCourseRepository.save({
+              course: { id: destinationCourseId } as CourseEntity,
+              student: { id: student.id } as UserEntity,
             });
+          }),
+        );
+      }
 
-          if (body.transferProperties.includes('timeslots')) {
-            const timeslots = site.timeslots;
-
-            await Promise.all(
-              timeslots.map(async (slot) => {
-                const { startTime, endTime, capacity, day } = slot;
-                await this.timeslotService.save({
-                  timeslots: [{ startTime, endTime, capacity, day }],
-                  trainingSiteId,
-                });
-              }),
-            );
-          }
-        }),
-      );
+      return { message: 'Course setting transfer is completed successfully.' };
+    } catch (err) {
+      console.log('err here', err);
+      throw new BadRequestException('bad request');
     }
-
-    if (body.transferProperties.includes('students')) {
-      const students = course.student;
-
-      await Promise.all(
-        students.map(async (student) => {
-          await this.studentCourseRepository.save({
-            course: { id: destinationCourseId } as CourseEntity,
-            student: { id: student.id } as UserEntity,
-          });
-        }),
-      );
-    }
-
-    return { message: 'Course setting transfer is completed successfully.' };
   }
 
   async allCourses(userId: string): Promise<ICourseDetailResponse[]> {
