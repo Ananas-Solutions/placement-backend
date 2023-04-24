@@ -142,7 +142,6 @@ export class CourseService {
         'trainingSite',
         'trainingSite.departmentUnit',
         'trainingSite.timeslots',
-        'trainingSite.timeslots',
         'student',
       ],
     });

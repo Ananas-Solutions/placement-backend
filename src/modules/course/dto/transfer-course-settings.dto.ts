@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class TransferCourseSettingDto {
   @IsNotEmpty()
@@ -10,6 +10,6 @@ export class TransferCourseSettingDto {
   destinationCourseId: string;
 
   @IsArray()
-  @MinLength(1)
+  @ArrayMinSize(1)
   transferProperties: string[];
 }
