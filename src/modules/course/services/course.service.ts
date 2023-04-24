@@ -186,6 +186,8 @@ export class CourseService {
         }),
       );
     }
+
+    return { message: 'Course setting transfer is completed successfully.' };
   }
 
   async allCourses(userId: string): Promise<ICourseDetailResponse[]> {
