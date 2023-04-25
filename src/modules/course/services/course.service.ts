@@ -279,6 +279,13 @@ export class CourseService {
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
       relations: ['student', 'student.student'],
+      order: {
+        student: {
+          student: {
+            name: 'ASC',
+          },
+        },
+      },
     });
 
     const allStudents = course?.student.map((student) => {
