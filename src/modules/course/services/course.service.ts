@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createQueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Response } from 'express';
 import * as excel4node from 'excel4node';
 
@@ -329,25 +329,22 @@ export class CourseService {
 
   public async exportCourseData(data: ExportCourseDataDto, response: Response) {
     try {
-      const { course: courseId, trainingSites } = data;
+      const { course: courseId } = data;
 
-      const courseData = await createQueryBuilder(CourseEntity, 'course')
-        .where('course.id = :courseId', { courseId })
-        .leftJoinAndSelect('course.department', 'courseDepartment')
-        .leftJoinAndSelect('course.trainingSite', 'courseTrainingSite')
-        .andWhere('courseTrainingSite.id In(:...trainingSitesId)', {
-          trainingSitesId: trainingSites,
-        })
-        .leftJoinAndSelect(
-          'courseTrainingSite.departmentUnit',
-          'departmentUnit',
-        )
-        .leftJoinAndSelect('departmentUnit.department', 'hospitalDepartment')
-        .leftJoinAndSelect('hospitalDepartment.hospital', 'hospital')
-        .leftJoinAndSelect('courseTrainingSite.timeslots', 'timeSlots')
-        .leftJoinAndSelect('timeSlots.placements', 'placement')
-        .leftJoinAndSelect('placement.student', 'student')
-        .getOne();
+      const courseData = await this.courseRepository.findOne({
+        where: { id: courseId },
+        loadEagerRelations: false,
+        relations: [
+          'department',
+          'trainingSite',
+          'trainingSite.timeslots',
+          'trainingSite.timeslots.placements',
+          'trainingSite.timeslots.placements.student',
+          'trainingSite.departmentUnit',
+          'trainingSite.departmentUnit.department',
+          'trainingSite.departmentUnit.department.hospital',
+        ],
+      });
 
       const { department, trainingSite } = courseData;
 
@@ -438,58 +435,72 @@ export class CourseService {
       rowIndex += 1;
 
       let siteRow = rowIndex;
-      trainingSite.forEach((site) => {
-        const { departmentUnit, timeslots } = site;
-        const { department } = departmentUnit;
-        const { hospital } = department;
+      if (trainingSite.length) {
+        trainingSite.forEach((site) => {
+          const { departmentUnit, timeslots } = site;
+          const { department } = departmentUnit;
+          const { hospital } = department;
 
-        let slotRow = siteRow;
-        timeslots.forEach((slot) => {
-          const { day, startTime, endTime, placements } = slot;
+          let slotRow = siteRow;
 
-          let studentRow = slotRow;
-          placements.forEach((p) => {
-            const {
-              student: { studentId, name, email },
-            } = p;
+          if (timeslots.length) {
+            timeslots.forEach((slot) => {
+              const { day, startTime, endTime, placements } = slot;
 
-            ws.cell(studentRow, studentIdCol).string(studentId);
-            ws.cell(studentRow, studentNameCol).string(name);
-            ws.cell(studentRow, studentEmailCol).string(email);
+              let studentRow = slotRow;
 
-            studentRow += 1;
-          });
+              if (placements.length) {
+                placements.forEach((p) => {
+                  const {
+                    student: { studentId, name, email },
+                  } = p;
 
-          const updatedDay = day.join(', ');
+                  ws.cell(studentRow, studentIdCol).string(studentId ?? '-');
+                  ws.cell(studentRow, studentNameCol).string(name ?? '-');
+                  ws.cell(studentRow, studentEmailCol).string(email ?? '-');
 
-          ws.cell(slotRow, dayCol, studentRow - 1, dayCol, true)
-            .string(updatedDay)
+                  studentRow += 1;
+                });
+              } else {
+                studentRow += 1;
+              }
+
+              const updatedDay = day.join(', ');
+
+              ws.cell(slotRow, dayCol, studentRow - 1, dayCol, true)
+                .string(updatedDay ?? '-')
+                .style(mergedCellStyle);
+              ws.cell(slotRow, timeslotCol, studentRow - 1, timeslotCol, true)
+                .string(`${startTime}-${endTime}` ?? '-')
+                .style(mergedCellStyle);
+
+              slotRow = studentRow;
+            });
+          } else {
+            slotRow += 1;
+          }
+
+          ws.cell(siteRow, hospitalCol, slotRow - 1, hospitalCol, true)
+            .string(hospital?.name ?? '-')
             .style(mergedCellStyle);
-          ws.cell(slotRow, timeslotCol, studentRow - 1, timeslotCol, true)
-            .string(`${startTime}-${endTime}`)
+          ws.cell(siteRow, departmentCol, slotRow - 1, departmentCol, true)
+            .string(department?.name ?? '-')
+            .style(mergedCellStyle);
+          ws.cell(
+            siteRow,
+            departmentUnitCol,
+            slotRow - 1,
+            departmentUnitCol,
+            true,
+          )
+            .string(departmentUnit?.name ?? '-')
             .style(mergedCellStyle);
 
-          slotRow = studentRow;
+          siteRow = slotRow;
         });
-
-        ws.cell(siteRow, hospitalCol, slotRow - 1, hospitalCol, true)
-          .string(hospital.name)
-          .style(mergedCellStyle);
-        ws.cell(siteRow, departmentCol, slotRow - 1, departmentCol, true)
-          .string(department.name)
-          .style(mergedCellStyle);
-        ws.cell(
-          siteRow,
-          departmentUnitCol,
-          slotRow - 1,
-          departmentUnitCol,
-          true,
-        )
-          .string(departmentUnit.name)
-          .style(mergedCellStyle);
-
-        siteRow = slotRow;
-      });
+      } else {
+        siteRow += 1;
+      }
 
       wb.write('Excel.xlsx', response);
 
