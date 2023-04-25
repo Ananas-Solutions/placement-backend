@@ -1,4 +1,4 @@
-export interface TrainingSiteStudents {
+export interface ITrainingSiteStudents {
   studentId: string;
   name: string;
   email: string;

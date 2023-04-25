@@ -46,6 +46,32 @@ export class CourseTrainingSiteService {
     };
   }
 
+  async createTrainingSite(
+    body: CourseTrainingSiteDto,
+  ): Promise<IAddTrainingSiteResponse> {
+    const { courseId, departmentUnitId } = body;
+    const existingTrainingSite = await this.findExistingTrainingSite(
+      courseId,
+      departmentUnitId,
+    );
+    if (existingTrainingSite) {
+      return {
+        trainingSiteId: existingTrainingSite.id,
+        message: 'Training site found successfully',
+      };
+    }
+
+    const newTrainingSite = await this.trainingSiteRepository.save({
+      course: { id: courseId } as CourseEntity,
+      departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
+    });
+
+    return {
+      trainingSiteId: newTrainingSite.id,
+      message: 'Training site added successfully.',
+    };
+  }
+
   async findExistingTrainingSite(courseId: string, departmentUnitId: string) {
     return await this.trainingSiteRepository.findOne({
       where: {

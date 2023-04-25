@@ -9,7 +9,7 @@ import {
 
 @Entity()
 export class PlacementEntity extends CustomBaseEntity {
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: true })
   isPublished!: boolean;
 
   @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })

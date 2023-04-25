@@ -18,33 +18,29 @@ export class TrainingSiteTimeSlotService {
     private readonly placementService: PlacementService,
   ) {}
 
-  async save(bodyDto: TrainingSiteTimeSlotDto): Promise<{ message: string }> {
-    try {
-      const { trainingSiteId, ...body } = bodyDto;
-      await Promise.all(
-        body.timeslots.map(async (timeslot) => {
-          let entityData = {};
+  async save(bodyDto: TrainingSiteTimeSlotDto): Promise<any> {
+    const { trainingSiteId, ...body } = bodyDto;
+    const newTimeSlots = await Promise.all(
+      body.timeslots.map(async (timeslot) => {
+        let entityData = {};
+        entityData = {
+          ...entityData,
+          startTime: timeslot.startTime,
+          endTime: timeslot.endTime,
+          day: timeslot.day,
+          capacity: timeslot.capacity,
+          trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
+        };
+        if (timeslot.supervisor) {
           entityData = {
             ...entityData,
-            startTime: timeslot.startTime,
-            endTime: timeslot.endTime,
-            day: timeslot.day,
-            capacity: timeslot.capacity,
-            trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
+            supervisor: { id: timeslot.supervisor } as UserEntity,
           };
-          if (timeslot.supervisor) {
-            entityData = {
-              ...entityData,
-              supervisor: { id: timeslot.supervisor } as UserEntity,
-            };
-          }
-          return await this.timeslotRepository.save(entityData);
-        }),
-      );
-      return { message: 'Time slots added successfully' };
-    } catch (err) {
-      throw err;
-    }
+        }
+        return await this.timeslotRepository.save(entityData);
+      }),
+    );
+    return { message: 'Time slots added successfully', newTimeSlots };
   }
 
   async findTimeSlot(timeslotId: string): Promise<any> {
@@ -61,33 +57,29 @@ export class TrainingSiteTimeSlotService {
   async findTimeSlots(
     trainingSiteId: string,
   ): Promise<TrainingTimeSlotEntity[]> {
-    try {
-      const trainingSiteTimeSlots = await this.timeslotRepository.find({
-        where: { trainingSite: { id: trainingSiteId } },
-        loadEagerRelations: false,
-        relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
-      });
+    const trainingSiteTimeSlots = await this.timeslotRepository.find({
+      where: { trainingSite: { id: trainingSiteId } },
+      loadEagerRelations: false,
+      relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
+    });
 
-      const allAvailableTimeSlots = await Promise.all(
-        trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlotEntity) => {
-          const { trainingSite } = timeSlot;
-          const { course } = trainingSite;
-          const assingedStudents =
-            await this.placementService.findTimeSlotStudents(timeSlot.id);
+    const allAvailableTimeSlots = await Promise.all(
+      trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlotEntity) => {
+        const { trainingSite } = timeSlot;
+        const { course } = trainingSite;
+        const assingedStudents =
+          await this.placementService.findTimeSlotStudents(timeSlot.id);
 
-          return {
-            ...timeSlot,
-            totalCapacity: timeSlot.capacity,
-            assignedCapacity: assingedStudents.length,
-            remainingcapacity: timeSlot.capacity - assingedStudents.length,
-            courseId: course.id,
-          };
-        }),
-      );
-      return allAvailableTimeSlots;
-    } catch (err) {
-      throw err;
-    }
+        return {
+          ...timeSlot,
+          totalCapacity: timeSlot.capacity,
+          assignedCapacity: assingedStudents.length,
+          remainingcapacity: timeSlot.capacity - assingedStudents.length,
+          courseId: course.id,
+        };
+      }),
+    );
+    return allAvailableTimeSlots;
   }
 
   async updateTimeSlot(

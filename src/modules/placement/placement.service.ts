@@ -1,19 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { groupBy } from 'lodash';
+
 import { TrainingDaysEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
-import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
-import { PlacementEntity } from 'entities/placement.entity';
-import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
-import { UserEntity } from 'entities/user.entity';
-import * as _ from 'lodash';
+import {
+  CourseTrainingSiteEntity,
+  PlacementEntity,
+  TrainingTimeSlotEntity,
+  UserEntity,
+} from 'entities/index.entity';
 import { StudentCourseService } from 'student-course/student-course.service';
-import { Repository } from 'typeorm';
-import { StudentPlacementDto } from './dto';
 
-import { StudentAvailabilityInterface } from './interface/student-availability.interface';
-import { StudentTrainingSites } from './interface/student-training-sites.interface';
-import { TrainingSiteStudents } from './interface/training-site-students.interface';
+import { StudentPlacementDto } from './dto';
+import {
+  IStudentAvailabilityInterface,
+  IStudentTrainingSites,
+  ITrainingSiteStudents,
+} from './interface';
 
 @Injectable()
 export class PlacementService {
@@ -56,7 +61,7 @@ export class PlacementService {
 
   async findStudentTrainingSite(
     studentId: string,
-  ): Promise<StudentTrainingSites[]> {
+  ): Promise<IStudentTrainingSites[]> {
     try {
       const studentTrainingSites = await this.placementRepository.find({
         where: { student: { id: studentId } },
@@ -107,7 +112,7 @@ export class PlacementService {
   async findTrainingSiteStudents(
     trainingSiteId: string,
     timeSlotId: string,
-  ): Promise<TrainingSiteStudents[]> {
+  ): Promise<ITrainingSiteStudents[]> {
     const studentsPlacement = await this.placementRepository.find({
       where: {
         trainingSite: { id: trainingSiteId },
@@ -154,7 +159,7 @@ export class PlacementService {
         };
       });
 
-      const mappedResult = _.groupBy(mappedPlacements, 'day');
+      const mappedResult = groupBy(mappedPlacements, 'day');
 
       return mappedResult;
     } catch (err) {
@@ -176,7 +181,7 @@ export class PlacementService {
 
   async findStudentsAvailability(
     trainingSiteId: string,
-  ): Promise<StudentAvailabilityInterface[]> {
+  ): Promise<IStudentAvailabilityInterface[]> {
     try {
       //finding which course does the trainingsite id belongs to;
       const courseTrainingSite = await this.courseTrainingSite.findOne({

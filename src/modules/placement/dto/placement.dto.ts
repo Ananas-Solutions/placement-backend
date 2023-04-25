@@ -12,5 +12,5 @@ export class StudentPlacementDto {
   @IsNotEmpty()
   @IsArray()
   @ArrayMinSize(1)
-  studentIds: [string];
+  studentIds: string[];
 }

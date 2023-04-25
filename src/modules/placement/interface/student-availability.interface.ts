@@ -1,4 +1,4 @@
-export interface StudentAvailabilityInterface {
+export interface IStudentAvailabilityInterface {
   id: string;
   name: string;
   email: string;

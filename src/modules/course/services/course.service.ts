@@ -4,9 +4,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as excel4node from 'excel4node';
-import { Response } from 'express';
 import { createQueryBuilder, Repository } from 'typeorm';
+import { Response } from 'express';
+import * as excel4node from 'excel4node';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
@@ -30,6 +30,7 @@ import { ICourseDetailResponse, ICourseResponse } from '../response';
 import { IUserResponse } from 'user/response';
 import { CourseTrainingSiteService } from './course-training-site.service';
 import { TrainingSiteTimeSlotService } from 'training-time-slot/training-time-slot.service';
+import { PlacementService } from 'placement/placement.service';
 
 @Injectable()
 export class CourseService {
@@ -40,6 +41,7 @@ export class CourseService {
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
     private readonly courseTrainingSiteService: CourseTrainingSiteService,
     private readonly timeslotService: TrainingSiteTimeSlotService,
+    private readonly placementService: PlacementService,
     private readonly userService: UserService,
   ) {}
 
@@ -126,13 +128,24 @@ export class CourseService {
     body: TransferStudentToCourseDto,
   ): Promise<ISuccessMessageResponse> {
     await Promise.all(
-      body.studentIds.map(
-        async (studentId) =>
-          await this.studentCourseRepository.save({
-            course: { id: body.courseId } as CourseEntity,
-            student: { id: studentId } as UserEntity,
-          }),
-      ),
+      body.studentIds.map(async (studentId) => {
+        const existingStudentInCourse =
+          await this.studentCourseRepository.findOne({
+            where: {
+              course: { id: body.courseId },
+              student: { id: studentId },
+            },
+          });
+
+        if (existingStudentInCourse) {
+          return;
+        }
+
+        await this.studentCourseRepository.save({
+          course: { id: body.courseId } as CourseEntity,
+          student: { id: studentId } as UserEntity,
+        });
+      }),
     );
 
     return { message: 'Students are transfered to the course successfully.' };
@@ -140,7 +153,7 @@ export class CourseService {
 
   public async transferCourseSetting(body: TransferCourseSettingDto) {
     try {
-      const { sourceCourseId, destinationCourseId } = body;
+      const { sourceCourseId, destinationCourseId, transferProperties } = body;
       const course = await this.courseRepository.findOne({
         where: { id: sourceCourseId },
         loadEagerRelations: false,
@@ -148,6 +161,8 @@ export class CourseService {
           'trainingSite',
           'trainingSite.departmentUnit',
           'trainingSite.timeslots',
+          'trainingSite.timeslots.placements',
+          'trainingSite.timeslots.placements.student',
           'student',
           'student.student',
         ],
@@ -160,7 +175,7 @@ export class CourseService {
             console.log('site', site);
             const departmentUnitId = site.departmentUnit.id;
             const { trainingSiteId } =
-              await this.courseTrainingSiteService.addTrainingSite({
+              await this.courseTrainingSiteService.createTrainingSite({
                 courseId: destinationCourseId,
                 departmentUnitId,
               });
@@ -171,10 +186,26 @@ export class CourseService {
               await Promise.all(
                 timeslots.map(async (slot) => {
                   const { startTime, endTime, capacity, day } = slot;
-                  await this.timeslotService.save({
+                  const { newTimeSlots } = await this.timeslotService.save({
                     timeslots: [{ startTime, endTime, capacity, day }],
                     trainingSiteId,
                   });
+
+                  if (transferProperties.includes('placement')) {
+                    const slotStudents = slot.placements;
+                    const mappedSlotStudents = slotStudents.map((student) => {
+                      return student.student.id;
+                    });
+
+                    const timeslot = newTimeSlots[0];
+                    const timeslotId = timeslot.id;
+
+                    await this.placementService.assignPlacment({
+                      timeSlotIds: [timeslotId],
+                      trainingSiteId: site.id,
+                      studentIds: mappedSlotStudents,
+                    });
+                  }
                 }),
               );
             }

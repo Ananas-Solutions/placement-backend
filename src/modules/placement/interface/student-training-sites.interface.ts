@@ -1,4 +1,4 @@
-export interface StudentTrainingSites {
+export interface IStudentTrainingSites {
   name: string;
   authority: any;
   hospital: any;
