@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, ArrayMinSize } from 'class-validator';
 
 export class TransferStudentToCourseDto {
   @IsNotEmpty()
@@ -6,6 +6,6 @@ export class TransferStudentToCourseDto {
   courseId: string;
 
   @IsArray()
-  @MinLength(1)
+  @ArrayMinSize(1)
   studentIds: string[];
 }
