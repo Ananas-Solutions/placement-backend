@@ -36,6 +36,18 @@ export class PlacementService {
       await Promise.all(
         timeSlotIds.map((timeslotId) => {
           bodyDto.studentIds.map(async (studentId) => {
+            const existingPlacement = await this.placementRepository.findOne({
+              where: {
+                student: { id: studentId },
+                trainingSite: { id: trainingSiteId },
+                timeSlot: { id: timeslotId },
+              },
+            });
+
+            if (existingPlacement) {
+              return;
+            }
+
             return await this.placementRepository.save({
               student: { id: studentId } as UserEntity,
               trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
@@ -44,14 +56,6 @@ export class PlacementService {
           });
         }),
       );
-
-      // bodyDto.studentIds.map(async (studentId) => {
-      //   return await this.placementRepository.save({
-      //     student: { id: studentId } as User,
-      //     trainingSite: { id: trainingSiteId } as CourseTrainingSite,
-      //     timeSlot: { id: timeSlotId } as TrainingTimeSlot,
-      //   });
-      // }),
 
       return { message: 'Student assigned to training placement succesfully.' };
     } catch (err) {

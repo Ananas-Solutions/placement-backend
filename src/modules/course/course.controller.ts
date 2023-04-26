@@ -29,6 +29,8 @@ import {
   TransferStudentToCourseDto,
 } from './dto';
 import { CourseTrainingSiteService } from './services/course-training-site.service';
+import { CourseTransferService } from './services/course-transfer.service';
+import { CourseExportService } from './services/course-export.service';
 
 @ApiTags('course')
 @UseInterceptors(ErrorInterceptor)
@@ -38,6 +40,8 @@ export class CourseController {
   constructor(
     private readonly coursesServices: CourseService,
     private readonly courseTrainingSiteService: CourseTrainingSiteService,
+    private readonly courseTransferService: CourseTransferService,
+    private readonly courseExportService: CourseExportService,
   ) {}
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
@@ -56,7 +60,7 @@ export class CourseController {
   @Post('export')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async exportCourse(@Body() body: ExportCourseDataDto, @Res() res: Response) {
-    return this.coursesServices.exportCourseData(body, res);
+    return this.courseExportService.exportCourseData(body, res);
   }
 
   @Post('add-student')
@@ -68,13 +72,13 @@ export class CourseController {
   @Post('transfer-students')
   @Roles(UserRoleEnum.ADMIN)
   async transferStudentsToCourse(@Body() body: TransferStudentToCourseDto) {
-    return this.coursesServices.transferStudentsToCourse(body);
+    return this.courseTransferService.transferStudentsToCourse(body);
   }
 
   @Post('transfer-settings')
   @Roles(UserRoleEnum.ADMIN)
   async transferCourseSettings(@Body() body: TransferCourseSettingDto) {
-    return this.coursesServices.transferCourseSetting(body);
+    return this.courseTransferService.transferCourseSetting(body);
   }
 
   @Get('export/training-sites/:courseId')
