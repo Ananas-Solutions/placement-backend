@@ -202,10 +202,9 @@ export class PlacementService {
 
       const allResults = await Promise.all(
         courseStudents.map(async (student: UserEntity) => {
-          const studentTrainingSitePlacement = await this.findStudentPlacement(
-            student.id,
-            course.id,
-          );
+          const studentTrainingSitePlacement =
+            await this.findStudentPlacementByStudentId(student.id);
+
           return {
             id: student.id,
             email: student.email,
@@ -240,6 +239,14 @@ export class PlacementService {
         trainingSite: { course: { id: courseId } },
       },
       loadEagerRelations: false,
+    });
+  }
+
+  private async findStudentPlacementByStudentId(studentId: string) {
+    return await this.placementRepository.find({
+      where: {
+        student: { id: studentId },
+      },
     });
   }
 }
