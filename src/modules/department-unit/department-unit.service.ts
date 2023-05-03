@@ -91,7 +91,7 @@ export class DepartmentUnitsService {
     );
 
     const updatedDepartmentUnit = await this.departmentUnitsRepository.findOne({
-      where: { id: departmentId },
+      where: { id: departmentUnitId },
       loadEagerRelations: false,
     });
 

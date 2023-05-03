@@ -122,7 +122,6 @@ export class CoordinatorService {
         await this.coordinatorDepartment.findOne({
           where: {
             coordinator: { id: coordinatorId },
-            department: { id: departmentId },
           },
           loadEagerRelations: false,
         });

@@ -1,10 +1,4 @@
-import { Type } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { StudentKinDto } from './student-kin.dto';
 
 export class StudentProfileDto {
@@ -56,7 +50,5 @@ export class StudentProfileDto {
   @IsString()
   country: string;
 
-  @Type(() => StudentKinDto)
-  @ValidateNested({ each: false })
   kin: StudentKinDto;
 }

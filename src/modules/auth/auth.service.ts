@@ -37,7 +37,12 @@ export class AuthService {
         secret: this.configService.get('JWT_SECRET'),
         expiresIn: '1d',
       });
-      return { accessToken: token, role: user.role, id: user.id };
+      return {
+        accessToken: token,
+        role: user.role,
+        id: user.id,
+        name: user.name,
+      };
     } catch (err) {
       throw err;
     }

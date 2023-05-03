@@ -84,7 +84,7 @@ export class StudentService {
         ...profileData,
         user: { id } as UserEntity,
       },
-      ['userId'],
+      ['user'],
     );
     await this.userService.updateUser(id, { name });
 
