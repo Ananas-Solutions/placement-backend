@@ -15,6 +15,7 @@ import { IDocumentResponse } from './response/document.response';
 import { StudentCourseEntity } from 'entities/student-course.entity';
 import { NotificationEntity } from 'entities/notification.entity';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+import { FileUploadService } from 'helper/file-uploader.service';
 
 @Injectable()
 @WebSocketGateway({
@@ -35,6 +36,7 @@ export class UserDocumentService {
     private readonly notificationRepository: Repository<NotificationEntity>,
     private readonly userService: UserService,
     private readonly websocketGateway: WebsocketGateway,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async uploadDocuments(userId: string, body: UploadDocumentDto) {
@@ -117,16 +119,18 @@ export class UserDocumentService {
       loadEagerRelations: false,
     });
 
-    return allDocuments.map((document) => this.transformToResponse(document));
+    return await Promise.all(
+      allDocuments.map((document) => this.transformToResponse(document)),
+    );
   }
 
-  private transformToResponse(document: UserDocumentEntity) {
+  private async transformToResponse(document: UserDocumentEntity) {
     const { id, name, url, status, comments, documentExpiryDate } = document;
 
     return {
       id,
       name,
-      url,
+      url: await this.fileUploadService.getUploadedFile(url),
       status,
       comments,
       documentExpiryDate,

@@ -25,6 +25,8 @@
     "migration:revert": "yarn typeorm migration:revert"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.325.0",
+    "@aws-sdk/s3-request-presigner": "^3.325.0",
     "@nestjs/common": "^9.3.10",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.3.10",
@@ -59,6 +61,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@aws-sdk/types": "^3.310.0",
     "@nestjs/cli": "^9.3.0",
     "@nestjs/schematics": "^9.0.4",
     "@nestjs/testing": "^9.3.10",

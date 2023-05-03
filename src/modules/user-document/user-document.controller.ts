@@ -42,11 +42,12 @@ export class UserDocumentController {
     @Body() body: UploadDocumentDto,
   ) {
     if (document) {
-      const uploadedFile = await this.fileUpload.uploadFile(
+      const uploadedFileUrl = await this.fileUpload.uploadFile(
         document.buffer,
         document.originalname,
+        document.mimetype,
       );
-      body['url'] = uploadedFile?.fileUrl;
+      body['url'] = uploadedFileUrl;
     }
     return await this.documentService.uploadDocuments(req.user.id, body);
   }

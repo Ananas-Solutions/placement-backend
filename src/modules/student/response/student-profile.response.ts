@@ -17,4 +17,5 @@ export interface IStudentProfileResponse {
     postalCode: string;
   };
   kin: object;
+  imageUrl: string;
 }

@@ -76,16 +76,14 @@ export class StudentController {
   @UseInterceptors(FileInterceptor('avatar'))
   async updateAvatar(@Req() req, @UploadedFile() avatar: Express.Multer.File) {
     try {
-      const uploadedFile = await this.fileUpload.uploadFile(
+      const uploadedFileUrl = await this.fileUpload.uploadFile(
         avatar.buffer,
-        avatar.originalname,
+        avatar.originalname || `${req.user.id}-avatar`,
+        avatar.mimetype,
       );
       const { id } = req.user;
 
-      return await this.studentService.updateProfileAvatar(
-        id,
-        uploadedFile.fileUrl,
-      );
+      return await this.studentService.updateProfileAvatar(id, uploadedFileUrl);
     } catch (err) {
       throw new BadRequestException(err.message);
     }

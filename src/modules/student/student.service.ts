@@ -20,6 +20,7 @@ import {
   IStudentTrainingTimeSlotsResponse,
 } from './response';
 import { IUserResponse } from 'user/response';
+import { FileUploadService } from 'helper/file-uploader.service';
 
 @Injectable()
 export class StudentService {
@@ -30,6 +31,7 @@ export class StudentService {
     private readonly placementRepository: Repository<PlacementEntity>,
     private readonly userService: UserService,
     private readonly studentCourseService: StudentCourseService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async saveStudent(body: CreateStudentDto) {
@@ -142,10 +144,10 @@ export class StudentService {
     return mappedResult;
   }
 
-  private transformToResponse(
+  private async transformToResponse(
     student: IUserResponse,
     profile: StudentProfileEntity,
-  ): IStudentProfileResponse {
+  ): Promise<IStudentProfileResponse> {
     if (!profile) {
       return {
         userId: student.id,
@@ -166,8 +168,10 @@ export class StudentService {
           postalCode: null,
         },
         kin: null,
+        imageUrl: '',
       };
     }
+
     const {
       gender,
       dob,
@@ -203,6 +207,7 @@ export class StudentService {
         postalCode,
       },
       kin,
+      imageUrl: await this.fileUploadService.getUploadedFile(profile.imageUrl),
     };
   }
 
