@@ -97,7 +97,7 @@ export class EvaluationController {
     return await this.evaluationService.viewEvaluatedStudentById(evaluationId);
   }
 
-  @Get('view/evaluated-supervisor/:evaluationId')
+  @Get('view/evaluated-trainingSite/:evaluationId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedTrainingSiteById(
     @Param('evaluationId') evaluationId: string,
