@@ -52,14 +52,14 @@ export class EvaluationController {
   }
 
   @Get('view/evaluated/students/:courseId')
-  @Roles(UserRoleEnum.CLINICAL_SUPERVISOR)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedStudents(@Req() req, @Param('courseId') courseId: string) {
     const { id } = req.user;
     return await this.evaluationService.viewEvaluatedStudents(id, courseId);
   }
 
   @Get('view/evaluated/supervisors/:courseId')
-  @Roles(UserRoleEnum.STUDENT)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedSupervisors(
     @Req() req,
     @Param('courseId') courseId: string,
@@ -69,7 +69,7 @@ export class EvaluationController {
   }
 
   @Get('view/evaluated/department-units/:courseId')
-  @Roles(UserRoleEnum.STUDENT)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedDepartmentUnits(
     @Req() req,
     @Param('courseId') courseId: string,

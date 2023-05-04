@@ -35,7 +35,7 @@ export class EvaluationService {
     await this.studentEvaluationRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,
       evaluation,
-      evalutee: { id: studentId } as UserEntity,
+      evaluatee: { id: studentId } as UserEntity,
       course: { id: courseId } as CourseEntity,
     });
 
@@ -50,7 +50,7 @@ export class EvaluationService {
     await this.supervisorEvaluationRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,
       evaluation,
-      evalutee: { id: supervisorId } as UserEntity,
+      evaluatee: { id: supervisorId } as UserEntity,
       course: { id: courseId } as CourseEntity,
     });
 
