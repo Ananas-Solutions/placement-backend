@@ -51,14 +51,14 @@ export class EvaluationController {
     return await this.evaluationService.evaluateSupervisor(id, body);
   }
 
-  @Get('view/evaluated/students/:courseId')
+  @Get('view/all/evaluated-students/:courseId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedStudents(@Req() req, @Param('courseId') courseId: string) {
     const { id } = req.user;
     return await this.evaluationService.viewEvaluatedStudents(id, courseId);
   }
 
-  @Get('view/evaluated/supervisors/:courseId')
+  @Get('view/all/evaluated-supervisors/:courseId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedSupervisors(
     @Req() req,
@@ -68,7 +68,7 @@ export class EvaluationController {
     return await this.evaluationService.viewEvaluatedSupervisor(id, courseId);
   }
 
-  @Get('view/evaluated/department-units/:courseId')
+  @Get('view/all/evaluated-trainingSites/:courseId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async viewEvaluatedDepartmentUnits(
     @Req() req,
@@ -78,6 +78,32 @@ export class EvaluationController {
     return await this.evaluationService.viewEvaluatedTrainingSites(
       id,
       courseId,
+    );
+  }
+
+  @Get('view/evaluated-supervisor/:evaluationId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async viewEvaluatedSupevisorById(
+    @Param('evaluationId') evaluationId: string,
+  ) {
+    return await this.evaluationService.viewEvaluatedSupervisorById(
+      evaluationId,
+    );
+  }
+
+  @Get('view/evaluated-student/:evaluationId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async viewEvaluatedStudentById(@Param('evaluationId') evaluationId: string) {
+    return await this.evaluationService.viewEvaluatedStudentById(evaluationId);
+  }
+
+  @Get('view/evaluated-supervisor/:evaluationId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async viewEvaluatedTrainingSiteById(
+    @Param('evaluationId') evaluationId: string,
+  ) {
+    return await this.evaluationService.viewEvaluatedTrainingSiteById(
+      evaluationId,
     );
   }
 

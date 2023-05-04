@@ -80,6 +80,14 @@ export class EvaluationService {
     });
   }
 
+  public async viewEvaluatedStudentById(evaluationId: string) {
+    return await this.supervisorEvaluationRepository.find({
+      where: { id: evaluationId },
+      loadEagerRelations: false,
+      relations: ['evaluatee', 'evaluator'],
+    });
+  }
+
   public async viewEvaluatedSupervisor(studentId: string, courseId: string) {
     return await this.supervisorEvaluationRepository.find({
       where: { course: { id: courseId } },
@@ -88,9 +96,25 @@ export class EvaluationService {
     });
   }
 
+  public async viewEvaluatedSupervisorById(evaluationId: string) {
+    return await this.supervisorEvaluationRepository.find({
+      where: { id: evaluationId },
+      loadEagerRelations: false,
+      relations: ['evaluatee', 'evaluator'],
+    });
+  }
+
   public async viewEvaluatedTrainingSites(studentId: string, courseId: string) {
     return await this.trainingSiteRepository.find({
       where: { course: { id: courseId } },
+      loadEagerRelations: false,
+      relations: ['trainingSite', 'evaluator'],
+    });
+  }
+
+  public async viewEvaluatedTrainingSiteById(evaluationId: string) {
+    return await this.supervisorEvaluationRepository.find({
+      where: { id: evaluationId },
       loadEagerRelations: false,
       relations: ['trainingSite', 'evaluator'],
     });
