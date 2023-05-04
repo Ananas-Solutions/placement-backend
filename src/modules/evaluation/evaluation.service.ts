@@ -76,7 +76,7 @@ export class EvaluationService {
     return await this.studentEvaluationRepository.find({
       where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['evaluatee'],
+      relations: ['evaluatee', 'evaluator'],
     });
   }
 
@@ -84,7 +84,7 @@ export class EvaluationService {
     return await this.supervisorEvaluationRepository.find({
       where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['evaluatee'],
+      relations: ['evaluatee', 'evaluator'],
     });
   }
 
@@ -92,7 +92,7 @@ export class EvaluationService {
     return await this.trainingSiteRepository.find({
       where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['trainingSite'],
+      relations: ['trainingSite', 'evaluator'],
     });
   }
 
