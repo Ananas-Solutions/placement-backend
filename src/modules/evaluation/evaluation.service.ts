@@ -74,23 +74,23 @@ export class EvaluationService {
 
   public async viewEvaluatedStudents(supervisorId: string, courseId: string) {
     return await this.studentEvaluationRepository.find({
-      where: { evaluator: { id: supervisorId }, course: { id: courseId } },
+      where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['evalutee'],
+      relations: ['evaluatee'],
     });
   }
 
   public async viewEvaluatedSupervisor(studentId: string, courseId: string) {
     return await this.supervisorEvaluationRepository.find({
-      where: { evaluator: { id: studentId }, course: { id: courseId } },
+      where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['evalutee'],
+      relations: ['evaluatee'],
     });
   }
 
   public async viewEvaluatedTrainingSites(studentId: string, courseId: string) {
     return await this.trainingSiteRepository.find({
-      where: { evaluator: { id: studentId }, course: { id: courseId } },
+      where: { course: { id: courseId } },
       loadEagerRelations: false,
       relations: ['trainingSite'],
     });
