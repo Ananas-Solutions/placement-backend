@@ -70,14 +70,21 @@ export class EvaluationController {
 
   @Get('view/all/evaluated-trainingSites/:courseId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async viewEvaluatedDepartmentUnits(
-    @Req() req,
+  async viewEvaluatedTrainingSitesByCourse(
     @Param('courseId') courseId: string,
   ) {
-    const { id } = req.user;
-    return await this.evaluationService.viewEvaluatedTrainingSites(
-      id,
+    return await this.evaluationService.viewEvaluatedTrainingSites(courseId);
+  }
+
+  @Get('view/all/evaluated-trainingSites/:courseId/:trainingSiteId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async viewEvaluatedTrainingSiteByTrainingSiteId(
+    @Param('courseId') courseId: string,
+    @Param('trainingSiteId') trainingSiteId: string,
+  ) {
+    return await this.evaluationService.viewEvaluatedTrainingSitesByTrainingSiteId(
       courseId,
+      trainingSiteId,
     );
   }
 

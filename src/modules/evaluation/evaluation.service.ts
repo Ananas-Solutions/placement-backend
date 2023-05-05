@@ -104,9 +104,36 @@ export class EvaluationService {
     });
   }
 
-  public async viewEvaluatedTrainingSites(studentId: string, courseId: string) {
-    return await this.trainingSiteRepository.find({
+  public async viewEvaluatedTrainingSites(courseId: string) {
+    const allTrainingSiteEvaluation = await this.trainingSiteRepository.find({
       where: { course: { id: courseId } },
+      loadEagerRelations: false,
+      relations: ['trainingSite'],
+    });
+
+    const evaluationResult = {};
+
+    allTrainingSiteEvaluation.forEach((evaluation) => {
+      const {
+        trainingSite: { id },
+      } = evaluation;
+      if (evaluationResult[id]) {
+        const temp = evaluationResult[id];
+        evaluationResult[id] = temp + 1;
+      } else {
+        evaluationResult[id] = 1;
+      }
+    });
+
+    return evaluationResult;
+  }
+
+  public async viewEvaluatedTrainingSitesByTrainingSiteId(
+    courseId: string,
+    trainingSiteId: string,
+  ) {
+    return await this.trainingSiteRepository.find({
+      where: { course: { id: courseId }, trainingSite: { id: trainingSiteId } },
       loadEagerRelations: false,
       relations: ['trainingSite', 'evaluator'],
     });
