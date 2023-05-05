@@ -15,6 +15,7 @@ import {
   SupervisorEvaluationDto,
   TrainingSiteEvaluationDto,
 } from './dto';
+import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
 
 @Injectable()
 export class EvaluationService {
@@ -46,12 +47,13 @@ export class EvaluationService {
     evaluatorId: string,
     body: SupervisorEvaluationDto,
   ): Promise<ISuccessMessageResponse> {
-    const { supervisorId, courseId, evaluation } = body;
+    const { supervisorId, courseId, timeslotId, evaluation } = body;
     await this.supervisorEvaluationRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,
       evaluation,
       evaluatee: { id: supervisorId } as UserEntity,
       course: { id: courseId } as CourseEntity,
+      timeslot: { id: timeslotId } as TrainingTimeSlotEntity,
     });
 
     return { message: 'Evaluation submitted successfully.' };
@@ -81,7 +83,7 @@ export class EvaluationService {
   }
 
   public async viewEvaluatedStudentById(evaluationId: string) {
-    return await this.supervisorEvaluationRepository.find({
+    return await this.studentEvaluationRepository.find({
       where: { id: evaluationId },
       loadEagerRelations: false,
       relations: ['evaluatee', 'evaluator'],
@@ -92,7 +94,7 @@ export class EvaluationService {
     return await this.supervisorEvaluationRepository.find({
       where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['evaluatee', 'evaluator'],
+      relations: ['evaluatee', 'evaluator', 'timeslot'],
     });
   }
 
@@ -100,7 +102,7 @@ export class EvaluationService {
     return await this.supervisorEvaluationRepository.find({
       where: { id: evaluationId },
       loadEagerRelations: false,
-      relations: ['evaluatee', 'evaluator'],
+      relations: ['evaluatee', 'evaluator', 'timeslot'],
     });
   }
 

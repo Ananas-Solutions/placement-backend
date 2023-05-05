@@ -12,6 +12,7 @@ import {
   CourseEntity,
   CourseTrainingSiteEntity,
   DepartmentUnitEntity,
+  TrainingSiteEvaluationEntity,
 } from 'entities/index.entity';
 
 @Injectable()
@@ -19,6 +20,8 @@ export class CourseTrainingSiteService {
   constructor(
     @InjectRepository(CourseTrainingSiteEntity)
     private readonly trainingSiteRepository: Repository<CourseTrainingSiteEntity>,
+    @InjectRepository(TrainingSiteEvaluationEntity)
+    private readonly trainingSiteEvaluationRepository: Repository<TrainingSiteEvaluationEntity>,
   ) {}
 
   async addTrainingSite(
@@ -95,17 +98,25 @@ export class CourseTrainingSiteService {
       ],
     });
 
-    const mappedResult = allTrainingSites.map((trainingSite) => {
-      const { departmentUnit } = trainingSite;
-      const { department } = departmentUnit;
-      const { hospital } = department;
-      return {
-        id: trainingSite.id,
-        hospital: hospital.name,
-        department: department.name,
-        departmentUnit: departmentUnit.name,
-      };
-    });
+    const mappedResult = await Promise.all(
+      allTrainingSites.map(async (trainingSite) => {
+        const allTrainingSiteEvaluation =
+          await this.trainingSiteEvaluationRepository.find({
+            where: { trainingSite: { id: trainingSite.id } },
+          });
+
+        const { departmentUnit } = trainingSite;
+        const { department } = departmentUnit;
+        const { hospital } = department;
+        return {
+          id: trainingSite.id,
+          hospital: hospital.name,
+          department: department.name,
+          departmentUnit: departmentUnit.name,
+          totalEvaluations: allTrainingSiteEvaluation.length,
+        };
+      }),
+    );
 
     return mappedResult;
   }

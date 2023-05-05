@@ -1,6 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { CourseEntity, CustomBaseEntity, UserEntity } from './index.entity';
+import {
+  CourseEntity,
+  CustomBaseEntity,
+  TrainingTimeSlotEntity,
+  UserEntity,
+} from './index.entity';
 
 @Entity()
 export class SupervisorEvaluationEntity extends CustomBaseEntity {
@@ -18,4 +23,8 @@ export class SupervisorEvaluationEntity extends CustomBaseEntity {
   @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
   @JoinColumn()
   course: CourseEntity;
+
+  @ManyToOne(() => TrainingTimeSlotEntity, { cascade: ['soft-remove'] })
+  @JoinColumn()
+  timeslot: TrainingTimeSlotEntity;
 }

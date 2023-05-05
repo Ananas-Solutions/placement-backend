@@ -5,6 +5,7 @@ import {
   CourseEntity,
   CourseTrainingSiteEntity,
   StudentCourseEntity,
+  TrainingSiteEvaluationEntity,
 } from 'entities/index.entity';
 import { UserModule } from 'user/user.module';
 import { TrainingSiteTimeSlotModule } from 'training-time-slot/training-time-slot.module';
@@ -22,6 +23,7 @@ import { CourseTransferService } from './services/course-transfer.service';
       CourseEntity,
       CourseTrainingSiteEntity,
       StudentCourseEntity,
+      TrainingSiteEvaluationEntity,
     ]),
     UserModule,
     TrainingSiteTimeSlotModule,
