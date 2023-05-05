@@ -214,7 +214,7 @@ export class StudentService {
   private transformToTimeSlotResponse(placement: PlacementEntity) {
     const { id, trainingSite, timeSlot } = placement;
     const { course } = trainingSite;
-    const { startTime, endTime, day, supervisor } = timeSlot;
+    const { startTime, endTime, day, supervisor, id: timeslotId } = timeSlot;
 
     const { departmentUnit } = trainingSite;
     const { department } = departmentUnit;
@@ -237,6 +237,7 @@ export class StudentService {
       trainingSite: {
         id: trainingSite.id,
       },
+      timeslotId,
       startTime,
       endTime,
       day,
