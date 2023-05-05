@@ -132,19 +132,47 @@ export class EvaluationService {
     courseId: string,
     trainingSiteId: string,
   ) {
-    return await this.trainingSiteRepository.find({
+    const allTrainingSiteEvaluations = await this.trainingSiteRepository.find({
       where: { course: { id: courseId }, trainingSite: { id: trainingSiteId } },
       loadEagerRelations: false,
-      relations: ['trainingSite', 'evaluator'],
+      relations: ['trainingSite', 'trainingSite.departmentUnit', 'evaluator'],
     });
+
+    const mappedTrainingSiteEvaluations = allTrainingSiteEvaluations.map(
+      (evaluation) => {
+        const { trainingSite, ...rest } = evaluation;
+        const { departmentUnit } = trainingSite;
+
+        return {
+          ...rest,
+          trainingSite: {
+            id: trainingSite.id,
+            name: departmentUnit.name,
+          },
+        };
+      },
+    );
+
+    return mappedTrainingSiteEvaluations;
   }
 
   public async viewEvaluatedTrainingSiteById(evaluationId: string) {
-    return await this.supervisorEvaluationRepository.find({
+    const singleEvaluation = await this.trainingSiteRepository.findOne({
       where: { id: evaluationId },
       loadEagerRelations: false,
-      relations: ['trainingSite', 'evaluator'],
+      relations: ['trainingSite', 'trainingSite.departmentUnit', 'evaluator'],
     });
+
+    const { trainingSite, ...rest } = singleEvaluation;
+    const { departmentUnit } = trainingSite;
+
+    return {
+      ...rest,
+      trainingSite: {
+        id: trainingSite.id,
+        name: departmentUnit.name,
+      },
+    };
   }
 
   public async studentViewOwnEvaluation(evaluteeId: string, courseId: string) {
