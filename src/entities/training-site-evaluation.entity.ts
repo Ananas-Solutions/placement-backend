@@ -4,6 +4,7 @@ import {
   CourseEntity,
   CourseTrainingSiteEntity,
   CustomBaseEntity,
+  TrainingTimeSlotEntity,
   UserEntity,
 } from './index.entity';
 
@@ -23,4 +24,8 @@ export class TrainingSiteEvaluationEntity extends CustomBaseEntity {
   @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
   @JoinColumn()
   course: CourseEntity;
+
+  @ManyToOne(() => TrainingTimeSlotEntity, { cascade: ['soft-remove'] })
+  @JoinColumn()
+  timeslot: TrainingTimeSlotEntity;
 }

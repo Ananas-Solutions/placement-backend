@@ -63,12 +63,13 @@ export class EvaluationService {
     evaluatorId: string,
     body: TrainingSiteEvaluationDto,
   ): Promise<ISuccessMessageResponse> {
-    const { trainingSiteId, courseId, evaluation } = body;
+    const { trainingSiteId, courseId, evaluation, timeslotId } = body;
     await this.trainingSiteRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,
       evaluation,
       trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
       course: { id: courseId } as CourseEntity,
+      timeslot: { id: timeslotId } as TrainingTimeSlotEntity,
     });
 
     return { message: 'Evaluation submitted successfully.' };
@@ -110,7 +111,7 @@ export class EvaluationService {
     const allTrainingSiteEvaluation = await this.trainingSiteRepository.find({
       where: { course: { id: courseId } },
       loadEagerRelations: false,
-      relations: ['trainingSite'],
+      relations: ['trainingSite', 'timeslot'],
     });
 
     const evaluationResult = {};
@@ -137,7 +138,12 @@ export class EvaluationService {
     const allTrainingSiteEvaluations = await this.trainingSiteRepository.find({
       where: { course: { id: courseId }, trainingSite: { id: trainingSiteId } },
       loadEagerRelations: false,
-      relations: ['trainingSite', 'trainingSite.departmentUnit', 'evaluator'],
+      relations: [
+        'trainingSite',
+        'trainingSite.departmentUnit',
+        'evaluator',
+        'timeslot',
+      ],
     });
 
     const mappedTrainingSiteEvaluations = allTrainingSiteEvaluations.map(

@@ -1,9 +1,8 @@
-import { IsNotEmpty, IsObject, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class TrainingSiteEvaluationDto {
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
   public trainingSiteId: string;
 
   @IsNotEmpty()
@@ -11,6 +10,9 @@ export class TrainingSiteEvaluationDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
   public courseId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public timeslotId: string;
 }
