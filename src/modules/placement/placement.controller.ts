@@ -23,10 +23,14 @@ import { PlacementService } from './placement.service';
 @Controller('placement')
 @UseInterceptors(ErrorInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
 export class PlacementController {
   constructor(private readonly placementService: PlacementService) {}
 
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
   @Get('student-availability')
   async findStudentsAvailability(
     @Query('trainingSiteId') trainingSiteId: string,
@@ -34,16 +38,23 @@ export class PlacementController {
     return await this.placementService.findStudentsAvailability(trainingSiteId);
   }
 
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post()
   async assignPlacement(@Body() body: StudentPlacementDto): Promise<any> {
     return await this.placementService.assignPlacment(body);
   }
 
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
   @Get('student/:studentId')
   async getStudentSites(@Param('studentId') studentId: string): Promise<any> {
     return await this.placementService.findStudentTrainingSite(studentId);
   }
 
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('training-site/:trainingSiteId/group-by-day')
   async getTrainingSiteStudentsGroupByDay(
     @Param('trainingSiteId') trainingSiteId: string,
@@ -53,6 +64,11 @@ export class PlacementController {
     );
   }
 
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
   @Get('training-site/:trainingSiteId/:timeSlotId')
   async getTrainingSiteStudents(
     @Param('trainingSiteId') trainingSiteId: string,
@@ -64,6 +80,7 @@ export class PlacementController {
     );
   }
 
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Delete(':placementId')
   async deletePlacement(@Param('placementId') placementId: string) {
     return await this.placementService.removeStudentFromTrainingSite(
