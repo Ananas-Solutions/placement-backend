@@ -1,7 +1,10 @@
 export interface ITrainingSiteStudents {
-  studentId: string;
-  name: string;
-  email: string;
+  student: {
+    id: string;
+    studentId: string;
+    name: string;
+    email: string;
+  };
   startTime: string;
   endTime: string;
   day: string[];

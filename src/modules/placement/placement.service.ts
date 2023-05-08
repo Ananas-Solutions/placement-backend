@@ -131,9 +131,12 @@ export class PlacementService {
         const { id, student, timeSlot } = studentPlacement;
         return {
           placementId: id,
-          studentId: student.id,
-          name: student.name,
-          email: student.email,
+          student: {
+            id: student.id,
+            studentId: student.studentId,
+            name: student.name,
+            email: student.email,
+          },
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,
           day: timeSlot.day,
