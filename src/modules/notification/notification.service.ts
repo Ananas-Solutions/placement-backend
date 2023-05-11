@@ -6,12 +6,14 @@ import { UserEntity } from 'entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateNotificationDto } from './dto';
 import { INotificationResponse } from './response';
+import { FileUploadService } from 'helper/file-uploader.service';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectRepository(NotificationEntity)
     private readonly notificationRepository: Repository<NotificationEntity>,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async saveNotification(
@@ -49,8 +51,10 @@ export class NotificationService {
       },
     });
 
-    return allUserNotifications.map((notification) =>
-      this.transformToNotificationResponse(notification),
+    return await Promise.all(
+      allUserNotifications.map((notification) =>
+        this.transformToNotificationResponse(notification),
+      ),
     );
   }
 
@@ -76,15 +80,15 @@ export class NotificationService {
     return { message: 'Notification removed successfully.' };
   }
 
-  private transformToNotificationResponse(
+  private async transformToNotificationResponse(
     entity: NotificationEntity,
-  ): INotificationResponse {
+  ): Promise<INotificationResponse> {
     const { id, message, contentUrl, isRead, readAt, createdAt } = entity;
 
     return {
       id,
       message,
-      contentUrl,
+      documentUrl: await this.fileUploadService.getUploadedFile(contentUrl),
       isRead,
       readAt,
       createdAt,

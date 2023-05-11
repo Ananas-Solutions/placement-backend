@@ -1,7 +1,7 @@
 export interface INotificationResponse {
   id: string;
   message: string;
-  contentUrl: string;
+  documentUrl: string;
   isRead: boolean;
   readAt?: Date;
   createdAt: Date;
