@@ -47,7 +47,6 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get(':id')
   async getUser(@Param('id') id: string) {
     return await this.userService.findUserById(id);

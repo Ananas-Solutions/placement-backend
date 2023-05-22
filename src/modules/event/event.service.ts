@@ -96,10 +96,11 @@ export class EventService {
   };
 
   private transformToResponse(entity: EventEntity): IEventResponse {
-    const { id, message, date } = entity;
+    const { id, message, date, name } = entity;
 
     return {
       id,
+      name,
       message,
       date,
     };

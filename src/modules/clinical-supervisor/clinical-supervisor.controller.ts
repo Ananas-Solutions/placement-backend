@@ -53,11 +53,19 @@ export class SupervisorController {
     return this.supervisorService.updateSupervisorProfile(id, body);
   }
 
-  @Get()
+  @Get('time-slot')
   @Roles(UserRoleEnum.CLINICAL_SUPERVISOR)
   async getTimeSlots(@Req() req) {
     const { id } = req.user;
     return this.supervisorService.fetchAllTimeSlots(id);
+  }
+
+  @Get('admin/:supervisorId/time-slot')
+  @Roles(UserRoleEnum.ADMIN)
+  async getSupervisorTimeSlotsByAdmin(
+    @Param('supervisorId') supervisorId: string,
+  ) {
+    return this.supervisorService.fetchAllTimeSlots(supervisorId);
   }
 
   @Get('time-slot/:timeSlotId')
