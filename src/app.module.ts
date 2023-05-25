@@ -27,6 +27,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NotificationModule } from './modules/notification/notification.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { WebsocketModule } from './websocket/websocket.module';
     EventModule,
     NotificationModule,
     WebsocketModule,
+    StatsModule,
   ],
 
   controllers: [AppController],
