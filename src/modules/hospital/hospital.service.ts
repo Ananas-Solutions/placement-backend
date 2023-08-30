@@ -72,12 +72,13 @@ export class HospitalService {
     hospitalId: string,
     bodyDto: HospitalDto,
   ): Promise<IHospitalResponse> {
-    const { authorityId, name, location } = bodyDto;
+    const { authorityId, name, location, contactEmail } = bodyDto;
     await this.hospitalRepository.update(
       { id: hospitalId },
       {
         name,
         location,
+        contactEmail,
         authority: { id: authorityId } as AuthorityEntity,
       },
     );

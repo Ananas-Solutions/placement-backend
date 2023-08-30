@@ -95,27 +95,51 @@ export class ExportService {
     }
 
     if (hospital && hospital !== 'all') {
-      whereClause = {
-        hospitals: { id: In([...hospital]) },
-      };
+      if (hospital !== 'all') {
+        whereClause = {
+          hospitals: { id: In([...hospital]) },
+        };
+      } else {
+        whereClause = {
+          hospitals: true,
+        };
+      }
     }
 
     if (department && department !== 'all') {
-      whereClause = {
-        hospitals: {
-          departments: { id: In([...department]) },
-        },
-      };
+      if (department !== 'all') {
+        whereClause = {
+          hospitals: {
+            departments: { id: In([...department]) },
+          },
+        };
+      } else {
+        whereClause = {
+          hospitals: {
+            departments: true,
+          },
+        };
+      }
     }
 
     if (departmentUnit && departmentUnit !== 'all') {
-      whereClause = {
-        hospitals: {
-          departments: {
-            departmentUnits: { id: In([...departmentUnit]) },
+      if (departmentUnit !== 'all') {
+        whereClause = {
+          hospitals: {
+            departments: {
+              departmentUnits: { id: In([...departmentUnit]) },
+            },
           },
-        },
-      };
+        };
+      } else {
+        whereClause = {
+          hospitals: {
+            departments: {
+              departmentUnits: true,
+            },
+          },
+        };
+      }
     }
 
     return whereClause;

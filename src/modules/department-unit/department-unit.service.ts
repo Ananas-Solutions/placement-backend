@@ -82,11 +82,12 @@ export class DepartmentUnitsService {
     departmentUnitId: string,
     bodyDto: DepartmentUnitsDto,
   ): Promise<IDepartmentUnitResponse> {
-    const { departmentId, name } = bodyDto;
+    const { departmentId, name, contactEmail } = bodyDto;
     await this.departmentUnitsRepository.update(
       { id: departmentUnitId },
       {
         name,
+        contactEmail,
         department: { id: departmentId } as DepartmentEntity,
       },
     );

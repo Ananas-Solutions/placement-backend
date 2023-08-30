@@ -50,11 +50,12 @@ export class CollegeDepartmentService {
     departmentId: string,
     bodyDto: CollegeDepartmentDto,
   ): Promise<ICollegeDepartmentResponse> {
-    const { name } = bodyDto;
+    const { name, contactEmail } = bodyDto;
     await this.collegeDepartmentRepository.update(
       { id: departmentId },
       {
         name,
+        contactEmail,
       },
     );
 

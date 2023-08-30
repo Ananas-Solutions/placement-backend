@@ -14,5 +14,8 @@ export class ExportDataDto {
   departmentUnit: string | string[];
 
   @IsOptional()
-  placementStudents: string | string[];
+  trainingSites: 'all';
+
+  @IsOptional()
+  placementStudents: 'all';
 }
