@@ -9,9 +9,12 @@ export class EventEntity extends CustomBaseEntity {
   @Column()
   public message: string;
 
-  @Column({ nullable: true })
-  public courseId: string;
+  @Column({ nullable: true, type: 'jsonb' })
+  public audiences?: any;
 
   @Column({ nullable: true })
   public date?: Date;
+
+  @Column({ nullable: true })
+  public courseId: string;
 }

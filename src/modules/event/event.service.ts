@@ -10,8 +10,8 @@ import { EmailService } from 'helper/send-email.service';
 import { EventEntity } from 'entities/events.entity';
 import { StudentCourseEntity } from 'entities/student-course.entity';
 
-import { CreateCourseEventDto } from './dto/create-event.dto';
-import { ExecuteEventDto } from './dto';
+import { CreateCourseEventDto } from './dto/create-course-event.dto';
+import { CreateEventDto, ExecuteEventDto } from './dto';
 import { ISuccessMessageResponse } from 'commons/response';
 import { IEventResponse } from './response/event.response';
 
@@ -38,6 +38,23 @@ export class EventService {
   }
 
   public async createEvent(
+    body: CreateEventDto,
+  ): Promise<ISuccessMessageResponse> {
+    const { name, message, date, ...rest } = body;
+
+    await this.eventsRepository.save({
+      name,
+      message,
+      date,
+      audiences: {
+        ...rest,
+      },
+    });
+
+    return { message: 'Event added successfully.' };
+  }
+
+  public async createCourseEvent(
     body: CreateCourseEventDto,
   ): Promise<ISuccessMessageResponse> {
     const { ...rest } = body;
@@ -56,27 +73,29 @@ export class EventService {
       audiences: audiences,
     });
 
-    return { message: 'Events added successfully.' };
+    return { message: 'Course event added successfully.' };
+  }
+
+  public async getAllEvents() {
+    const allEvents = await this.eventsRepository.find();
+
+    return allEvents.map((event) => this.transformToResponse(event));
   }
 
   public async getAllCourseEvents(courseId: string) {
-    const allEvents = await this.eventsRepository.find({
+    const allCourseEvents = await this.eventsRepository.find({
       where: { courseId },
     });
-    allEvents.map((event) => this.transformToResponse(event));
+
+    return allCourseEvents.map((event) =>
+      this.transformToCourseEventResponse(event),
+    );
   }
 
   public async findOneEvent(id: string) {
     const event = await this.eventsRepository.findOne({ where: { id } });
 
-    return this.transformToResponse(event);
-  }
-
-  public async deleteEvent(id: string): Promise<ISuccessMessageResponse> {
-    const event = await this.eventsRepository.findOne({ where: { id } });
-    await this.eventsRepository.softRemove(event);
-
-    return { message: 'Event deleted successfully.' };
+    return this.transformToCourseEventResponse(event);
   }
 
   public processMessage = async (job: Job<ExecuteEventDto>) => {
@@ -95,8 +114,19 @@ export class EventService {
     });
   };
 
-  private transformToResponse(entity: EventEntity): IEventResponse {
+  private transformToCourseEventResponse(entity: EventEntity): IEventResponse {
     const { id, message, date, name } = entity;
+
+    return {
+      id,
+      name,
+      message,
+      date,
+    };
+  }
+
+  private transformToResponse(entity: EventEntity) {
+    const { id, name, message, date } = entity;
 
     return {
       id,
