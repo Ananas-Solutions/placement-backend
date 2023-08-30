@@ -20,7 +20,7 @@ export class DepartmentUnitsService {
   ) {}
 
   async save(bodyDto: DepartmentUnitsDto): Promise<IDepartmentUnitResponse> {
-    const { departmentId, name } = bodyDto;
+    const { departmentId, name, contactEmail } = bodyDto;
     const existingDepartmentUnit = await this.departmentUnitsRepository.findOne(
       { where: { name, department: { id: departmentId } } },
     );
@@ -32,6 +32,7 @@ export class DepartmentUnitsService {
 
     const newDepartmentUnit = await this.departmentUnitsRepository.save({
       name,
+      contactEmail,
       department: { id: departmentId } as DepartmentEntity,
     });
 
@@ -110,36 +111,41 @@ export class DepartmentUnitsService {
   private transformToResponse(
     departmentUnit: DepartmentUnitEntity,
   ): IDepartmentUnitResponse {
-    const { id, name } = departmentUnit;
+    const { id, name, contactEmail } = departmentUnit;
     return {
       id,
       name,
+      contactEmail,
     };
   }
 
   private transformToDetailResponse(
     departmentUnit: DepartmentUnitEntity,
   ): IDepartmentUnitDetailResponse {
-    const { id, name, department } = departmentUnit;
+    const { id, name, department, contactEmail } = departmentUnit;
     const { hospital } = department;
     const { authority } = hospital;
 
     return {
       id,
       name,
+      contactEmail,
       department: {
         id: department.id,
         name: department.name,
+        contactEmail: department.contactEmail,
       },
       hospital: {
         id: hospital.id,
         name: hospital.name,
         location: hospital.location,
+        contactEmail: hospital.contactEmail,
       },
       authority: {
         id: authority.id,
         name: authority.name,
         initials: authority.initials,
+        contactEmail: authority.contactEmail,
       },
     };
   }

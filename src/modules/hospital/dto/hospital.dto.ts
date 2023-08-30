@@ -11,5 +11,9 @@ export class HospitalDto {
 
   @IsString()
   @IsNotEmpty()
+  contactEmail: string;
+
+  @IsString()
+  @IsNotEmpty()
   authorityId: string;
 }

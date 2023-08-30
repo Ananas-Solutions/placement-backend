@@ -28,6 +28,7 @@ import { AppService } from './app.service';
 import { NotificationModule } from './modules/notification/notification.module';
 import { WebsocketModule } from './websocket/websocket.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { ExportModule } from './modules/export/export.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { StatsModule } from './modules/stats/stats.module';
     NotificationModule,
     WebsocketModule,
     StatsModule,
+    ExportModule,
   ],
 
   controllers: [AppController],

@@ -5,6 +5,10 @@ export class DepartmentUnitsDto {
   @IsNotEmpty()
   name: string;
 
+  @IsNotEmpty()
+  @IsString()
+  contactEmail: string;
+
   @IsString()
   @IsNotEmpty()
   departmentId: string;

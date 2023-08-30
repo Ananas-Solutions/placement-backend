@@ -17,7 +17,7 @@ export class HospitalService {
   ) {}
 
   async saveHospital(bodyDto: HospitalDto): Promise<IHospitalResponse> {
-    const { authorityId, name, location } = bodyDto;
+    const { authorityId, name, location, contactEmail } = bodyDto;
     const existingHospital = await this.hospitalRepository.findOne({
       where: { location },
       loadEagerRelations: false,
@@ -31,6 +31,7 @@ export class HospitalService {
     const newHospital = this.hospitalRepository.create({
       name,
       location,
+      contactEmail,
       authority: { id: authorityId } as AuthorityEntity,
     });
     const hospital = await this.hospitalRepository.save(newHospital);
@@ -97,32 +98,37 @@ export class HospitalService {
   }
 
   private transformToResponse(hospital: HospitalEntity): IHospitalResponse {
-    const { id, name, location } = hospital;
+    const { id, name, location, contactEmail } = hospital;
     return {
       id,
       name,
       location,
+      contactEmail,
     };
   }
 
   private transformToDetailResponse(
     hospital: HospitalEntity,
   ): IHospitalDetailResponse {
-    const { id, name, location, authority, departments } = hospital;
+    const { id, name, location, authority, contactEmail, departments } =
+      hospital;
 
     const mappedDepartments = departments?.map((d) => ({
       id: d.id,
       name: d.name,
+      contactEmail: d.contactEmail,
     }));
 
     return {
       id,
       name,
       location,
+      contactEmail,
       authority: {
         id: authority.id,
         name: authority.name,
         initials: authority.initials,
+        contactEmail: authority.contactEmail,
       },
       departments: mappedDepartments,
     };

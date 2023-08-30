@@ -4,4 +4,8 @@ export class CollegeDepartmentDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  contactEmail: string;
 }

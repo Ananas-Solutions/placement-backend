@@ -71,24 +71,26 @@ export class AuthorityService {
   }
 
   private transformToResponse(authority: AuthorityEntity): IAuthorityResponse {
-    const { id, name, initials } = authority;
-    return { id, name, initials };
+    const { id, name, initials, contactEmail } = authority;
+    return { id, name, initials, contactEmail };
   }
 
   private transformToSingleResponse(
     authority: AuthorityEntity,
   ): ISingleAuthorityResponse {
-    const { id, name, initials, hospitals } = authority;
+    const { id, name, initials, contactEmail, hospitals } = authority;
 
     const mappedHospitals = hospitals?.map((hospital) => ({
       id: hospital.id,
       name: hospital.name,
       location: hospital.location,
+      contactEmail: hospital.contactEmail,
     }));
 
     return {
       id,
       name,
+      contactEmail,
       initials,
       hospitals: mappedHospitals,
     };

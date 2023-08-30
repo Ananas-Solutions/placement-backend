@@ -24,7 +24,7 @@ export class DepartmentService {
   ) {}
 
   async saveDepartment(bodyDto: DepartmentDto): Promise<IDepartmentResponse> {
-    const { hospitalId, name } = bodyDto;
+    const { hospitalId, name, contactEmail } = bodyDto;
     const existingDepartment = await this.departmentRepository.findOne({
       where: { name, hospital: { id: hospitalId } },
     });
@@ -36,6 +36,7 @@ export class DepartmentService {
 
     const newDepartment = await this.departmentRepository.save({
       name,
+      contactEmail,
       hospital: { id: hospitalId } as HospitalEntity,
     });
 
@@ -123,26 +124,29 @@ export class DepartmentService {
   }
 
   private transformToResponse(entity: DepartmentEntity): IDepartmentResponse {
-    const { id, name } = entity;
+    const { id, name, contactEmail } = entity;
 
     return {
       id,
       name,
+      contactEmail,
     };
   }
 
   private transformToDetailResponse(
     entity: DepartmentEntity,
   ): IDepartmentDetailResponse {
-    const { id, name, hospital } = entity;
+    const { id, name, hospital, contactEmail } = entity;
 
     return {
       id,
       name,
+      contactEmail,
       hospital: {
         id: hospital.id,
         name: hospital.name,
         location: hospital.location,
+        contactEmail: hospital.contactEmail,
       },
     };
   }

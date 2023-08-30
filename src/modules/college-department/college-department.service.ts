@@ -77,11 +77,12 @@ export class CollegeDepartmentService {
   }
 
   private transformToResponse(entity: CollegeDepartmentEntity) {
-    const { id, name } = entity;
+    const { id, name, contactEmail } = entity;
 
     return {
       id,
       name,
+      contactEmail,
     };
   }
 }

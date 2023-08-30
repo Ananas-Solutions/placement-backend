@@ -8,4 +8,8 @@ export class AuthorityDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  contactEmail: string;
 }

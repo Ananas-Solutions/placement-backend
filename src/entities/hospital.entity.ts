@@ -30,6 +30,9 @@ export class HospitalEntity extends CustomBaseEntity {
   @Column({ type: 'jsonb' })
   location: HospitalLocationInterface;
 
+  @Column({ default: '' })
+  contactEmail: string;
+
   @ManyToOne(() => AuthorityEntity, (authority) => authority.hospitals, {
     onDelete: 'CASCADE',
   })

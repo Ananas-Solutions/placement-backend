@@ -21,6 +21,9 @@ export class AuthorityEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
+  @Column({ default: '' })
+  contactEmail: string;
+
   @OneToMany(() => HospitalEntity, (hospital) => hospital.authority, {
     cascade: ['update', 'soft-remove'],
     eager: true,

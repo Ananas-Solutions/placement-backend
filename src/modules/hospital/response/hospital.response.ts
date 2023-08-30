@@ -8,4 +8,5 @@ export interface IHospitalResponse {
       lng: number;
     };
   };
+  contactEmail: string;
 }
