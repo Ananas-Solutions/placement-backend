@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import * as excel4node from 'excel4node';
+import { Response } from 'express';
 
 import { AuthorityEntity } from 'entities/authority.entity';
 import { HospitalEntity } from 'entities/hospital.entity';
@@ -25,9 +26,9 @@ export class ExportService {
     private readonly configurationService: ConfigService,
   ) {}
 
-  public async exportData(body: ExportDataDto) {
+  public async exportData(body: ExportDataDto, response: Response) {
     const { data, length } = await this.mapData(body);
-    await this.convertToExcel({ data, length });
+    await this.convertToExcel({ data, length, response });
   }
 
   private async mapData(body: ExportDataDto) {
@@ -90,62 +91,38 @@ export class ExportService {
 
     let whereClause = {};
 
-    if (authority !== 'all') {
+    if (authority?.length) {
       whereClause = { id: In([...authority]) };
     }
 
-    if (hospital && hospital !== 'all') {
-      if (hospital !== 'all') {
-        whereClause = {
-          hospitals: { id: In([...hospital]) },
-        };
-      } else {
-        whereClause = {
-          hospitals: true,
-        };
-      }
+    if (hospital?.length) {
+      whereClause = {
+        hospitals: { id: In([...hospital]) },
+      };
     }
 
-    if (department && department !== 'all') {
-      if (department !== 'all') {
-        whereClause = {
-          hospitals: {
-            departments: { id: In([...department]) },
-          },
-        };
-      } else {
-        whereClause = {
-          hospitals: {
-            departments: true,
-          },
-        };
-      }
+    if (department?.length) {
+      whereClause = {
+        hospitals: {
+          departments: { id: In([...department]) },
+        },
+      };
     }
 
-    if (departmentUnit && departmentUnit !== 'all') {
-      if (departmentUnit !== 'all') {
-        whereClause = {
-          hospitals: {
-            departments: {
-              departmentUnits: { id: In([...departmentUnit]) },
-            },
+    if (departmentUnit?.length) {
+      whereClause = {
+        hospitals: {
+          departments: {
+            departmentUnits: { id: In([...departmentUnit]) },
           },
-        };
-      } else {
-        whereClause = {
-          hospitals: {
-            departments: {
-              departmentUnits: true,
-            },
-          },
-        };
-      }
+        },
+      };
     }
 
     return whereClause;
   }
 
-  private async convertToExcel({ data, length }) {
+  private async convertToExcel({ data, length, response }) {
     const wb = new excel4node.Workbook({
       defaultFont: {
         size: 12,
@@ -313,6 +290,8 @@ export class ExportService {
       authorityRow = hospitalRow;
     }
 
-    wb.write('Export.xlsx');
+    wb.write('Export.xlsx', response);
+
+    return { message: 'Excel exported successfully' };
   }
 }

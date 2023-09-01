@@ -2,20 +2,20 @@ import { IsOptional } from 'class-validator';
 
 export class ExportDataDto {
   @IsOptional()
-  authority: string | string[];
+  authority: string[];
 
   @IsOptional()
-  hospital: string | string[];
+  hospital: string[];
 
   @IsOptional()
-  department: string | string[];
+  department: string[];
 
   @IsOptional()
-  departmentUnit: string | string[];
+  departmentUnit: string[];
 
   @IsOptional()
   trainingSites: 'all';
 
   @IsOptional()
-  placementStudents: 'all';
+  placementStudents: boolean;
 }
