@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -41,9 +42,10 @@ export class DepartmentUnitsController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Get('department/:departmentId')
-  async findAllUnit(@Param('departmentId') departmentId: string) {
-    return this.departmentUnitsService.find(departmentId);
+  @Get('department')
+  async findAllUnit(@Query() query) {
+    const departmentIds = query.departmentIds.split(' ');
+    return this.departmentUnitsService.find(departmentIds);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)

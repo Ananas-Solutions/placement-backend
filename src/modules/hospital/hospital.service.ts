@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { HospitalEntity } from 'entities/hospital.entity';
@@ -49,9 +49,9 @@ export class HospitalService {
     );
   }
 
-  async findAllHospital(authorityId: string): Promise<IHospitalResponse[]> {
+  async findAllHospital(authorityIds: string[]): Promise<IHospitalResponse[]> {
     const authorityAllHospitals = await this.hospitalRepository.find({
-      where: { authority: { id: authorityId } },
+      where: { authority: { id: In(authorityIds) } },
       loadEagerRelations: false,
     });
     return authorityAllHospitals.map((hospital) =>

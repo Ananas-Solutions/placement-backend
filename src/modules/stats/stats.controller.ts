@@ -1,4 +1,10 @@
-import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { JwtAuthGuard, RolesGuard } from 'auth/guards';
 import { Roles } from 'commons/decorator';
@@ -15,5 +21,11 @@ export class StatsController {
   @Roles(UserRoleEnum.ADMIN)
   async getAdminStats() {
     return this.statService.getStatsForAdmin();
+  }
+
+  @Get('coordinator')
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR)
+  async getCoordinatorStats(@Req() req) {
+    return this.statService.getStatsForCoordinator(req.user.id);
   }
 }

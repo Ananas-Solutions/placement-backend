@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,14 +32,16 @@ export class HospitalController {
   async createHospital(@Body() body: HospitalDto) {
     return await this.hospitalService.saveHospital(body);
   }
+
   @Get()
   async findAllHospital() {
     return await this.hospitalService.getAllHospital();
   }
 
-  @Get('authority/:authorityId')
-  async queryAllHospital(@Param() { authorityId }: { authorityId: string }) {
-    return await this.hospitalService.findAllHospital(authorityId);
+  @Get('authority')
+  async queryAllHospital(@Query() query) {
+    const authorityIds = query.authorityIds.split(' ');
+    return await this.hospitalService.findAllHospital(authorityIds);
   }
 
   @Get(':id')

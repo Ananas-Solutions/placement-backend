@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { IDepartmentResponse } from 'department/response';
@@ -67,9 +67,9 @@ export class DepartmentUnitsService {
     return this.transformToDetailResponse(departmentUnit);
   }
 
-  async find(departmentId: string): Promise<IDepartmentResponse[]> {
+  async find(departmentIds: string[]): Promise<IDepartmentResponse[]> {
     const allDepartmentUnits = await this.departmentUnitsRepository.find({
-      where: { department: { id: departmentId } },
+      where: { department: { id: In(departmentIds) } },
       loadEagerRelations: false,
     });
 

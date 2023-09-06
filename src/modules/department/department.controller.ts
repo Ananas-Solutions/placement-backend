@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -37,9 +38,10 @@ export class DepartmentController {
     return await this.departmentService.findAllHospitals();
   }
 
-  @Get('hospital/:hospitalId')
-  async queryHospitalDepartment(@Param('hospitalId') hospitalId: string) {
-    return await this.departmentService.findHospitalDepartments(hospitalId);
+  @Get('hospital')
+  async queryHospitalDepartment(@Query() query) {
+    const hospitalIds = query.hospitalIds.split(' ');
+    return await this.departmentService.findHospitalDepartments(hospitalIds);
   }
 
   @Get(':departmentId/all-coordinators')
