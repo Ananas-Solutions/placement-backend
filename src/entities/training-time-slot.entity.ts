@@ -4,6 +4,8 @@ import {
   CourseTrainingSiteEntity,
   CustomBaseEntity,
   PlacementEntity,
+  SupervisorEvaluationEntity,
+  TrainingSiteEvaluationEntity,
   UserEntity,
 } from './index.entity';
 
@@ -32,12 +34,29 @@ export class TrainingTimeSlotEntity extends CustomBaseEntity {
   trainingSite: CourseTrainingSiteEntity;
 
   @OneToMany(() => PlacementEntity, (placement) => placement.timeSlot, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
+    cascade: true,
   })
   placements: PlacementEntity[];
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   supervisor: UserEntity;
+
+  @OneToMany(
+    () => SupervisorEvaluationEntity,
+    (supervisorEvaluation) => supervisorEvaluation.timeslot,
+    {
+      cascade: true,
+    },
+  )
+  supervisorEvaluation: SupervisorEvaluationEntity[];
+
+  @OneToMany(
+    () => TrainingSiteEvaluationEntity,
+    (trainingSiteEvaluation) => trainingSiteEvaluation.timeslot,
+    {
+      cascade: true,
+    },
+  )
+  trainingSiteEvaluation: TrainingSiteEvaluationEntity[];
 }

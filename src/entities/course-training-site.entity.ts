@@ -5,6 +5,7 @@ import {
   CustomBaseEntity,
   DepartmentUnitEntity,
   PlacementEntity,
+  TrainingSiteEvaluationEntity,
   TrainingTimeSlotEntity,
 } from './index.entity';
 
@@ -29,13 +30,21 @@ export class CourseTrainingSiteEntity extends CustomBaseEntity {
   @OneToMany(
     () => TrainingTimeSlotEntity,
     (timeslots) => timeslots.trainingSite,
-    { cascade: ['update', 'soft-remove'], eager: true },
+    { cascade: true },
   )
   timeslots: TrainingTimeSlotEntity[];
 
   @OneToMany(() => PlacementEntity, (placement) => placement.trainingSite, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
+    cascade: true,
   })
   placement: PlacementEntity[];
+
+  @OneToMany(
+    () => TrainingSiteEvaluationEntity,
+    (trainingSiteEvaluation) => trainingSiteEvaluation.trainingSite,
+    {
+      cascade: true,
+    },
+  )
+  trainingSiteEvaluation: TrainingSiteEvaluationEntity[];
 }

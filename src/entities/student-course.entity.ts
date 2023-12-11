@@ -1,9 +1,12 @@
 import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+
 import { CourseEntity, CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()
 export class StudentCourseEntity extends CustomBaseEntity {
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, (user) => user.studentCourses, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   student: UserEntity;
 

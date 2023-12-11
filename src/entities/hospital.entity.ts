@@ -5,12 +5,14 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 
 import {
   CustomBaseEntity,
   AuthorityEntity,
   DepartmentEntity,
+  SupervisorProfileEntity,
 } from './index.entity';
 
 interface HospitalLocationInterface {
@@ -40,8 +42,16 @@ export class HospitalEntity extends CustomBaseEntity {
   authority: AuthorityEntity;
 
   @OneToMany(() => DepartmentEntity, (department) => department.hospital, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
+    cascade: true,
   })
   departments: DepartmentEntity[];
+
+  @OneToOne(
+    () => SupervisorProfileEntity,
+    (supervisorProfile) => supervisorProfile.hospital,
+    {
+      cascade: true,
+    },
+  )
+  clinicalSupervisorProfile: SupervisorProfileEntity;
 }
