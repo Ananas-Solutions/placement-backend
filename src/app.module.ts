@@ -15,6 +15,7 @@ import { EventModule } from 'event/event.module';
 import { HospitalModule } from 'hospital/hospital.module';
 import { PlacementModule } from 'placement/placement.module';
 import { QueuesModule } from 'queues/queues.module';
+import { RepositoryModule } from 'repository/repository.module';
 import { SemesterModule } from 'semester/semester.module';
 import { StudentCourseModule } from 'student-course/student-course.module';
 import { StudentModule } from 'student/student.module';
@@ -67,6 +68,7 @@ import { ExportModule } from './modules/export/export.module';
     WebsocketModule,
     StatsModule,
     ExportModule,
+    RepositoryModule,
   ],
 
   controllers: [AppController],
