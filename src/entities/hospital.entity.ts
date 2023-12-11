@@ -53,5 +53,5 @@ export class HospitalEntity extends CustomBaseEntity {
       cascade: true,
     },
   )
-  clinicalSupervisorProfile: SupervisorProfileEntity[];
+  clinicalSupervisorProfile: SupervisorProfileEntity;
 }

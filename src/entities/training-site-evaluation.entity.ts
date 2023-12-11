@@ -27,7 +27,7 @@ export class TrainingSiteEvaluationEntity extends CustomBaseEntity {
   @JoinColumn()
   trainingSite: CourseTrainingSiteEntity;
 
-  @ManyToOne(() => CourseEntity, (course) => course.trainingSiteEvaluations, {
+  @ManyToOne(() => CourseEntity, (course) => course.trainingSiteEvaluation, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
@@ -35,7 +35,7 @@ export class TrainingSiteEvaluationEntity extends CustomBaseEntity {
 
   @ManyToOne(
     () => TrainingTimeSlotEntity,
-    (trainingTimeSlot) => trainingTimeSlot.trainingSiteEvaluations,
+    (trainingTimeSlot) => trainingTimeSlot.trainingSiteEvaluation,
     { onDelete: 'CASCADE' },
   )
   @JoinColumn()

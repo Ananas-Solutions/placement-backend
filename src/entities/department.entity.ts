@@ -56,5 +56,5 @@ export class DepartmentEntity extends CustomBaseEntity {
       cascade: true,
     },
   )
-  clinicalSupervisorProfile: SupervisorProfileEntity[];
+  clinicalSupervisorProfile: SupervisorProfileEntity;
 }

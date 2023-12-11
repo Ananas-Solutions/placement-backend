@@ -58,5 +58,5 @@ export class TrainingTimeSlotEntity extends CustomBaseEntity {
       cascade: true,
     },
   )
-  trainingSiteEvaluations: TrainingSiteEvaluationEntity[];
+  trainingSiteEvaluation: TrainingSiteEvaluationEntity[];
 }

@@ -89,5 +89,5 @@ export class CourseEntity extends CustomBaseEntity {
       cascade: true,
     },
   )
-  trainingSiteEvaluations: TrainingSiteEvaluationEntity[];
+  trainingSiteEvaluation: TrainingSiteEvaluationEntity[];
 }
