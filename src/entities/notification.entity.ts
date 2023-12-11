@@ -1,4 +1,5 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+
 import { CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()
@@ -15,6 +16,7 @@ export class NotificationEntity extends CustomBaseEntity {
   @Column({ type: 'date', nullable: true })
   readAt: Date;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, (user) => user.notification, { cascade: true })
+  @JoinColumn()
   user: UserEntity;
 }

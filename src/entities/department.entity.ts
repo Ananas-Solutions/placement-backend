@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 
 import {
@@ -12,6 +13,7 @@ import {
   CustomBaseEntity,
   DepartmentUnitEntity,
   HospitalEntity,
+  SupervisorProfileEntity,
 } from './index.entity';
 
 @Entity()
@@ -33,8 +35,7 @@ export class DepartmentEntity extends CustomBaseEntity {
     () => DepartmentUnitEntity,
     (departmentUnit) => departmentUnit.department,
     {
-      cascade: ['update', 'soft-remove'],
-      eager: true,
+      cascade: true,
     },
   )
   departmentUnits: DepartmentUnitEntity[];
@@ -43,9 +44,17 @@ export class DepartmentEntity extends CustomBaseEntity {
     () => CoordinatorCollegeDepartmentEntity,
     (departmentCoordinator) => departmentCoordinator.department,
     {
-      cascade: ['update', 'soft-remove'],
-      eager: true,
+      cascade: true,
     },
   )
   departmentCoordinators: CoordinatorCollegeDepartmentEntity[];
+
+  @OneToOne(
+    () => SupervisorProfileEntity,
+    (supervisorProfile) => supervisorProfile.department,
+    {
+      cascade: true,
+    },
+  )
+  clinicalSupervisorProfile: SupervisorProfileEntity[];
 }

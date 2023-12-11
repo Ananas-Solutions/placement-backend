@@ -13,19 +13,31 @@ export class TrainingSiteEvaluationEntity extends CustomBaseEntity {
   @Column({ type: 'jsonb' })
   evaluation: any;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, (user) => user.trainingSiteEvaluator, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   evaluator: UserEntity;
 
-  @ManyToOne(() => CourseTrainingSiteEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(
+    () => CourseTrainingSiteEntity,
+    (courseTrainingSite) => courseTrainingSite.trainingSiteEvaluation,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn()
   trainingSite: CourseTrainingSiteEntity;
 
-  @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => CourseEntity, (course) => course.trainingSiteEvaluations, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   course: CourseEntity;
 
-  @ManyToOne(() => TrainingTimeSlotEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(
+    () => TrainingTimeSlotEntity,
+    (trainingTimeSlot) => trainingTimeSlot.trainingSiteEvaluations,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn()
   timeslot: TrainingTimeSlotEntity;
 }

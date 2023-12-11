@@ -13,6 +13,9 @@ import {
   CustomBaseEntity,
   SemesterEntity,
   StudentCourseEntity,
+  StudentEvaluationEntity,
+  SupervisorEvaluationEntity,
+  TrainingSiteEvaluationEntity,
   UserEntity,
 } from './index.entity';
 
@@ -31,7 +34,7 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({ type: 'boolean', default: false })
   isPublished!: boolean;
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.courses, { onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: UserEntity;
 
@@ -52,14 +55,39 @@ export class CourseEntity extends CustomBaseEntity {
   semester: SemesterEntity;
 
   @OneToMany(() => CourseTrainingSiteEntity, (ts) => ts.course, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
+    cascade: true,
   })
   trainingSite: CourseTrainingSiteEntity[];
 
   @OneToMany(() => StudentCourseEntity, (students) => students.course, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
+    cascade: true,
   })
   student: StudentCourseEntity[];
+
+  @OneToMany(
+    () => StudentEvaluationEntity,
+    (studentEvaluation) => studentEvaluation.course,
+    {
+      cascade: true,
+    },
+  )
+  studentEvaluation: StudentEvaluationEntity[];
+
+  @OneToMany(
+    () => SupervisorEvaluationEntity,
+    (supervisorEvaluation) => supervisorEvaluation.course,
+    {
+      cascade: true,
+    },
+  )
+  supervisorEvaluation: SupervisorEvaluationEntity[];
+
+  @OneToMany(
+    () => TrainingSiteEvaluationEntity,
+    (trainingSiteEvaluation) => trainingSiteEvaluation.course,
+    {
+      cascade: true,
+    },
+  )
+  trainingSiteEvaluations: TrainingSiteEvaluationEntity[];
 }

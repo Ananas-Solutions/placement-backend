@@ -12,7 +12,9 @@ export class PlacementEntity extends CustomBaseEntity {
   @Column({ type: 'boolean', default: true })
   isPublished!: boolean;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, (user) => user.placements, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   student: UserEntity;
 

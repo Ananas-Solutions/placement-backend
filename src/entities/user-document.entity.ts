@@ -25,7 +25,7 @@ export class UserDocumentEntity extends CustomBaseEntity {
   documentExpiryDate: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.documents, {
-    cascade: ['soft-remove'],
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   user: UserEntity;

@@ -10,7 +10,9 @@ export class CoordinatorProfileEntity extends CustomBaseEntity {
   @Column()
   address: string;
 
-  @OneToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @OneToOne(() => UserEntity, (user) => user.coodinatorProfile, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   user: UserEntity;
 }

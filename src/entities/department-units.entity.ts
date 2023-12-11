@@ -26,20 +26,23 @@ export class DepartmentUnitEntity extends CustomBaseEntity {
   @Column({ default: '' })
   contactEmail: string;
 
-  @ManyToOne(() => DepartmentEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(
+    () => DepartmentEntity,
+    (department) => department.departmentUnits,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn()
   department: DepartmentEntity;
 
   @OneToMany(() => SupervisorDepartmentUnitEntity, (ds) => ds.departmentUnit, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
+    cascade: true,
   })
   departmentSupervisor: SupervisorDepartmentUnitEntity[];
 
   @OneToMany(
     () => CourseTrainingSiteEntity,
     (course) => course.departmentUnit,
-    { cascade: ['update', 'soft-remove'], eager: true },
+    { cascade: true },
   )
   trainingSites: CourseTrainingSiteEntity[];
 }
