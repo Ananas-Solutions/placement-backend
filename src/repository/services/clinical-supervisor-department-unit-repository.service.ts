@@ -59,10 +59,12 @@ export class ClinicalSupervisorDepartmentUnitRepositoryService {
 
   public async delete(
     where: FindOneWhereOptions<SupervisorDepartmentUnitEntity>,
+    relations?: FindRelationsOptions<SupervisorDepartmentUnitEntity>,
   ) {
     const supervisorDepartmentUnit =
       await this.supervisorDepartmentUnitRepository.findOne({
         where,
+        relations,
       });
 
     await this.supervisorDepartmentUnitRepository.softRemove(

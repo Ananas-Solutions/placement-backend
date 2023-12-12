@@ -57,9 +57,13 @@ export class ClinicalSupervisorProfileRepositoryService {
     return await this.supervisorProfileRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<SupervisorProfileEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<SupervisorProfileEntity>,
+    relations?: FindRelationsOptions<SupervisorProfileEntity>,
+  ) {
     const supervisorProfile = await this.supervisorProfileRepository.findOne({
       where,
+      relations,
     });
 
     await this.supervisorProfileRepository.softRemove(supervisorProfile);

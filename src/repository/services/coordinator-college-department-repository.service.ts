@@ -62,10 +62,12 @@ export class CoordinatorCollegeDepartmentRepositoryService {
 
   public async delete(
     where: FindOneWhereOptions<CoordinatorCollegeDepartmentEntity>,
+    relations?: FindRelationsOptions<CoordinatorCollegeDepartmentEntity>,
   ) {
     const coordinatorCollegeDepartment =
       await this.coordinatorCollegeDepartmentRepository.findOne({
         where,
+        relations,
       });
 
     await this.coordinatorCollegeDepartmentRepository.softRemove(

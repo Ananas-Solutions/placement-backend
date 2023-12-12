@@ -57,9 +57,13 @@ export class SemesterRepositoryService {
     return await this.semesterRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<SemesterEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<SemesterEntity>,
+    relations?: FindRelationsOptions<SemesterEntity>,
+  ) {
     const semester = await this.semesterRepository.findOne({
       where,
+      relations,
     });
 
     await this.semesterRepository.softRemove(semester);

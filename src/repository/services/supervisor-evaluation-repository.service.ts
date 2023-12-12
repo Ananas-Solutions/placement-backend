@@ -57,10 +57,14 @@ export class SupervisorEvaluationRepositoryService {
     return await this.supervisorEvaluationRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<SupervisorEvaluationEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<SupervisorEvaluationEntity>,
+    relations?: FindRelationsOptions<SupervisorEvaluationEntity>,
+  ) {
     const supervisorEvaluation =
       await this.supervisorEvaluationRepository.findOne({
         where,
+        relations,
       });
 
     await this.supervisorEvaluationRepository.softRemove(supervisorEvaluation);

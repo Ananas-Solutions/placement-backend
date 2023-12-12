@@ -57,9 +57,13 @@ export class CourseTrainingSiteRepositoryService {
     return await this.courseTrainingSiteRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<CourseTrainingSiteEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<CourseTrainingSiteEntity>,
+    relations?: FindRelationsOptions<CourseTrainingSiteEntity>,
+  ) {
     const courseTrainingSite = await this.courseTrainingSiteRepository.findOne({
       where,
+      relations,
     });
 
     await this.courseTrainingSiteRepository.softRemove(courseTrainingSite);

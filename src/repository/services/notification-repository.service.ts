@@ -57,9 +57,13 @@ export class NotificationRepositoryService {
     return await this.notificationRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<NotificationEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<NotificationEntity>,
+    relations?: FindRelationsOptions<NotificationEntity>,
+  ) {
     const notification = await this.notificationRepository.findOne({
       where,
+      relations,
     });
 
     await this.notificationRepository.softRemove(notification);

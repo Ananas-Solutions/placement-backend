@@ -57,9 +57,13 @@ export class CoordinatorProfileRepositoryService {
     return await this.coordinatorProfileRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<CoordinatorProfileEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<CoordinatorProfileEntity>,
+    relations?: FindRelationsOptions<CoordinatorProfileEntity>,
+  ) {
     const coordinatorProfile = await this.coordinatorProfileRepository.findOne({
       where,
+      relations,
     });
 
     await this.coordinatorProfileRepository.softRemove(coordinatorProfile);

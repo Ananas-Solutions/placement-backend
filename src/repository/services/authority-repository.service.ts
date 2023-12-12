@@ -57,9 +57,13 @@ export class AuthorityRepositoryService {
     return await this.authorityRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<AuthorityEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<AuthorityEntity>,
+    relations?: FindRelationsOptions<AuthorityEntity>,
+  ) {
     const authority = await this.authorityRepository.findOne({
       where,
+      relations,
     });
 
     await this.authorityRepository.softRemove(authority);

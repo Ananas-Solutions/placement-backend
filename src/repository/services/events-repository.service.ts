@@ -55,9 +55,13 @@ export class EventRepositoryService {
     return await this.eventRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<EventEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<EventEntity>,
+    relations?: FindRelationsOptions<EventEntity>,
+  ) {
     const event = await this.eventRepository.findOne({
       where,
+      relations,
     });
 
     await this.eventRepository.softRemove(event);

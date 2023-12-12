@@ -57,9 +57,13 @@ export class HospitalRepositoryService {
     return await this.hospitalRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<HospitalEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<HospitalEntity>,
+    relations?: FindRelationsOptions<HospitalEntity>,
+  ) {
     const hospital = await this.hospitalRepository.findOne({
       where,
+      relations,
     });
 
     await this.hospitalRepository.softRemove(hospital);

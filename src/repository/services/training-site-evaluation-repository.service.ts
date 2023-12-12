@@ -59,10 +59,12 @@ export class TrainingSiteEvaluationRepositoryService {
 
   public async delete(
     where: FindOneWhereOptions<TrainingSiteEvaluationEntity>,
+    relations?: FindRelationsOptions<TrainingSiteEvaluationEntity>,
   ) {
     const trainingSiteEvaluation =
       await this.trainingSiteEvaluationRepository.findOne({
         where,
+        relations,
       });
 
     await this.trainingSiteEvaluationRepository.softRemove(

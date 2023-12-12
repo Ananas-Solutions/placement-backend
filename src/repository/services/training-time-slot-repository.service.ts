@@ -57,9 +57,13 @@ export class TrainingTimeSlotRepositoryService {
     return await this.trainingTimeSlotRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<TrainingTimeSlotEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<TrainingTimeSlotEntity>,
+    relations?: FindRelationsOptions<TrainingTimeSlotEntity>,
+  ) {
     const trainingSlotTime = await this.trainingTimeSlotRepository.findOne({
       where,
+      relations,
     });
 
     await this.trainingTimeSlotRepository.softRemove(trainingSlotTime);

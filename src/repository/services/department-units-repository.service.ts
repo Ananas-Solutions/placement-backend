@@ -57,9 +57,13 @@ export class DepartmentUnitsRepositoryService {
     return await this.departmentUnitRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<DepartmentUnitEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<DepartmentUnitEntity>,
+    relations?: FindRelationsOptions<DepartmentUnitEntity>,
+  ) {
     const departmentUnit = await this.departmentUnitRepository.findOne({
       where,
+      relations,
     });
 
     await this.departmentUnitRepository.softRemove(departmentUnit);

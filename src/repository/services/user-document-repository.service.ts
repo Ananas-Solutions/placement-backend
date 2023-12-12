@@ -57,9 +57,13 @@ export class UserDocumentRepositoryService {
     return await this.userDocumentRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<UserDocumentEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<UserDocumentEntity>,
+    relations?: FindRelationsOptions<UserDocumentEntity>,
+  ) {
     const userDocument = await this.userDocumentRepository.findOne({
       where,
+      relations,
     });
 
     await this.userDocumentRepository.softRemove(userDocument);

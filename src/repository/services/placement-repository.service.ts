@@ -57,9 +57,13 @@ export class PlacementRepositoryService {
     return await this.placementRepository.update(where, data);
   }
 
-  public async delete(where: FindOneWhereOptions<PlacementEntity>) {
+  public async delete(
+    where: FindOneWhereOptions<PlacementEntity>,
+    relations?: FindRelationsOptions<PlacementEntity>,
+  ) {
     const placement = await this.placementRepository.findOne({
       where,
+      relations,
     });
 
     await this.placementRepository.softRemove(placement);
