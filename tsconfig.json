@@ -29,6 +29,7 @@
       // "notification/*": ["./src/modules/notification/*"],
       "placement/*": ["./src/modules/placement/*"],
       "queues/*": ["./src/queues/*"],
+      "repository/*": ["./src/repository/*"],
       "semester/*": ["./src/modules/semester/*"],
       "student/*": ["./src/modules/student/*"],
       "supervisor/*": ["./src/modules/clinical-supervisor/*"],
