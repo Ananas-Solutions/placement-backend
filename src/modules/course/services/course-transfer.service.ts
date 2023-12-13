@@ -1,12 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
-import {
-  CourseEntity,
-  StudentCourseEntity,
-  UserEntity,
-} from 'entities/index.entity';
+import { CourseEntity, UserEntity } from 'entities/index.entity';
 import {
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
@@ -15,14 +9,16 @@ import { ISuccessMessageResponse } from 'commons/response';
 import { CourseTrainingSiteService } from './course-training-site.service';
 import { TrainingSiteTimeSlotService } from 'training-time-slot/training-time-slot.service';
 import { PlacementService } from 'placement/placement.service';
+import {
+  CoursesRepositoryService,
+  StudentCourseRepositoryService,
+} from 'repository/services';
 
 @Injectable()
 export class CourseTransferService {
   constructor(
-    @InjectRepository(StudentCourseEntity)
-    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
-    @InjectRepository(CourseEntity)
-    private readonly courseRepository: Repository<CourseEntity>,
+    private readonly studentCourseRepository: StudentCourseRepositoryService,
+    private readonly courseRepository: CoursesRepositoryService,
     private readonly courseTrainingSiteService: CourseTrainingSiteService,
     private readonly timeslotService: TrainingSiteTimeSlotService,
     private readonly placementService: PlacementService,
@@ -35,10 +31,8 @@ export class CourseTransferService {
       body.studentIds.map(async (studentId) => {
         const existingStudentInCourse =
           await this.studentCourseRepository.findOne({
-            where: {
-              course: { id: body.courseId },
-              student: { id: studentId },
-            },
+            course: { id: body.courseId },
+            student: { id: studentId },
           });
 
         if (existingStudentInCourse) {
@@ -58,19 +52,18 @@ export class CourseTransferService {
   public async transferCourseSetting(body: TransferCourseSettingDto) {
     try {
       const { sourceCourseId, destinationCourseId, transferProperties } = body;
-      const course = await this.courseRepository.findOne({
-        where: { id: sourceCourseId },
-        loadEagerRelations: false,
-        relations: [
-          'trainingSite',
-          'trainingSite.departmentUnit',
-          'trainingSite.timeslots',
-          'trainingSite.timeslots.placements',
-          'trainingSite.timeslots.placements.student',
-          'student',
-          'student.student',
-        ],
-      });
+      const course = await this.courseRepository.findOne(
+        {
+          id: sourceCourseId,
+        },
+        {
+          trainingSite: {
+            departmentUnit: true,
+            timeslots: { placements: { student: true } },
+          },
+          student: { student: true },
+        },
+      );
 
       if (body.transferProperties.includes('trainingSites')) {
         const trainingSites = course.trainingSite;
@@ -124,10 +117,8 @@ export class CourseTransferService {
         await Promise.all(
           students.map(async ({ student }) => {
             const existingStudent = await this.studentCourseRepository.findOne({
-              where: {
-                course: { id: destinationCourseId },
-                student: { id: student.id },
-              },
+              course: { id: destinationCourseId },
+              student: { id: student.id },
             });
 
             if (existingStudent) {

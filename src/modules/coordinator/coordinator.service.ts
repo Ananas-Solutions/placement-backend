@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
-import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
-import { UserEntity } from 'entities/user.entity';
-import { CollegeDepartmentEntity } from 'entities/college-department.entity';
-import { CoordinatorProfileEntity } from 'entities/coordinator-profile.entity';
-import { CourseEntity } from 'entities/courses.entity';
+import {
+  CollegeDepartmentEntity,
+  CoordinatorCollegeDepartmentEntity,
+  UserEntity,
+} from 'entities/index.entity';
+import {
+  CoordinatorCollegeDepartmentRepositoryService,
+  CoordinatorProfileRepositoryService,
+  CoursesRepositoryService,
+} from 'repository/services';
 import { UserService } from 'user/user.service';
 
 import { CreateCoordinatorDto, UpdateCoordinatorDto } from './dto';
@@ -20,12 +23,9 @@ import {
 @Injectable()
 export class CoordinatorService {
   constructor(
-    @InjectRepository(CoordinatorProfileEntity)
-    private readonly coordinatorProfileRepository: Repository<CoordinatorProfileEntity>,
-    @InjectRepository(CoordinatorCollegeDepartmentEntity)
-    private readonly coordinatorDepartment: Repository<CoordinatorCollegeDepartmentEntity>,
-    @InjectRepository(CourseEntity)
-    private readonly courseRepository: Repository<CourseEntity>,
+    private readonly coordinatorProfileRepository: CoordinatorProfileRepositoryService,
+    private readonly coordinatorDepartment: CoordinatorCollegeDepartmentRepositoryService,
+    private readonly courseRepository: CoursesRepositoryService,
     private readonly userService: UserService,
   ) {}
 
@@ -57,11 +57,13 @@ export class CoordinatorService {
     );
     const result = await Promise.all(
       allCoordinators.map(async (coordinator) => {
-        const coordinatorDepartment = await this.coordinatorDepartment.findOne({
-          where: { coordinator: { id: coordinator.id } },
-          loadEagerRelations: false,
-          relations: ['department'],
-        });
+        const coordinatorDepartment = await this.coordinatorDepartment.findOne(
+          {
+            coordinator: { id: coordinator.id },
+          },
+          { department: true },
+        );
+
         const { id, name, email } = coordinator;
         return {
           id,
@@ -79,11 +81,13 @@ export class CoordinatorService {
 
   async findCoordinator(coordinatorId: string) {
     const coordinator = await this.userService.findUserById(coordinatorId);
-    const coordinatorDepartment = await this.coordinatorDepartment.findOne({
-      where: { coordinator: { id: coordinatorId } },
-      loadEagerRelations: false,
-      relations: ['department'],
-    });
+    const coordinatorDepartment = await this.coordinatorDepartment.findOne(
+      {
+        coordinator: { id: coordinatorId },
+      },
+      { department: true },
+    );
+
     return {
       ...coordinator,
       department: {
@@ -94,19 +98,21 @@ export class CoordinatorService {
   }
 
   async findCoordinatorCourse(coordinatorId: string): Promise<any> {
-    return await this.courseRepository.findOne({
-      where: { coordinator: { id: coordinatorId } },
-      loadEagerRelations: false,
-      relations: ['department', 'semester'],
-    });
+    return await this.courseRepository.findOne(
+      {
+        coordinator: { id: coordinatorId },
+      },
+      { department: true, semester: true },
+    );
   }
 
   async findCoordinatorDepartment(coordinatorId: string) {
-    const coordinatorDepartment = await this.coordinatorDepartment.findOne({
-      where: { coordinator: { id: coordinatorId } },
-      loadEagerRelations: false,
-      relations: ['department'],
-    });
+    const coordinatorDepartment = await this.coordinatorDepartment.findOne(
+      {
+        coordinator: { id: coordinatorId },
+      },
+      { department: true },
+    );
 
     return this.transformToDepartmentResponse(coordinatorDepartment);
   }
@@ -120,15 +126,12 @@ export class CoordinatorService {
     if (departmentId) {
       const existingCoordinatorDepartment =
         await this.coordinatorDepartment.findOne({
-          where: {
-            coordinator: { id: coordinatorId },
-          },
-          loadEagerRelations: false,
+          coordinator: { id: coordinatorId },
         });
 
       if (existingCoordinatorDepartment) {
         await this.coordinatorDepartment.update(
-          existingCoordinatorDepartment.id,
+          { id: existingCoordinatorDepartment.id },
           {
             department: { id: departmentId } as CollegeDepartmentEntity,
           },
@@ -153,13 +156,9 @@ export class CoordinatorService {
   ): Promise<ISuccessMessageResponse> {
     await this.userService.deleteUser(coordinatorId);
 
-    const coordinatorDepartment = await this.coordinatorDepartment.findOne({
-      where: {
-        coordinator: { id: coordinatorId },
-      },
+    await this.coordinatorDepartment.delete({
+      coordinator: { id: coordinatorId },
     });
-
-    await this.coordinatorDepartment.softRemove(coordinatorDepartment);
 
     return { message: 'Coordinator removed successfully.' };
   }

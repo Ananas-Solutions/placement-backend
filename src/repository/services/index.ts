@@ -20,3 +20,4 @@ export * from './college-department-repository.service';
 export * from './clinical-supervisor-profile-repository.service';
 export * from './clinical-supervisor-department-unit-repository.service';
 export * from './authority-repository.service';
+export * from './student-course-repository.service';

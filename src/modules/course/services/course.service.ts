@@ -1,6 +1,4 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
@@ -8,9 +6,12 @@ import {
   CollegeDepartmentEntity,
   CourseEntity,
   SemesterEntity,
-  StudentCourseEntity,
   UserEntity,
 } from 'entities/index.entity';
+import {
+  CoursesRepositoryService,
+  StudentCourseRepositoryService,
+} from 'repository/services';
 import { UserService } from 'user/user.service';
 import { IUserResponse } from 'user/response';
 
@@ -20,10 +21,8 @@ import { ICourseDetailResponse, ICourseResponse } from '../response';
 @Injectable()
 export class CourseService {
   constructor(
-    @InjectRepository(CourseEntity)
-    private readonly courseRepository: Repository<CourseEntity>,
-    @InjectRepository(StudentCourseEntity)
-    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
+    private readonly courseRepository: CoursesRepositoryService,
+    private readonly studentCourseRepository: StudentCourseRepositoryService,
     private readonly userService: UserService,
   ) {}
 
@@ -86,10 +85,8 @@ export class CourseService {
     }
 
     const studentCourse = await this.studentCourseRepository.findOne({
-      where: {
-        student: { id: newStudent.id },
-        course: { id: bodyDto.courseId },
-      },
+      student: { id: newStudent.id },
+      course: { id: bodyDto.courseId },
     });
 
     if (studentCourse) {
@@ -117,10 +114,10 @@ export class CourseService {
         },
       };
     }
-    const allCourses = await this.courseRepository.find({
-      where: whereClause,
-      loadEagerRelations: false,
-      relations: ['department', 'semester', 'coordinator'],
+    const allCourses = await this.courseRepository.findMany(whereClause, {
+      department: true,
+      semester: true,
+      coordinator: true,
     });
 
     return allCourses.map((course) => this.transformToDetailResponse(course));
@@ -128,38 +125,44 @@ export class CourseService {
 
   async findAllCourses(departmentId: string): Promise<CourseEntity[]> {
     try {
-      return await this.courseRepository.find({
-        where: { department: { id: departmentId } },
-        loadEagerRelations: false,
-        relations: ['semester', 'coordinator'],
-      });
+      return await this.courseRepository.findMany(
+        {
+          department: { id: departmentId },
+        },
+        { semester: true, coordinator: true },
+      );
     } catch (err) {
       throw err;
     }
   }
 
   async findOneCourse(id: string): Promise<ICourseDetailResponse> {
-    const course = await this.courseRepository.findOne({
-      where: { id },
-      loadEagerRelations: false,
-      relations: ['department', 'semester', 'coordinator'],
-    });
+    const course = await this.courseRepository.findOne(
+      {
+        id,
+      },
+      { department: true, semester: true, coordinator: true },
+    );
 
     return this.transformToDetailResponse(course);
   }
 
   async findCourseStudents(courseId: string): Promise<IUserResponse[]> {
-    const course = await this.courseRepository.findOne({
-      where: { id: courseId },
-      relations: ['student', 'student.student'],
-      order: {
-        student: {
+    const course = await this.courseRepository.findOne(
+      {
+        id: courseId,
+      },
+      { student: { student: true } },
+      {
+        order: {
           student: {
-            name: 'ASC',
+            student: {
+              name: 'ASC',
+            },
           },
         },
       },
-    });
+    );
 
     const allStudents = course?.student.map((student) => {
       const { id, name, email, studentId } = student.student;
@@ -200,9 +203,7 @@ export class CourseService {
   }
 
   async deleteCourse(id: string): Promise<ISuccessMessageResponse> {
-    const course = await this.courseRepository.findOne({ where: { id } });
-
-    await this.courseRepository.softRemove(course);
+    await this.courseRepository.delete({ id });
 
     return { message: 'Course deleted successfully' };
   }

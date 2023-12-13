@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { StudentEvaluationEntity } from 'entities/index.entity';
+import { StudentCourseEntity } from 'entities/index.entity';
 import {
   FindManyOptions,
   FindOneWhereOptions,
@@ -12,37 +12,37 @@ import {
 } from 'repository/type-def';
 
 @Injectable()
-export class StudentEvaluationRepositoryService {
+export class StudentCourseRepositoryService {
   constructor(
-    @InjectRepository(StudentEvaluationEntity)
-    private readonly studentEvaluationRepository: Repository<StudentEvaluationEntity>,
+    @InjectRepository(StudentCourseEntity)
+    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
   ) {}
 
   public async save(
-    data: SaveOptions<StudentEvaluationEntity>,
-  ): Promise<StudentEvaluationEntity> {
-    return await this.studentEvaluationRepository.save(data);
+    data: SaveOptions<StudentCourseEntity>,
+  ): Promise<StudentCourseEntity> {
+    return await this.studentCourseRepository.save(data);
   }
 
   public async findOne(
-    where: FindOneWhereOptions<StudentEvaluationEntity>,
-    relations?: FindRelationsOptions<StudentEvaluationEntity>,
-  ): Promise<StudentEvaluationEntity> {
-    return await this.studentEvaluationRepository.findOne({
+    where: FindOneWhereOptions<StudentCourseEntity>,
+    relations?: FindRelationsOptions<StudentCourseEntity>,
+  ): Promise<StudentCourseEntity> {
+    return await this.studentCourseRepository.findOne({
       where,
       relations,
     });
   }
 
   public async findMany(
-    where?: FindOneWhereOptions<StudentEvaluationEntity>,
-    relations?: FindRelationsOptions<StudentEvaluationEntity>,
-    findManyOptions?: FindManyOptions<StudentEvaluationEntity>,
-  ): Promise<StudentEvaluationEntity[]> {
+    where?: FindOneWhereOptions<StudentCourseEntity>,
+    relations?: FindRelationsOptions<StudentCourseEntity>,
+    findManyOptions?: FindManyOptions<StudentCourseEntity>,
+  ): Promise<StudentCourseEntity[]> {
     const skip = findManyOptions?.skip ?? 0;
     const take = findManyOptions?.take ?? 10;
 
-    return await this.studentEvaluationRepository.find({
+    return await this.studentCourseRepository.find({
       where,
       relations,
       skip,
@@ -51,21 +51,21 @@ export class StudentEvaluationRepositoryService {
   }
 
   public async update(
-    where: FindOneWhereOptions<StudentEvaluationEntity>,
-    data: UpdateOptions<StudentEvaluationEntity>,
+    where: FindOneWhereOptions<StudentCourseEntity>,
+    data: UpdateOptions<StudentCourseEntity>,
   ) {
-    return await this.studentEvaluationRepository.update(where, data);
+    return await this.studentCourseRepository.update(where, data);
   }
 
   public async delete(
-    where: FindOneWhereOptions<StudentEvaluationEntity>,
-    relations?: FindRelationsOptions<StudentEvaluationEntity>,
+    where: FindOneWhereOptions<StudentCourseEntity>,
+    relations?: FindRelationsOptions<StudentCourseEntity>,
   ) {
-    const studentEvaluation = await this.studentEvaluationRepository.findOne({
+    const studentEvaluation = await this.studentCourseRepository.findOne({
       where,
       relations,
     });
 
-    await this.studentEvaluationRepository.softRemove(studentEvaluation);
+    await this.studentCourseRepository.softRemove(studentEvaluation);
   }
 }

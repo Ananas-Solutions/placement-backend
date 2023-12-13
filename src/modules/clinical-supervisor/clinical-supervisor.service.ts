@@ -1,15 +1,19 @@
+import {
+  DepartmentUnitEntity,
+  SupervisorProfileEntity,
+  UserEntity,
+} from 'entities/index.entity';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
 import { DepartmentService } from 'department/department.service';
-import { SupervisorDepartmentUnitEntity } from 'entities/clinical-supervisor-department-unit.entity';
-import { SupervisorProfileEntity } from 'entities/clinical-supervisor-profile.entity';
-import { DepartmentUnitEntity } from 'entities/department-units.entity';
-import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
-import { UserEntity } from 'entities/user.entity';
+
+import {
+  ClinicalSupervisorDepartmentUnitRepositoryService,
+  ClinicalSupervisorProfileRepositoryService,
+  TrainingTimeSlotRepositoryService,
+} from 'repository/services';
 import { HospitalService } from 'hospital/hospital.service';
 import { UserService } from 'user/user.service';
 
@@ -18,12 +22,9 @@ import { SupervisorProfileDto, CreateSupervisorDto } from './dto';
 @Injectable()
 export class SupervisorService {
   constructor(
-    @InjectRepository(SupervisorProfileEntity)
-    private readonly supervisorProfileRepository: Repository<SupervisorProfileEntity>,
-    @InjectRepository(SupervisorDepartmentUnitEntity)
-    private readonly supervisorDepartmentUnit: Repository<SupervisorDepartmentUnitEntity>,
-    @InjectRepository(TrainingTimeSlotEntity)
-    private readonly trainingTimeSlot: Repository<TrainingTimeSlotEntity>,
+    private readonly supervisorProfileRepository: ClinicalSupervisorProfileRepositoryService,
+    private readonly supervisorDepartmentUnit: ClinicalSupervisorDepartmentUnitRepositoryService,
+    private readonly trainingTimeSlot: TrainingTimeSlotRepositoryService,
     private readonly userService: UserService,
     private readonly hospitalService: HospitalService,
     private readonly departmentService: DepartmentService,
@@ -78,8 +79,9 @@ export class SupervisorService {
   ): Promise<SupervisorProfileEntity> {
     try {
       const supervisorProfile = await this.supervisorProfileRepository.findOne({
-        where: { user: { id: userId } },
+        user: { id: userId },
       });
+
       return supervisorProfile;
     } catch (err) {
       throw new InternalServerErrorException(err.message);
@@ -87,17 +89,18 @@ export class SupervisorService {
   }
 
   async fetchAllTimeSlots(supervisorId: string) {
-    const supervisorTrainingTimeSlots = await this.trainingTimeSlot.find({
-      where: { supervisor: { id: supervisorId } },
-      relations: [
-        'placements',
-        'trainingSite',
-        'trainingSite.course',
-        'trainingSite.departmentUnit',
-        'trainingSite.departmentUnit.department',
-        'trainingSite.departmentUnit.department.hospital',
-      ],
-    });
+    const supervisorTrainingTimeSlots = await this.trainingTimeSlot.findMany(
+      {
+        supervisor: { id: supervisorId },
+      },
+      {
+        placements: true,
+        trainingSite: {
+          course: true,
+          departmentUnit: { department: { hospital: true } },
+        },
+      },
+    );
 
     const mappedTrainingSites = supervisorTrainingTimeSlots.map((timeSlot) => {
       const { id, day, startTime, endTime, placements, trainingSite } =
@@ -125,18 +128,18 @@ export class SupervisorService {
   }
 
   async fetchOneTimeSlot(timeSlotId: string) {
-    const timeSlot = await this.trainingTimeSlot.findOne({
-      where: { id: timeSlotId },
-      relations: [
-        'placements',
-        'placements.student',
-        'trainingSite',
-        'trainingSite.course',
-        'trainingSite.departmentUnit',
-        'trainingSite.departmentUnit.department',
-        'trainingSite.departmentUnit.department.hospital',
-      ],
-    });
+    const timeSlot = await this.trainingTimeSlot.findOne(
+      {
+        id: timeSlotId,
+      },
+      {
+        placements: { student: true },
+        trainingSite: {
+          course: true,
+          departmentUnit: { department: { hospital: true } },
+        },
+      },
+    );
 
     const { id, day, startTime, endTime, placements, trainingSite } = timeSlot;
     const { departmentUnit, course } = trainingSite;

@@ -1,37 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as excel4node from 'excel4node';
 import { Response } from 'express';
 
-import { CourseEntity } from 'entities/index.entity';
 import { ExportCourseDataDto } from 'course/dto';
+import { CoursesRepositoryService } from 'repository/services';
 
 @Injectable()
 export class CourseExportService {
-  constructor(
-    @InjectRepository(CourseEntity)
-    private readonly courseRepository: Repository<CourseEntity>,
-  ) {}
+  constructor(private readonly courseRepository: CoursesRepositoryService) {}
 
   public async exportCourseData(data: ExportCourseDataDto, response: Response) {
     try {
       const { course: courseId } = data;
 
-      const courseData = await this.courseRepository.findOne({
-        where: { id: courseId },
-        loadEagerRelations: false,
-        relations: [
-          'department',
-          'trainingSite',
-          'trainingSite.timeslots',
-          'trainingSite.timeslots.placements',
-          'trainingSite.timeslots.placements.student',
-          'trainingSite.departmentUnit',
-          'trainingSite.departmentUnit.department',
-          'trainingSite.departmentUnit.department.hospital',
-        ],
-      });
+      const courseData = await this.courseRepository.findOne(
+        {
+          id: courseId,
+        },
+        {
+          department: true,
+          trainingSite: {
+            timeslots: { placements: { student: true } },
+            departmentUnit: { department: { hospital: true } },
+          },
+        },
+      );
 
       const { department, trainingSite } = courseData;
 
