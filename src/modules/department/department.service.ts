@@ -2,9 +2,11 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { In } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
-import { DepartmentEntity } from 'entities/department.entity';
-import { HospitalEntity } from 'entities/hospital.entity';
-import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
+import {
+  CoordinatorCollegeDepartmentEntity,
+  DepartmentEntity,
+  HospitalEntity,
+} from 'entities/index.entity';
 import {
   CoordinatorCollegeDepartmentRepositoryService,
   DepartmentRepositoryService,
