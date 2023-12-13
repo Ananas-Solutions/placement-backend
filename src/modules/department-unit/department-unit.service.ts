@@ -1,6 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { IDepartmentResponse } from 'department/response';
@@ -11,19 +10,20 @@ import {
   IDepartmentUnitDetailResponse,
   IDepartmentUnitResponse,
 } from './response';
+import { DepartmentUnitsRepositoryService } from 'repository/services';
 
 @Injectable()
 export class DepartmentUnitsService {
   constructor(
-    @InjectRepository(DepartmentUnitEntity)
-    private readonly departmentUnitsRepository: Repository<DepartmentUnitEntity>,
+    private readonly departmentUnitsRepository: DepartmentUnitsRepositoryService,
   ) {}
 
   async save(bodyDto: DepartmentUnitsDto): Promise<IDepartmentUnitResponse> {
     const { departmentId, name, contactEmail } = bodyDto;
     const existingDepartmentUnit = await this.departmentUnitsRepository.findOne(
-      { where: { name, department: { id: departmentId } } },
+      { name, department: { id: departmentId } },
     );
+
     if (existingDepartmentUnit) {
       throw new ConflictException(
         'Department Unit with same name exists for this department.',
@@ -40,14 +40,10 @@ export class DepartmentUnitsService {
   }
 
   async findAll(): Promise<IDepartmentUnitDetailResponse[]> {
-    const allDepartmentUnits = await this.departmentUnitsRepository.find({
-      loadEagerRelations: false,
-      relations: [
-        'department',
-        'department.hospital',
-        'department.hospital.authority',
-      ],
-    });
+    const allDepartmentUnits = await this.departmentUnitsRepository.findMany(
+      {},
+      { department: { hospital: { authority: true } } },
+    );
 
     return allDepartmentUnits.map((departmentUnit) =>
       this.transformToDetailResponse(departmentUnit),
@@ -55,22 +51,18 @@ export class DepartmentUnitsService {
   }
 
   async findOne(id: string): Promise<IDepartmentUnitDetailResponse> {
-    const departmentUnit = await this.departmentUnitsRepository.findOne({
-      where: { id },
-      loadEagerRelations: false,
-      relations: [
-        'department',
-        'department.hospital',
-        'department.hospital.authority',
-      ],
-    });
+    const departmentUnit = await this.departmentUnitsRepository.findOne(
+      {
+        id,
+      },
+      { department: { hospital: { authority: true } } },
+    );
     return this.transformToDetailResponse(departmentUnit);
   }
 
   async find(departmentIds: string[]): Promise<IDepartmentResponse[]> {
-    const allDepartmentUnits = await this.departmentUnitsRepository.find({
-      where: { department: { id: In(departmentIds) } },
-      loadEagerRelations: false,
+    const allDepartmentUnits = await this.departmentUnitsRepository.findMany({
+      department: { id: In(departmentIds) },
     });
 
     return allDepartmentUnits.map((departmentUnit) =>
@@ -93,18 +85,16 @@ export class DepartmentUnitsService {
     );
 
     const updatedDepartmentUnit = await this.departmentUnitsRepository.findOne({
-      where: { id: departmentUnitId },
-      loadEagerRelations: false,
+      id: departmentUnitId,
     });
 
     return this.transformToResponse(updatedDepartmentUnit);
   }
 
   async delete(departmentUnitId: string): Promise<ISuccessMessageResponse> {
-    const departmentUnit = await this.departmentUnitsRepository.findOne({
-      where: { id: departmentUnitId },
+    await this.departmentUnitsRepository.delete({
+      id: departmentUnitId,
     });
-    await this.departmentUnitsRepository.softRemove(departmentUnit);
 
     return { message: 'Department unit removed successfully.' };
   }
