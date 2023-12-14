@@ -15,6 +15,7 @@ import {
   NotificationEntity,
   PlacementEntity,
   SemesterEntity,
+  StudentCourseEntity,
   StudentEvaluationEntity,
   StudentProfileEntity,
   SupervisorDepartmentUnitEntity,
@@ -49,6 +50,7 @@ import {
   ClinicalSupervisorProfileRepositoryService,
   ClinicalSupervisorDepartmentUnitRepositoryService,
   AuthorityRepositoryService,
+  StudentCourseRepositoryService,
 } from './services';
 
 @Global()
@@ -77,6 +79,7 @@ import {
       SupervisorProfileEntity,
       SupervisorDepartmentUnitEntity,
       AuthorityEntity,
+      StudentCourseEntity,
     ]),
   ],
   providers: [
@@ -102,6 +105,7 @@ import {
     ClinicalSupervisorProfileRepositoryService,
     ClinicalSupervisorDepartmentUnitRepositoryService,
     AuthorityRepositoryService,
+    StudentCourseRepositoryService,
   ],
   exports: [
     UserRepositoryService,
@@ -126,6 +130,7 @@ import {
     ClinicalSupervisorProfileRepositoryService,
     ClinicalSupervisorDepartmentUnitRepositoryService,
     AuthorityRepositoryService,
+    StudentCourseRepositoryService,
   ],
 })
 export class RepositoryModule {}

@@ -1,6 +1,4 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { CourseTrainingSiteDto } from 'course/dto';
@@ -8,20 +6,17 @@ import {
   CourseTrainingSiteResponse,
   IAddTrainingSiteResponse,
 } from 'course/response';
+import { CourseEntity, DepartmentUnitEntity } from 'entities/index.entity';
 import {
-  CourseEntity,
-  CourseTrainingSiteEntity,
-  DepartmentUnitEntity,
-  TrainingSiteEvaluationEntity,
-} from 'entities/index.entity';
+  CourseTrainingSiteRepositoryService,
+  TrainingSiteEvaluationRepositoryService,
+} from 'repository/services';
 
 @Injectable()
 export class CourseTrainingSiteService {
   constructor(
-    @InjectRepository(CourseTrainingSiteEntity)
-    private readonly trainingSiteRepository: Repository<CourseTrainingSiteEntity>,
-    @InjectRepository(TrainingSiteEvaluationEntity)
-    private readonly trainingSiteEvaluationRepository: Repository<TrainingSiteEvaluationEntity>,
+    private readonly trainingSiteRepository: CourseTrainingSiteRepositoryService,
+    private readonly trainingSiteEvaluationRepository: TrainingSiteEvaluationRepositoryService,
   ) {}
 
   async addTrainingSite(
@@ -77,32 +72,26 @@ export class CourseTrainingSiteService {
 
   async findExistingTrainingSite(courseId: string, departmentUnitId: string) {
     return await this.trainingSiteRepository.findOne({
-      where: {
-        course: { id: courseId },
-        departmentUnit: { id: departmentUnitId },
-      },
-      loadEagerRelations: false,
+      course: { id: courseId },
+      departmentUnit: { id: departmentUnitId },
     });
   }
 
   async getAllTrainingSite(
     courseId: string,
   ): Promise<CourseTrainingSiteResponse[]> {
-    const allTrainingSites = await this.trainingSiteRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.department',
-        'departmentUnit.department.hospital',
-      ],
-    });
+    const allTrainingSites = await this.trainingSiteRepository.findMany(
+      {
+        course: { id: courseId },
+      },
+      { departmentUnit: { department: { hospital: true } } },
+    );
 
     const mappedResult = await Promise.all(
       allTrainingSites.map(async (trainingSite) => {
         const allTrainingSiteEvaluation =
-          await this.trainingSiteEvaluationRepository.find({
-            where: { trainingSite: { id: trainingSite.id } },
+          await this.trainingSiteEvaluationRepository.findMany({
+            trainingSite: { id: trainingSite.id },
           });
 
         const { departmentUnit } = trainingSite;
@@ -145,8 +134,7 @@ export class CourseTrainingSiteService {
     );
 
     await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
+      id: trainingSiteId,
     });
 
     return { message: 'Training site updated successfully.' };
@@ -155,28 +143,24 @@ export class CourseTrainingSiteService {
   public async deleteTrainingSite(
     trainingSiteId: string,
   ): Promise<ISuccessMessageResponse> {
-    const trainingSite = await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
+    await this.trainingSiteRepository.delete({
+      id: trainingSiteId,
     });
-    await this.trainingSiteRepository.softRemove(trainingSite);
 
     return { message: 'Training site removed successfully.' };
   }
 
   public async getExportTrainingSites(courseId: string) {
-    const trainingSites = await this.trainingSiteRepository.find({
-      where: {
+    const trainingSites = await this.trainingSiteRepository.findMany(
+      {
         course: { id: courseId },
       },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.department',
-        'departmentUnit.department.hospital',
-        'timeslots',
-        'timeslots.placements',
-      ],
-    });
+      {
+        departmentUnit: { department: { hospital: true } },
+        timeslots: { placements: true },
+      },
+    );
+
     const mappedTrainingSites = trainingSites.map((site) => {
       const { timeslots, departmentUnit } = site;
       if (timeslots.length === 0) {
@@ -208,29 +192,27 @@ export class CourseTrainingSiteService {
   }
 
   public async getTrainingSite(trainingSiteId: string) {
-    const trainingSite = await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.department',
-        'departmentUnit.department.hospital',
-        'timeslots',
-      ],
-    });
+    const trainingSite = await this.trainingSiteRepository.findOne(
+      {
+        id: trainingSiteId,
+      },
+      {
+        departmentUnit: { department: { hospital: true } },
+        timeslots: true,
+      },
+    );
+
     return trainingSite;
   }
 
   public async getTrainingSiteSupervisor(trainingSiteId: string) {
-    const trainingSite = await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
-      relations: [
-        'departmentUnit',
-        'departmentUnit.departmentSupervisor',
-        'departmentUnit.departmentSupervisor.supervisor',
-      ],
-    });
+    const trainingSite = await this.trainingSiteRepository.findOne(
+      {
+        id: trainingSiteId,
+      },
+      { departmentUnit: { departmentSupervisor: { supervisor: true } } },
+    );
+
     const mappedSupervisor = (
       trainingSite.departmentUnit.departmentSupervisor as any
     ).map(({ supervisor }) => supervisor);

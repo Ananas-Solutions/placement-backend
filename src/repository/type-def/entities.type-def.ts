@@ -1,12 +1,15 @@
 import {
   DeepPartial,
   FindManyOptions as FindManyOption,
+  FindOneOptions as FindOneOption,
   FindOptionsRelations,
   FindOptionsWhere,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export type FindOneWhereOptions<T> = FindOptionsWhere<T>;
+
+export type FindOneOptions<T> = FindOneOption<T>;
 
 export type CreateOptions<T> = DeepPartial<T>;
 

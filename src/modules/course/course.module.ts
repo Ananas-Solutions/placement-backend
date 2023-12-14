@@ -1,12 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import {
-  CourseEntity,
-  CourseTrainingSiteEntity,
-  StudentCourseEntity,
-  TrainingSiteEvaluationEntity,
-} from 'entities/index.entity';
 import { UserModule } from 'user/user.module';
 import { TrainingSiteTimeSlotModule } from 'training-time-slot/training-time-slot.module';
 import { PlacementModule } from 'placement/placement.module';
@@ -18,17 +11,7 @@ import { CourseExportService } from './services/course-export.service';
 import { CourseTransferService } from './services/course-transfer.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      CourseEntity,
-      CourseTrainingSiteEntity,
-      StudentCourseEntity,
-      TrainingSiteEvaluationEntity,
-    ]),
-    UserModule,
-    TrainingSiteTimeSlotModule,
-    PlacementModule,
-  ],
+  imports: [UserModule, TrainingSiteTimeSlotModule, PlacementModule],
   controllers: [CourseController],
   providers: [
     CourseService,

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CourseEntity } from 'entities/index.entity';
 import {
   FindManyOptions,
+  FindOneOptions,
   FindOneWhereOptions,
   FindRelationsOptions,
   SaveOptions,
@@ -25,10 +26,12 @@ export class CoursesRepositoryService {
   public async findOne(
     where: FindOneWhereOptions<CourseEntity>,
     relations?: FindRelationsOptions<CourseEntity>,
+    findOneOptions?: FindOneOptions<CourseEntity>,
   ): Promise<CourseEntity> {
     return await this.courseRepository.findOne({
       where,
       relations,
+      ...findOneOptions,
     });
   }
 
