@@ -1,19 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { SemesterEntity } from 'entities/semester.entity';
+import { SemesterRepositoryService } from 'repository/services';
 
 import { SemesterDto } from './dto';
 import { ISemesterResponse } from './response';
 
 @Injectable()
 export class SemesterService {
-  constructor(
-    @InjectRepository(SemesterEntity)
-    private readonly semesterRepository: Repository<SemesterEntity>,
-  ) {}
+  constructor(private readonly semesterRepository: SemesterRepositoryService) {}
 
   async save(body: SemesterDto): Promise<ISemesterResponse> {
     const newSemester = await this.semesterRepository.save(body);
@@ -22,16 +18,13 @@ export class SemesterService {
 
   async findOne(semesterId: string): Promise<ISemesterResponse> {
     const semester = await this.semesterRepository.findOne({
-      where: { id: semesterId },
-      loadEagerRelations: false,
+      id: semesterId,
     });
     return this.transformToResponse(semester);
   }
 
   async findAll(): Promise<ISemesterResponse[]> {
-    const allSemesters = await this.semesterRepository.find({
-      loadEagerRelations: false,
-    });
+    const allSemesters = await this.semesterRepository.findMany();
     return allSemesters.map((semester) => this.transformToResponse(semester));
   }
 
@@ -46,18 +39,16 @@ export class SemesterService {
     );
 
     const updatedSemester = await this.semesterRepository.findOne({
-      where: { id: semesterId },
-      loadEagerRelations: false,
+      id: semesterId,
     });
 
     return this.transformToResponse(updatedSemester);
   }
 
   async delete(semesterId: string): Promise<ISuccessMessageResponse> {
-    const semester = await this.semesterRepository.findOne({
-      where: { id: semesterId },
+    await this.semesterRepository.delete({
+      id: semesterId,
     });
-    await this.semesterRepository.softRemove(semester);
 
     return { message: 'Semester deleted successfully' };
   }

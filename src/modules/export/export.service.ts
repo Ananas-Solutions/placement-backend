@@ -1,28 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In } from 'typeorm';
 import * as excel4node from 'excel4node';
 import { Response } from 'express';
 
-import { AuthorityEntity } from 'entities/authority.entity';
-import { HospitalEntity } from 'entities/hospital.entity';
-import { DepartmentEntity } from 'entities/department.entity';
-import { DepartmentUnitEntity } from 'entities/department-units.entity';
+import {
+  AuthorityRepositoryService,
+  DepartmentRepositoryService,
+  DepartmentUnitsRepositoryService,
+  HospitalRepositoryService,
+} from 'repository/services';
 
 import { ExportDataDto } from './dto';
 
 @Injectable()
 export class ExportService {
   constructor(
-    @InjectRepository(AuthorityEntity)
-    private readonly authorityRepository: Repository<AuthorityEntity>,
-    @InjectRepository(HospitalEntity)
-    private readonly hospitalRepository: Repository<HospitalEntity>,
-    @InjectRepository(DepartmentEntity)
-    private readonly departmentRepository: Repository<DepartmentEntity>,
-    @InjectRepository(DepartmentUnitEntity)
-    private readonly departmentUnitRepository: Repository<DepartmentUnitEntity>,
+    private readonly authorityRepository: AuthorityRepositoryService,
+    private readonly hospitalRepository: HospitalRepositoryService,
+    private readonly departmentRepository: DepartmentRepositoryService,
+    private readonly departmentUnitRepository: DepartmentUnitsRepositoryService,
     private readonly configurationService: ConfigService,
   ) {}
 
@@ -35,14 +32,10 @@ export class ExportService {
     const whereClause: any = this.whereClause(body);
 
     if (body.departmentUnit) {
-      const data = await this.authorityRepository.find({
-        where: whereClause,
-        loadEagerRelations: false,
-        relations: {
-          hospitals: {
-            departments: {
-              departmentUnits: true,
-            },
+      const data = await this.authorityRepository.findMany(whereClause, {
+        hospitals: {
+          departments: {
+            departmentUnits: true,
           },
         },
       });
@@ -51,13 +44,9 @@ export class ExportService {
     }
 
     if (body.department) {
-      const data = await this.authorityRepository.find({
-        where: whereClause,
-        loadEagerRelations: false,
-        relations: {
-          hospitals: {
-            departments: true,
-          },
+      const data = await this.authorityRepository.findMany(whereClause, {
+        hospitals: {
+          departments: true,
         },
       });
 
@@ -65,22 +54,15 @@ export class ExportService {
     }
 
     if (body.hospital) {
-      const data = await this.authorityRepository.find({
-        where: whereClause,
-        loadEagerRelations: false,
-        relations: {
-          hospitals: true,
-        },
+      const data = await this.authorityRepository.findMany(whereClause, {
+        hospitals: true,
       });
 
       return { data, length: 2 };
     }
 
     if (body.authority) {
-      const data = await this.authorityRepository.find({
-        where: whereClause,
-        loadEagerRelations: false,
-      });
+      const data = await this.authorityRepository.findMany(whereClause);
 
       return { data, length: 1 };
     }

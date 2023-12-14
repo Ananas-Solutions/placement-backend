@@ -50,6 +50,16 @@ export class StudentCourseRepositoryService {
     });
   }
 
+  public async count(
+    where?: FindOneWhereOptions<StudentCourseEntity>,
+    relations?: FindRelationsOptions<StudentCourseEntity>,
+  ): Promise<number> {
+    return await this.studentCourseRepository.count({
+      where,
+      relations,
+    });
+  }
+
   public async update(
     where: FindOneWhereOptions<StudentCourseEntity>,
     data: UpdateOptions<StudentCourseEntity>,

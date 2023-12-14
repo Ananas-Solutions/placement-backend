@@ -53,6 +53,16 @@ export class UserRepositoryService {
     });
   }
 
+  public async count(
+    where?: FindOneWhereOptions<UserEntity>,
+    relations?: FindRelationsOptions<UserEntity>,
+  ): Promise<number> {
+    return await this.userRepository.count({
+      where,
+      relations,
+    });
+  }
+
   public async update(
     where: FindOneWhereOptions<UserEntity>,
     data: UpdateOptions<UserEntity>,

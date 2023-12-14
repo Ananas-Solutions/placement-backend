@@ -6,6 +6,7 @@ import {
   FindOptionsWhere,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { UpsertOptions as UpsertOption } from 'typeorm/repository/UpsertOptions';
 
 export type FindOneWhereOptions<T> = FindOptionsWhere<T>;
 
@@ -16,6 +17,8 @@ export type CreateOptions<T> = DeepPartial<T>;
 export type SaveOptions<T> = DeepPartial<T>;
 
 export type UpdateOptions<T> = QueryDeepPartialEntity<T>;
+
+export type UpsertOptions<T> = UpsertOption<T>;
 
 export type FindRelationsOptions<T> = FindOptionsRelations<T>;
 

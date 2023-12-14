@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+
 import { ISuccessMessageResponse } from 'commons/response';
-import { NotificationEntity } from 'entities/notification.entity';
-import { UserEntity } from 'entities/user.entity';
-import { Repository } from 'typeorm';
+import { NotificationEntity, UserEntity } from 'entities/index.entity';
+import { FileUploadService } from 'helper/file-uploader.service';
+import { NotificationRepositoryService } from 'repository/services';
+
 import { CreateNotificationDto } from './dto';
 import { INotificationResponse } from './response';
-import { FileUploadService } from 'helper/file-uploader.service';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    @InjectRepository(NotificationEntity)
-    private readonly notificationRepository: Repository<NotificationEntity>,
+    private readonly notificationRepository: NotificationRepositoryService,
     private readonly fileUploadService: FileUploadService,
   ) {}
 
@@ -43,13 +42,18 @@ export class NotificationService {
     if (query.status === 'unread') {
       whereClause = { ...whereClause, isRead: false };
     }
-    const allUserNotifications = await this.notificationRepository.find({
-      where: { ...whereClause, user: { id: userId } },
-      loadEagerRelations: false,
-      order: {
-        createdAt: 'DESC',
+    const allUserNotifications = await this.notificationRepository.findMany(
+      {
+        ...whereClause,
+        user: { id: userId },
       },
-    });
+      {},
+      {
+        order: {
+          createdAt: 'DESC',
+        },
+      },
+    );
 
     return await Promise.all(
       allUserNotifications.map((notification) =>
@@ -61,10 +65,13 @@ export class NotificationService {
   async readNotification(
     notificationId: string,
   ): Promise<ISuccessMessageResponse> {
-    await this.notificationRepository.update(notificationId, {
-      isRead: true,
-      readAt: new Date(),
-    });
+    await this.notificationRepository.update(
+      { id: notificationId },
+      {
+        isRead: true,
+        readAt: new Date(),
+      },
+    );
 
     return { message: 'Notification marked as read successfully.' };
   }
@@ -72,10 +79,9 @@ export class NotificationService {
   async deleteNotification(
     notificationId: string,
   ): Promise<ISuccessMessageResponse> {
-    const notification = await this.notificationRepository.findOne({
-      where: { id: notificationId },
+    await this.notificationRepository.delete({
+      id: notificationId,
     });
-    await this.notificationRepository.softRemove(notification);
 
     return { message: 'Notification removed successfully.' };
   }

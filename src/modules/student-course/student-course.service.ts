@@ -1,11 +1,12 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 
 import { ISuccessMessageResponse } from 'commons/response';
-import { CourseEntity } from 'entities/courses.entity';
-import { StudentCourseEntity } from 'entities/student-course.entity';
-import { UserEntity } from 'entities/user.entity';
+import {
+  CourseEntity,
+  StudentCourseEntity,
+  UserEntity,
+} from 'entities/index.entity';
+import { StudentCourseRepositoryService } from 'repository/services';
 
 import { AssignCoursesToStudentDto, AssignStudentsToCourseDto } from './dto';
 import { ICourseStudentResponse, IStudentCourseResponse } from './response';
@@ -13,8 +14,7 @@ import { ICourseStudentResponse, IStudentCourseResponse } from './response';
 @Injectable()
 export class StudentCourseService {
   constructor(
-    @InjectRepository(StudentCourseEntity)
-    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
+    private readonly studentCourseRepository: StudentCourseRepositoryService,
   ) {}
 
   async assignStudents(
@@ -24,7 +24,8 @@ export class StudentCourseService {
     await Promise.all(
       studentsId.map(async (studentId: any) => {
         const studentCourse = await this.studentCourseRepository.findOne({
-          where: { student: { id: studentId }, course: { id: courseId } },
+          student: { id: studentId },
+          course: { id: courseId },
         });
         if (studentCourse) {
           return;
@@ -57,11 +58,13 @@ export class StudentCourseService {
   async findStudentCourses(
     studentId: string,
   ): Promise<IStudentCourseResponse[]> {
-    const studentCourses = await this.studentCourseRepository.find({
-      where: { student: { id: studentId } },
-      loadEagerRelations: false,
-      relations: ['course'],
-    });
+    const studentCourses = await this.studentCourseRepository.findMany(
+      {
+        student: { id: studentId },
+      },
+      { course: true },
+    );
+
     const allCourses = studentCourses.map((studentCourse) =>
       this.transformToStudentCourse(studentCourse),
     );
@@ -72,11 +75,12 @@ export class StudentCourseService {
   async findCourseStudents(
     courseId: string,
   ): Promise<ICourseStudentResponse[]> {
-    const studentCourses = await this.studentCourseRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['student', 'student.studentProfile'],
-    });
+    const studentCourses = await this.studentCourseRepository.findMany(
+      {
+        course: { id: courseId },
+      },
+      { student: { studentProfile: true } },
+    );
     const users = studentCourses.map((studentCourse) =>
       this.transformToCourseStudent(studentCourse),
     );
@@ -88,13 +92,10 @@ export class StudentCourseService {
     courseId: string,
     studentId: string,
   ): Promise<ISuccessMessageResponse> {
-    const existingStudent = await this.studentCourseRepository.findOne({
-      where: { student: { id: studentId }, course: { id: courseId } },
+    await this.studentCourseRepository.delete({
+      student: { id: studentId },
+      course: { id: courseId },
     });
-    if (!existingStudent) {
-      throw new ConflictException('No student found for this course');
-    }
-    await this.studentCourseRepository.softRemove(existingStudent);
 
     return { message: 'Student removed from the course successfully' };
   }

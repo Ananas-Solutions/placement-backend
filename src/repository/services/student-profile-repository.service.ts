@@ -9,6 +9,7 @@ import {
   FindRelationsOptions,
   SaveOptions,
   UpdateOptions,
+  UpsertOptions,
 } from 'repository/type-def';
 
 @Injectable()
@@ -48,6 +49,13 @@ export class StudentProfileRepositoryService {
       skip,
       take,
     });
+  }
+
+  public async upsert(
+    data: UpdateOptions<StudentProfileEntity>,
+    upsertOptions: UpsertOptions<StudentProfileEntity>,
+  ) {
+    return await this.studentProfileRepository.upsert(data, upsertOptions);
   }
 
   public async update(
