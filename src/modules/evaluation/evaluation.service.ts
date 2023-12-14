@@ -1,31 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
-import { StudentEvaluationEntity } from 'entities/student-evaluation.entity';
-import { SupervisorEvaluationEntity } from 'entities/supervisor-evaluation.entity';
-import { TrainingSiteEvaluationEntity } from 'entities/training-site-evaluation.entity';
-import { UserEntity } from 'entities/user.entity';
-import { CourseEntity } from 'entities/courses.entity';
-import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
+import {
+  CourseEntity,
+  CourseTrainingSiteEntity,
+  TrainingTimeSlotEntity,
+  UserEntity,
+} from 'entities/index.entity';
+import {
+  StudentEvaluationRepositoryService,
+  SupervisorEvaluationRepositoryService,
+  TrainingSiteEvaluationRepositoryService,
+} from 'repository/services';
 
 import {
   StudentEvaluationDto,
   SupervisorEvaluationDto,
   TrainingSiteEvaluationDto,
 } from './dto';
-import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
 
 @Injectable()
 export class EvaluationService {
   constructor(
-    @InjectRepository(StudentEvaluationEntity)
-    private readonly studentEvaluationRepository: Repository<StudentEvaluationEntity>,
-    @InjectRepository(SupervisorEvaluationEntity)
-    private readonly supervisorEvaluationRepository: Repository<SupervisorEvaluationEntity>,
-    @InjectRepository(TrainingSiteEvaluationEntity)
-    private readonly trainingSiteRepository: Repository<TrainingSiteEvaluationEntity>,
+    private readonly studentEvaluationRepository: StudentEvaluationRepositoryService,
+    private readonly supervisorEvaluationRepository: SupervisorEvaluationRepositoryService,
+    private readonly trainingSiteRepository: TrainingSiteEvaluationRepositoryService,
   ) {}
 
   public async evaluateStudent(
@@ -76,43 +75,49 @@ export class EvaluationService {
   }
 
   public async viewEvaluatedStudents(supervisorId: string, courseId: string) {
-    return await this.studentEvaluationRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['evaluatee', 'evaluator'],
-    });
+    return await this.studentEvaluationRepository.findMany(
+      {
+        course: { id: courseId },
+      },
+      { evaluatee: true, evaluator: true },
+    );
   }
 
   public async viewEvaluatedStudentById(evaluationId: string) {
-    return await this.studentEvaluationRepository.find({
-      where: { id: evaluationId },
-      loadEagerRelations: false,
-      relations: ['evaluatee', 'evaluator'],
-    });
+    return await this.studentEvaluationRepository.findMany(
+      {
+        id: evaluationId,
+      },
+      { evaluatee: true, evaluator: true },
+    );
   }
 
   public async viewEvaluatedSupervisor(studentId: string, courseId: string) {
-    return await this.supervisorEvaluationRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['evaluatee', 'evaluator', 'timeslot'],
-    });
+    return await this.supervisorEvaluationRepository.findMany(
+      {
+        course: { id: courseId },
+      },
+      { evaluatee: true, evaluator: true, timeslot: true },
+    );
   }
 
   public async viewEvaluatedSupervisorById(evaluationId: string) {
-    return await this.supervisorEvaluationRepository.find({
-      where: { id: evaluationId },
-      loadEagerRelations: false,
-      relations: ['evaluatee', 'evaluator', 'timeslot'],
-    });
+    return await this.supervisorEvaluationRepository.findMany(
+      {
+        id: evaluationId,
+      },
+      { evaluatee: true, evaluator: true, timeslot: true },
+    );
   }
 
   public async viewEvaluatedTrainingSites(courseId: string) {
-    const allTrainingSiteEvaluation = await this.trainingSiteRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['trainingSite', 'timeslot'],
-    });
+    const allTrainingSiteEvaluation =
+      await this.trainingSiteRepository.findMany(
+        {
+          course: { id: courseId },
+        },
+        { trainingSite: true, timeslot: true },
+      );
 
     const evaluationResult = {};
 
@@ -135,16 +140,18 @@ export class EvaluationService {
     courseId: string,
     trainingSiteId: string,
   ) {
-    const allTrainingSiteEvaluations = await this.trainingSiteRepository.find({
-      where: { course: { id: courseId }, trainingSite: { id: trainingSiteId } },
-      loadEagerRelations: false,
-      relations: [
-        'trainingSite',
-        'trainingSite.departmentUnit',
-        'evaluator',
-        'timeslot',
-      ],
-    });
+    const allTrainingSiteEvaluations =
+      await this.trainingSiteRepository.findMany(
+        {
+          course: { id: courseId },
+          trainingSite: { id: trainingSiteId },
+        },
+        {
+          trainingSite: { departmentUnit: true },
+          evaluator: true,
+          timeslot: true,
+        },
+      );
 
     const mappedTrainingSiteEvaluations = allTrainingSiteEvaluations.map(
       (evaluation) => {
@@ -165,11 +172,12 @@ export class EvaluationService {
   }
 
   public async viewEvaluatedTrainingSiteById(evaluationId: string) {
-    const singleEvaluation = await this.trainingSiteRepository.findOne({
-      where: { id: evaluationId },
-      loadEagerRelations: false,
-      relations: ['trainingSite', 'trainingSite.departmentUnit', 'evaluator'],
-    });
+    const singleEvaluation = await this.trainingSiteRepository.findOne(
+      {
+        id: evaluationId,
+      },
+      { trainingSite: { departmentUnit: true }, evaluator: true },
+    );
 
     const { trainingSite, ...rest } = singleEvaluation;
     const { departmentUnit } = trainingSite;
@@ -184,21 +192,22 @@ export class EvaluationService {
   }
 
   public async studentViewOwnEvaluation(evaluteeId: string, courseId: string) {
-    return await this.studentEvaluationRepository.find({
-      where: { evaluatee: { id: evaluteeId }, course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['evaluator'],
-    });
+    return await this.studentEvaluationRepository.findMany(
+      {
+        evaluatee: { id: evaluteeId },
+        course: { id: courseId },
+      },
+      { evaluator: true },
+    );
   }
 
   public async supervisorViewOwnEvaluation(
     evaluteeId: string,
     courseId: string,
   ) {
-    return await this.supervisorEvaluationRepository.find({
-      where: { evaluatee: { id: evaluteeId }, course: { id: courseId } },
-      loadEagerRelations: false,
-      //  relations: ['evaluator'],
+    return await this.supervisorEvaluationRepository.findMany({
+      evaluatee: { id: evaluteeId },
+      course: { id: courseId },
     });
   }
 }

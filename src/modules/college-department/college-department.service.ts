@@ -1,9 +1,8 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { CollegeDepartmentEntity } from 'entities/college-department.entity';
+import { CollegeDepartmentRepositoryService } from 'repository/services';
 
 import { CollegeDepartmentDto } from './dto';
 import { ICollegeDepartmentResponse } from './response';
@@ -11,14 +10,14 @@ import { ICollegeDepartmentResponse } from './response';
 @Injectable()
 export class CollegeDepartmentService {
   constructor(
-    @InjectRepository(CollegeDepartmentEntity)
-    private readonly collegeDepartmentRepository: Repository<CollegeDepartmentEntity>,
+    private readonly collegeDepartmentRepository: CollegeDepartmentRepositoryService,
   ) {}
 
   async save(body: CollegeDepartmentDto): Promise<ICollegeDepartmentResponse> {
     const department = await this.collegeDepartmentRepository.findOne({
-      where: { name: body.name },
+      name: body.name,
     });
+
     if (department) {
       throw new ConflictException('Department already exists');
     }
@@ -29,17 +28,15 @@ export class CollegeDepartmentService {
 
   async findOne(id: string): Promise<ICollegeDepartmentResponse> {
     const collegeDepartment = await this.collegeDepartmentRepository.findOne({
-      where: { id },
-      loadEagerRelations: false,
+      id,
     });
 
     return this.transformToResponse(collegeDepartment);
   }
 
   async findAll(): Promise<ICollegeDepartmentResponse[]> {
-    const allCollegeDepartments = await this.collegeDepartmentRepository.find({
-      loadEagerRelations: false,
-    });
+    const allCollegeDepartments =
+      await this.collegeDepartmentRepository.findMany();
 
     return allCollegeDepartments.map((department) =>
       this.transformToResponse(department),
@@ -61,18 +58,16 @@ export class CollegeDepartmentService {
 
     const updatedCollegeDepartment =
       await this.collegeDepartmentRepository.findOne({
-        where: { id: departmentId },
-        loadEagerRelations: false,
+        id: departmentId,
       });
 
     return this.transformToResponse(updatedCollegeDepartment);
   }
 
   async delete(id: string): Promise<ISuccessMessageResponse> {
-    const collegeDepartment = await this.collegeDepartmentRepository.findOne({
-      where: { id },
+    await this.collegeDepartmentRepository.delete({
+      id,
     });
-    await this.collegeDepartmentRepository.softRemove(collegeDepartment);
 
     return { message: 'College department deleted successfully' };
   }

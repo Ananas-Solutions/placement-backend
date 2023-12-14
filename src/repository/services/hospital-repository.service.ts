@@ -50,6 +50,16 @@ export class HospitalRepositoryService {
     });
   }
 
+  public async count(
+    where?: FindOneWhereOptions<HospitalEntity>,
+    relations?: FindRelationsOptions<HospitalEntity>,
+  ): Promise<number> {
+    return await this.hospitalRepository.count({
+      where,
+      relations,
+    });
+  }
+
   public async update(
     where: FindOneWhereOptions<HospitalEntity>,
     data: UpdateOptions<HospitalEntity>,

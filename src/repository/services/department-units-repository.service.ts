@@ -50,6 +50,16 @@ export class DepartmentUnitsRepositoryService {
     });
   }
 
+  public async count(
+    where?: FindOneWhereOptions<DepartmentUnitEntity>,
+    relations?: FindRelationsOptions<DepartmentUnitEntity>,
+  ): Promise<number> {
+    return await this.departmentUnitRepository.count({
+      where,
+      relations,
+    });
+  }
+
   public async update(
     where: FindOneWhereOptions<DepartmentUnitEntity>,
     data: UpdateOptions<DepartmentUnitEntity>,

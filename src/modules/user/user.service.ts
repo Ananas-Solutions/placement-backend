@@ -1,88 +1,88 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
-import { StudentProfileEntity } from 'entities/student-profile.entity';
-import { UserEntity } from 'entities/user.entity';
+import { UserRoleEnum } from 'commons/enums';
+import { ISuccessMessageResponse } from 'commons/response';
+import { UserEntity } from 'entities/index.entity';
+import {
+  StudentProfileRepositoryService,
+  UserRepositoryService,
+} from 'repository/services';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { IUserResponse } from './response';
-import { UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
 import { UpdateStudentUserDto } from './dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(StudentProfileEntity)
-    private readonly studentRepository: Repository<StudentProfileEntity>,
+    private readonly userRepository: UserRepositoryService,
+    private readonly studentRepository: StudentProfileRepositoryService,
   ) {}
 
   async saveUser(body: UserDto): Promise<IUserResponse> {
     const existingUser = await this.userRepository.findOne({
-      where: { email: body.email },
+      email: body.email,
     });
     if (existingUser) throw new ConflictException('Email already used');
 
-    const user = this.userRepository.create(body);
+    const user = await this.userRepository.create(body);
     const newUser = await this.userRepository.save(user);
 
     return this.transformToResponse(newUser);
   }
 
   async getUserById(id: string): Promise<IUserResponse> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ id });
 
     return this.transformToUserResponse(user);
   }
 
   async findUserById(id: string): Promise<IUserResponse> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      id,
     });
     return this.transformToResponse(user);
   }
   async findStudentById(id: string): Promise<IUserResponse> {
-    const student = await this.userRepository.findOne({
-      where: { id },
-      relations: ['studentProfile'],
-    });
+    const student = await this.userRepository.findOne(
+      {
+        id,
+      },
+      { studentProfile: true },
+    );
 
     return this.transformToResponse(student);
   }
 
   async findUserByEmail(email: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
-      where: { email },
-      loadEagerRelations: false,
+      email,
     });
   }
 
   async findUserByStudentId(studentId: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
-      where: { studentId },
-      loadEagerRelations: false,
+      studentId,
     });
   }
 
   async findAllSpecificUser(role: UserRoleEnum): Promise<IUserResponse[]> {
-    const allUsers = await this.userRepository.find({
-      where: { role },
-      loadEagerRelations: false,
-      order: { name: 'ASC' },
-    });
+    const allUsers = await this.userRepository.findMany(
+      {
+        role,
+      },
+      {},
+      { order: { name: 'ASC' } },
+    );
 
     return allUsers.map((user) => this.transformToResponse(user));
   }
 
   async updateUser(id: string, body: UpdateUserDto): Promise<IUserResponse> {
-    await this.userRepository.update(id, body);
+    await this.userRepository.update({ id }, body);
     const updatedUser = await this.userRepository.findOne({
-      where: { id },
-      loadEagerRelations: false,
+      id,
     });
 
     return this.transformToResponse(updatedUser);
@@ -92,11 +92,11 @@ export class UserService {
     id: string,
     body: UpdateStudentUserDto,
   ): Promise<IUserResponse> {
-    const student = await this.userRepository.findOne({ where: { id } });
+    const student = await this.userRepository.findOne({ id });
 
     if (student.studentId !== body.studentId) {
       const existingStudentByStudentId = await this.userRepository.findOne({
-        where: { studentId: body.studentId },
+        studentId: body.studentId,
       });
 
       if (existingStudentByStudentId) {
@@ -108,7 +108,7 @@ export class UserService {
 
     if (student.email !== body.email) {
       const existingUserByEmail = await this.userRepository.findOne({
-        where: { email: body.email },
+        email: body.email,
       });
 
       if (existingUserByEmail) {
@@ -118,21 +118,18 @@ export class UserService {
       }
     }
 
-    await this.userRepository.update(id, body);
+    await this.userRepository.update({ id }, body);
     const updatedUser = await this.userRepository.findOne({
-      where: { id },
-      loadEagerRelations: false,
+      id,
     });
 
     return this.transformToResponse(updatedUser);
   }
 
   async deleteUser(userId: string): Promise<ISuccessMessageResponse> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
+    await this.userRepository.delete({
+      id: userId,
     });
-
-    await this.userRepository.softRemove(user);
 
     return { message: 'User removed successfully.' };
   }

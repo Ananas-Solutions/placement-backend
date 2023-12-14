@@ -1,21 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { UserDocumentEntity } from 'entities/user-document.entity';
 import { UserEntity } from 'entities/user.entity';
+import { FileUploadService } from 'helper/file-uploader.service';
 import { UserService } from 'user/user.service';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+import {
+  NotificationRepositoryService,
+  StudentCourseRepositoryService,
+  UserDocumentRepositoryService,
+} from 'repository/services';
 
 import { DocumentVerifyDto } from './dto/document-verify.dto';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { IDocumentResponse } from './response/document.response';
-import { StudentCourseEntity } from 'entities/student-course.entity';
-import { NotificationEntity } from 'entities/notification.entity';
-import { WebsocketGateway } from 'src/websocket/websocket.gateway';
-import { FileUploadService } from 'helper/file-uploader.service';
 
 @Injectable()
 @WebSocketGateway({
@@ -28,12 +29,9 @@ export class UserDocumentService {
   server: Server;
 
   constructor(
-    @InjectRepository(UserDocumentEntity)
-    private readonly documentRepository: Repository<UserDocumentEntity>,
-    @InjectRepository(StudentCourseEntity)
-    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
-    @InjectRepository(NotificationEntity)
-    private readonly notificationRepository: Repository<NotificationEntity>,
+    private readonly documentRepository: UserDocumentRepositoryService,
+    private readonly studentCourseRepository: StudentCourseRepositoryService,
+    private readonly notificationRepository: NotificationRepositoryService,
     private readonly userService: UserService,
     private readonly websocketGateway: WebsocketGateway,
     private readonly fileUploadService: FileUploadService,
@@ -51,10 +49,12 @@ export class UserDocumentService {
     const contentUrl = body.url;
 
     // find all coordinators for this student
-    const studentAllCourses = await this.studentCourseRepository.find({
-      where: { student: { id: userId } },
-      relations: ['course', 'course.coordinator'],
-    });
+    const studentAllCourses = await this.studentCourseRepository.findMany(
+      {
+        student: { id: userId },
+      },
+      { course: { coordinator: true } },
+    );
 
     const studentCoordinatorsId = studentAllCourses.map(
       (s) => s.course.coordinator.id,
@@ -112,11 +112,8 @@ export class UserDocumentService {
   }
 
   async getUserDocuments(userId: string): Promise<IDocumentResponse[]> {
-    const allDocuments = await this.documentRepository.find({
-      where: {
-        user: { id: userId },
-      },
-      loadEagerRelations: false,
+    const allDocuments = await this.documentRepository.findMany({
+      user: { id: userId },
     });
 
     return await Promise.all(

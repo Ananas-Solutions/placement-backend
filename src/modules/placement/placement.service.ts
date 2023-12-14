@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { groupBy } from 'lodash';
 
 import { TrainingDaysEnum } from 'commons/enums';
@@ -12,6 +10,10 @@ import {
   UserEntity,
 } from 'entities/index.entity';
 import { StudentCourseService } from 'student-course/student-course.service';
+import {
+  CourseTrainingSiteRepositoryService,
+  PlacementRepositoryService,
+} from 'repository/services';
 
 import { StudentPlacementDto } from './dto';
 import {
@@ -23,10 +25,8 @@ import {
 @Injectable()
 export class PlacementService {
   constructor(
-    @InjectRepository(PlacementEntity)
-    private readonly placementRepository: Repository<PlacementEntity>,
-    @InjectRepository(CourseTrainingSiteEntity)
-    private readonly courseTrainingSite: Repository<CourseTrainingSiteEntity>,
+    private readonly placementRepository: PlacementRepositoryService,
+    private readonly courseTrainingSite: CourseTrainingSiteRepositoryService,
     private readonly studentCourseService: StudentCourseService,
   ) {}
 
@@ -37,11 +37,9 @@ export class PlacementService {
         timeSlotIds.map((timeslotId) => {
           bodyDto.studentIds.map(async (studentId) => {
             const existingPlacement = await this.placementRepository.findOne({
-              where: {
-                student: { id: studentId },
-                trainingSite: { id: trainingSiteId },
-                timeSlot: { id: timeslotId },
-              },
+              student: { id: studentId },
+              trainingSite: { id: trainingSiteId },
+              timeSlot: { id: timeslotId },
             });
 
             if (existingPlacement) {
@@ -67,18 +65,18 @@ export class PlacementService {
     studentId: string,
   ): Promise<IStudentTrainingSites[]> {
     try {
-      const studentTrainingSites = await this.placementRepository.find({
-        where: { student: { id: studentId } },
-        loadEagerRelations: false,
-        relations: [
-          'trainingSite',
-          'trainingSite.departmentUnit',
-          'trainingSite.departmentUnit.department',
-          'trainingSite.departmentUnit.department.hospital',
-          'trainingSite.departmentUnit.department.hospital.authority',
-          'timeSlot',
-        ],
-      });
+      const studentTrainingSites = await this.placementRepository.findMany(
+        {
+          student: { id: studentId },
+        },
+        {
+          trainingSite: {
+            departmentUnit: { department: { hospital: { authority: true } } },
+          },
+          timeSlot: true,
+        },
+      );
+
       const mappedResult = studentTrainingSites.map((studentPlacement) => {
         const { trainingSite, timeSlot } = studentPlacement;
         const { departmentUnit } = trainingSite;
@@ -103,11 +101,13 @@ export class PlacementService {
     day: TrainingDaysEnum,
   ): Promise<PlacementEntity[]> {
     try {
-      return await this.placementRepository.find({
-        where: { student: { id: studentId }, timeSlot: { day } },
-        loadEagerRelations: false,
-        relations: ['trainingSite', 'trainingSite.departmentUnit', 'timeSlot'],
-      });
+      return await this.placementRepository.findMany(
+        {
+          student: { id: studentId },
+          timeSlot: { day },
+        },
+        { trainingSite: { departmentUnit: true }, timeSlot: true },
+      );
     } catch (err) {
       throw err;
     }
@@ -117,14 +117,13 @@ export class PlacementService {
     trainingSiteId: string,
     timeSlotId: string,
   ): Promise<ITrainingSiteStudents[]> {
-    const studentsPlacement = await this.placementRepository.find({
-      where: {
+    const studentsPlacement = await this.placementRepository.findMany(
+      {
         trainingSite: { id: trainingSiteId },
         timeSlot: { id: timeSlotId },
       },
-      loadEagerRelations: false,
-      relations: ['student', 'timeSlot'],
-    });
+      { student: true, timeSlot: true },
+    );
 
     const mappedTrainingSiteStudents = studentsPlacement.map(
       (studentPlacement) => {
@@ -149,11 +148,12 @@ export class PlacementService {
 
   async groupTrainingSiteStudentsByDay(trainingSiteId: string): Promise<any> {
     try {
-      const placements = await this.placementRepository.find({
-        where: { trainingSite: { id: trainingSiteId } },
-        loadEagerRelations: false,
-        relations: ['student', 'timeSlot'],
-      });
+      const placements = await this.placementRepository.findMany(
+        {
+          trainingSite: { id: trainingSiteId },
+        },
+        { student: true, timeSlot: true },
+      );
 
       const mappedPlacements = placements.map((p) => {
         return {
@@ -176,11 +176,12 @@ export class PlacementService {
 
   async findTimeSlotStudents(timeSlotId: string): Promise<PlacementEntity[]> {
     try {
-      return await this.placementRepository.find({
-        where: { timeSlot: { id: timeSlotId } },
-        loadEagerRelations: false,
-        relations: ['trainingSite', 'trainingSite.departmentUnit', 'student'],
-      });
+      return await this.placementRepository.findMany(
+        {
+          timeSlot: { id: timeSlotId },
+        },
+        { trainingSite: { departmentUnit: true }, student: true },
+      );
     } catch (err) {
       throw err;
     }
@@ -191,11 +192,12 @@ export class PlacementService {
   ): Promise<IStudentAvailabilityInterface[]> {
     try {
       //finding which course does the trainingsite id belongs to;
-      const courseTrainingSite = await this.courseTrainingSite.findOne({
-        where: { id: trainingSiteId },
-        loadEagerRelations: false,
-        relations: ['course'],
-      });
+      const courseTrainingSite = await this.courseTrainingSite.findOne(
+        {
+          id: trainingSiteId,
+        },
+        { course: true },
+      );
       const course = courseTrainingSite.course;
 
       // finding all students under that particular course
@@ -227,29 +229,23 @@ export class PlacementService {
   async removeStudentFromTrainingSite(
     placementId: string,
   ): Promise<ISuccessMessageResponse> {
-    const placement = await this.placementRepository.findOne({
-      where: { id: placementId },
+    await this.placementRepository.delete({
+      id: placementId,
     });
-    await this.placementRepository.softRemove(placement);
 
     return { message: 'Student removed from placement successfully.' };
   }
 
   private async findStudentPlacement(studentId: string, courseId: string) {
-    return await this.placementRepository.find({
-      where: {
-        student: { id: studentId },
-        trainingSite: { course: { id: courseId } },
-      },
-      loadEagerRelations: false,
+    return await this.placementRepository.findMany({
+      student: { id: studentId },
+      trainingSite: { course: { id: courseId } },
     });
   }
 
   private async findStudentPlacementByStudentId(studentId: string) {
-    return await this.placementRepository.find({
-      where: {
-        student: { id: studentId },
-      },
+    return await this.placementRepository.findMany({
+      student: { id: studentId },
     });
   }
 }

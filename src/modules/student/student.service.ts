@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
-import { PlacementEntity } from 'entities/placement.entity';
-import { StudentProfileEntity } from 'entities/student-profile.entity';
-import { UserEntity } from 'entities/user.entity';
+import {
+  PlacementEntity,
+  StudentProfileEntity,
+  UserEntity,
+} from 'entities/index.entity';
+import { FileUploadService } from 'helper/file-uploader.service';
 import { StudentCourseService } from 'student-course/student-course.service';
 import { UserService } from 'user/user.service';
+import { IUserResponse } from 'user/response';
+import {
+  PlacementRepositoryService,
+  StudentProfileRepositoryService,
+} from 'repository/services';
 
 import {
   CreateBulkStudentDto,
@@ -19,16 +25,12 @@ import {
   IStudentProfileResponse,
   IStudentTrainingTimeSlotsResponse,
 } from './response';
-import { IUserResponse } from 'user/response';
-import { FileUploadService } from 'helper/file-uploader.service';
 
 @Injectable()
 export class StudentService {
   constructor(
-    @InjectRepository(StudentProfileEntity)
-    private readonly studentProfileRepository: Repository<StudentProfileEntity>,
-    @InjectRepository(PlacementEntity)
-    private readonly placementRepository: Repository<PlacementEntity>,
+    private readonly studentProfileRepository: StudentProfileRepositoryService,
+    private readonly placementRepository: PlacementRepositoryService,
     private readonly userService: UserService,
     private readonly studentCourseService: StudentCourseService,
     private readonly fileUploadService: FileUploadService,
@@ -84,7 +86,7 @@ export class StudentService {
         ...profileData,
         user: { id } as UserEntity,
       },
-      ['user'],
+      { conflictPaths: { user: true } },
     );
     await this.userService.updateUser(id, { name });
 
@@ -93,11 +95,12 @@ export class StudentService {
 
   async getProfile(id: string): Promise<IStudentProfileResponse> {
     const student = await this.userService.findUserById(id);
-    const studentProfile = await this.studentProfileRepository.findOne({
-      where: { user: { id } },
-      loadEagerRelations: false,
-      relations: ['user'],
-    });
+    const studentProfile = await this.studentProfileRepository.findOne(
+      {
+        user: { id },
+      },
+      { user: true },
+    );
 
     // if (!studentProfile) {
     //   return;
@@ -123,19 +126,15 @@ export class StudentService {
   async getStudentTimeSlots(
     studentId: string,
   ): Promise<IStudentTrainingTimeSlotsResponse[]> {
-    const studentPlacement = await this.placementRepository.find({
-      where: { student: { id: studentId } },
-      loadEagerRelations: false,
-      relations: [
-        'trainingSite',
-        'trainingSite.departmentUnit',
-        'trainingSite.departmentUnit.department',
-        'trainingSite.departmentUnit.department.hospital',
-        'trainingSite.course',
-        'timeSlot',
-        'timeSlot.supervisor',
-      ],
-    });
+    const studentPlacement = await this.placementRepository.findMany(
+      {
+        student: { id: studentId },
+      },
+      {
+        trainingSite: { departmentUnit: { department: { hospital: true } } },
+        timeSlot: { supervisor: true },
+      },
+    );
 
     const mappedResult = studentPlacement.map((placement) =>
       this.transformToTimeSlotResponse(placement),

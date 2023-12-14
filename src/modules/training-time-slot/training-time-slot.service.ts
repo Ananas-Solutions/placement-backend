@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
-import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
-import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
-import { UserEntity } from 'entities/user.entity';
+import {
+  CourseTrainingSiteEntity,
+  TrainingTimeSlotEntity,
+  UserEntity,
+} from 'entities/index.entity';
 import { PlacementService } from 'placement/placement.service';
+import { TrainingTimeSlotRepositoryService } from 'repository/services';
 
 import { TrainingSiteTimeSlotDto, UpdateTimeSlotDto } from './dto';
 
 @Injectable()
 export class TrainingSiteTimeSlotService {
   constructor(
-    @InjectRepository(TrainingTimeSlotEntity)
-    private readonly timeslotRepository: Repository<TrainingTimeSlotEntity>,
+    private readonly timeslotRepository: TrainingTimeSlotRepositoryService,
     private readonly placementService: PlacementService,
   ) {}
 
@@ -44,24 +44,25 @@ export class TrainingSiteTimeSlotService {
   }
 
   async findTimeSlot(timeslotId: string): Promise<any> {
-    const timeslot = await this.timeslotRepository.findOne({
-      where: {
+    const timeslot = await this.timeslotRepository.findOne(
+      {
         id: timeslotId,
       },
-      loadEagerRelations: false,
-      relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
-    });
+      { supervisor: true, trainingSite: { course: true } },
+    );
+
     return timeslot;
   }
 
   async findTimeSlots(
     trainingSiteId: string,
   ): Promise<TrainingTimeSlotEntity[]> {
-    const trainingSiteTimeSlots = await this.timeslotRepository.find({
-      where: { trainingSite: { id: trainingSiteId } },
-      loadEagerRelations: false,
-      relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
-    });
+    const trainingSiteTimeSlots = await this.timeslotRepository.findMany(
+      {
+        trainingSite: { id: trainingSiteId },
+      },
+      { supervisor: true, trainingSite: { course: true } },
+    );
 
     const allAvailableTimeSlots = await Promise.all(
       trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlotEntity) => {
@@ -110,10 +111,9 @@ export class TrainingSiteTimeSlotService {
   }
 
   async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {
-    const timeslot = await this.timeslotRepository.findOne({
-      where: { id: timeslotId },
+    await this.timeslotRepository.delete({
+      id: timeslotId,
     });
-    await this.timeslotRepository.softRemove(timeslot);
 
     return { message: 'Time slot removed successfully.' };
   }
