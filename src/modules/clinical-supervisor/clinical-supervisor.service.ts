@@ -1,20 +1,19 @@
-import {
-  DepartmentUnitEntity,
-  SupervisorProfileEntity,
-  UserEntity,
-} from 'entities/index.entity';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
 import { DepartmentService } from 'department/department.service';
-
+import {
+  DepartmentUnitEntity,
+  SupervisorProfileEntity,
+  UserEntity,
+} from 'entities/index.entity';
+import { HospitalService } from 'hospital/hospital.service';
 import {
   ClinicalSupervisorDepartmentUnitRepositoryService,
   ClinicalSupervisorProfileRepositoryService,
   TrainingTimeSlotRepositoryService,
 } from 'repository/services';
-import { HospitalService } from 'hospital/hospital.service';
 import { UserService } from 'user/user.service';
 
 import { SupervisorProfileDto, CreateSupervisorDto } from './dto';
