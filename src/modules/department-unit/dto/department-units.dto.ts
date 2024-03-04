@@ -5,8 +5,8 @@ export class DepartmentUnitsDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
   @IsOptional()
+  @IsString()
   contactEmail: string;
 
   @IsString()
