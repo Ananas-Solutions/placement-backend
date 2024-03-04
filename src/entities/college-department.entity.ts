@@ -11,8 +11,8 @@ export class CollegeDepartmentEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
-  @Column({ default: '' })
-  contactEmail: string;
+  @Column({ default: '', nullable: true })
+  contactEmail?: string;
 
   @OneToMany(
     () => CoordinatorCollegeDepartmentEntity,
