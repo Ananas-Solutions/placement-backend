@@ -24,7 +24,7 @@ export class DepartmentUnitEntity extends CustomBaseEntity {
   speciality: string;
 
   @Column({ default: '', nullable: true })
-  contactEmail: string;
+  contactEmail?: string;
 
   @ManyToOne(() => DepartmentEntity, { onDelete: 'CASCADE' })
   @JoinColumn()

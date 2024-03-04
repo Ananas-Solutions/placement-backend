@@ -21,7 +21,7 @@ export class DepartmentEntity extends CustomBaseEntity {
   name: string;
 
   @Column({ default: '', nullable: true })
-  contactEmail: string;
+  contactEmail?: string;
 
   @ManyToOne(() => HospitalEntity, (hospital) => hospital.departments, {
     onDelete: 'CASCADE',

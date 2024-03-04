@@ -5,8 +5,8 @@ export class DepartmentDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
   @IsOptional()
+  @IsString()
   contactEmail: string;
 
   @IsString()

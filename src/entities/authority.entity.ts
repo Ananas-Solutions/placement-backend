@@ -22,7 +22,7 @@ export class AuthorityEntity extends CustomBaseEntity {
   name: string;
 
   @Column({ default: '', nullable: true })
-  contactEmail: string;
+  contactEmail?: string;
 
   @OneToMany(() => HospitalEntity, (hospital) => hospital.authority, {
     cascade: ['update', 'soft-remove'],
