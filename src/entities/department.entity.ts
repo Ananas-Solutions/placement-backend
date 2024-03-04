@@ -20,7 +20,7 @@ export class DepartmentEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   contactEmail: string;
 
   @ManyToOne(() => HospitalEntity, (hospital) => hospital.departments, {

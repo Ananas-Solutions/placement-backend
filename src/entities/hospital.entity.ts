@@ -30,7 +30,7 @@ export class HospitalEntity extends CustomBaseEntity {
   @Column({ type: 'jsonb' })
   location: HospitalLocationInterface;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   contactEmail: string;
 
   @ManyToOne(() => AuthorityEntity, (authority) => authority.hospitals, {

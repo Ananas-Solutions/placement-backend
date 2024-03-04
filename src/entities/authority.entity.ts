@@ -21,7 +21,7 @@ export class AuthorityEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   contactEmail: string;
 
   @OneToMany(() => HospitalEntity, (hospital) => hospital.authority, {
