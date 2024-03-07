@@ -63,7 +63,7 @@ export class UserService {
 
   async findUserByStudentId(studentId: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
-      where: { studentId },
+      where: { studentId, deletedAt: null },
       loadEagerRelations: false,
     });
   }

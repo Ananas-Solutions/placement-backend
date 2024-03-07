@@ -67,11 +67,11 @@ export class CourseService {
       throw new ConflictException('Email already used.');
     }
 
-    if (studentFromStudentId) {
-      throw new ConflictException(
-        'Student with the given id already exists in the system.',
-      );
-    }
+    // if (studentFromStudentId) {
+    //   throw new ConflictException(
+    //     'Student with the given id already exists in the system.',
+    //   );
+    // }
 
     if (!studentFromEmail && !studentFromStudentId) {
       newStudent = await this.userService.saveUser({
