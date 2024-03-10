@@ -47,6 +47,9 @@ export class DepartmentService {
     const allDepartments = await this.departmentRepository.find({
       loadEagerRelations: false,
       relations: ['hospital'],
+      order: {
+        name: 'asc',
+      },
     });
 
     return allDepartments.map((department) =>

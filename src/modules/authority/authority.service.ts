@@ -33,6 +33,9 @@ export class AuthorityService {
   async findAllAuthority(): Promise<IAuthorityResponse[]> {
     const allAuthorities = await this.authorityRepository.find({
       loadEagerRelations: false,
+      order: {
+        name: 'asc',
+      },
     });
     return allAuthorities.map((authority) =>
       this.transformToResponse(authority),

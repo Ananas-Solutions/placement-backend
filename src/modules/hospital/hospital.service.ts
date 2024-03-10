@@ -43,6 +43,9 @@ export class HospitalService {
     const allHospitals = await this.hospitalRepository.find({
       relations: ['authority'],
       loadEagerRelations: false,
+      order: {
+        name: 'asc',
+      },
     });
     return allHospitals.map((hospital) =>
       this.transformToDetailResponse(hospital),
@@ -53,6 +56,9 @@ export class HospitalService {
     const authorityAllHospitals = await this.hospitalRepository.find({
       where: { authority: { id: In(authorityIds) } },
       loadEagerRelations: false,
+      order: {
+        name: 'asc',
+      },
     });
     return authorityAllHospitals.map((hospital) =>
       this.transformToResponse(hospital),

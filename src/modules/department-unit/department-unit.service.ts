@@ -47,6 +47,9 @@ export class DepartmentUnitsService {
         'department.hospital',
         'department.hospital.authority',
       ],
+      order: {
+        name: 'asc',
+      },
     });
 
     return allDepartmentUnits.map((departmentUnit) =>
