@@ -39,6 +39,9 @@ export class CollegeDepartmentService {
   async findAll(): Promise<ICollegeDepartmentResponse[]> {
     const allCollegeDepartments = await this.collegeDepartmentRepository.find({
       loadEagerRelations: false,
+      order: {
+        name: 'asc',
+      },
     });
 
     return allCollegeDepartments.map((department) =>
