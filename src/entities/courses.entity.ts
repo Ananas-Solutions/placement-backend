@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  Unique,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import {
   CollegeDepartmentEntity,
@@ -17,7 +10,6 @@ import {
 } from './index.entity';
 
 @Entity()
-@Unique('unique_course', ['name', 'department', 'semester'])
 export class CourseEntity extends CustomBaseEntity {
   @Column()
   name: string;
