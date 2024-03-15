@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRoleEnum } from 'commons/enums';
+import { AuthorityEntity } from 'entities/authority.entity';
+import { CollegeDepartmentEntity } from 'entities/college-department.entity';
 import { CourseEntity } from 'entities/courses.entity';
 import { DepartmentUnitEntity } from 'entities/department-units.entity';
 import { DepartmentEntity } from 'entities/department.entity';
@@ -12,6 +14,8 @@ import { In, Repository } from 'typeorm';
 @Injectable()
 export class StatsService {
   constructor(
+    @InjectRepository(AuthorityEntity)
+    private readonly authorityRepository: Repository<AuthorityEntity>,
     @InjectRepository(HospitalEntity)
     private readonly hospitalRepository: Repository<HospitalEntity>,
     @InjectRepository(UserEntity)
@@ -20,6 +24,8 @@ export class StatsService {
     private readonly departmentEntity: Repository<DepartmentEntity>,
     @InjectRepository(DepartmentUnitEntity)
     private readonly departmentUnitEntity: Repository<DepartmentUnitEntity>,
+    @InjectRepository(CollegeDepartmentEntity)
+    private readonly collegeDepartmentEntity: Repository<CollegeDepartmentEntity>,
     @InjectRepository(CourseEntity)
     private readonly courseEntity: Repository<CourseEntity>,
     @InjectRepository(StudentCourseEntity)
@@ -27,6 +33,13 @@ export class StatsService {
   ) {}
 
   public async getStatsForAdmin() {
+    const totalAuthorities = await this.authorityRepository.count();
+    const totalHospitals = await this.hospitalRepository.count();
+    const totalDepartments = await this.departmentEntity.count();
+    const totalDepartmentUnits = await this.departmentUnitEntity.count();
+
+    const totalCollegeDepartments = await this.collegeDepartmentEntity.count();
+
     const totalClinicalCoordinators = await this.userEntity.count({
       where: { role: UserRoleEnum.CLINICAL_COORDINATOR },
     });
@@ -39,19 +52,18 @@ export class StatsService {
       where: { role: UserRoleEnum.STUDENT },
     });
 
-    const totalHospitals = await this.hospitalRepository.count();
-
-    const totalDepartments = await this.departmentEntity.count();
-
-    const totalDepartmentUnits = await this.departmentUnitEntity.count();
+    const totalCourses = await this.courseEntity.count();
 
     return {
-      totalClinicalCoordinators,
-      totalSupervisors,
-      totalStudents,
+      totalAuthorities,
       totalHospitals,
       totalDepartments,
       totalDepartmentUnits,
+      totalCollegeDepartments,
+      totalCourses,
+      totalClinicalCoordinators,
+      totalSupervisors,
+      totalStudents,
     };
   }
 

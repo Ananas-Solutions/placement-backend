@@ -9,16 +9,20 @@ import { DepartmentEntity } from 'entities/department.entity';
 import { UserEntity } from 'entities/user.entity';
 import { StudentCourseEntity } from 'entities/student-course.entity';
 import { CourseEntity } from 'entities/courses.entity';
+import { AuthorityEntity } from 'entities/authority.entity';
+import { CollegeDepartmentEntity } from 'entities/college-department.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      AuthorityEntity,
       HospitalEntity,
       DepartmentUnitEntity,
       DepartmentEntity,
       UserEntity,
       StudentCourseEntity,
       CourseEntity,
+      CollegeDepartmentEntity,
     ]),
     UserModule,
   ],
