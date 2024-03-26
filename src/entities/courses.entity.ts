@@ -8,6 +8,7 @@ import {
   StudentCourseEntity,
   UserEntity,
 } from './index.entity';
+import { CourseBlockEntity } from './course-block.entity';
 
 @Entity()
 export class CourseEntity extends CustomBaseEntity {
@@ -54,4 +55,9 @@ export class CourseEntity extends CustomBaseEntity {
     eager: true,
   })
   student: StudentCourseEntity[];
+
+  @OneToMany(() => CourseBlockEntity, (block) => block.course, {
+    cascade: true,
+  })
+  blocks: CourseBlockEntity[];
 }

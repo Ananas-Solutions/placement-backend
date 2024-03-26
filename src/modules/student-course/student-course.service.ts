@@ -9,6 +9,7 @@ import { UserEntity } from 'entities/user.entity';
 
 import { AssignCoursesToStudentDto, AssignStudentsToCourseDto } from './dto';
 import { ICourseStudentResponse, IStudentCourseResponse } from './response';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Injectable()
 export class StudentCourseService {
@@ -20,18 +21,21 @@ export class StudentCourseService {
   async assignStudents(
     body: AssignStudentsToCourseDto,
   ): Promise<ISuccessMessageResponse> {
-    const { courseId, studentsId } = body;
+    const { courseId, studentsId, blockId } = body;
     await Promise.all(
       studentsId.map(async (studentId: any) => {
         const studentCourse = await this.studentCourseRepository.findOne({
           where: { student: { id: studentId }, course: { id: courseId } },
         });
+
         if (studentCourse) {
           return;
         }
+
         return await this.studentCourseRepository.save({
           course: { id: courseId } as CourseEntity,
           student: { id: studentId } as UserEntity,
+          ...(blockId && { block: { id: blockId } as CourseBlockEntity }),
         });
       }),
     );

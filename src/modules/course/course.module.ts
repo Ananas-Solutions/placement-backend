@@ -16,6 +16,7 @@ import { CourseService } from './services/course.service';
 import { CourseTrainingSiteService } from './services/course-training-site.service';
 import { CourseExportService } from './services/course-export.service';
 import { CourseTransferService } from './services/course-transfer.service';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CourseTransferService } from './services/course-transfer.service';
       CourseTrainingSiteEntity,
       StudentCourseEntity,
       TrainingSiteEvaluationEntity,
+      CourseBlockEntity,
     ]),
     UserModule,
     TrainingSiteTimeSlotModule,

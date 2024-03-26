@@ -14,8 +14,9 @@ import {
 import { UserService } from 'user/user.service';
 import { IUserResponse } from 'user/response';
 
-import { AddStudentDto, CreateCourseDto } from '../dto';
+import { AddStudentDto, CreateBlockDto, CreateCourseDto } from '../dto';
 import { ICourseDetailResponse, ICourseResponse } from '../response';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Injectable()
 export class CourseService {
@@ -24,6 +25,8 @@ export class CourseService {
     private readonly courseRepository: Repository<CourseEntity>,
     @InjectRepository(StudentCourseEntity)
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
+    @InjectRepository(CourseBlockEntity)
+    private readonly courseBlocksRepository: Repository<CourseBlockEntity>,
     private readonly userService: UserService,
   ) {}
 
@@ -236,5 +239,31 @@ export class CourseService {
         endYear: semester.endYear,
       },
     };
+  }
+
+  public async addBlocks(body: CreateBlockDto) {
+    const { courseId, ...block } = body;
+
+    await this.courseBlocksRepository.save({
+      ...block,
+      course: { id: courseId } as CourseEntity,
+    });
+
+    return { message: 'Block added successfully.' };
+  }
+
+  public async getCourseBlocks(courseId: string) {
+    return await this.courseBlocksRepository.find({
+      where: { course: { id: courseId } },
+    });
+  }
+
+  public async updateBlock(blockId: string, body: CreateBlockDto) {
+    const { courseId, ...block } = body;
+
+    await this.courseBlocksRepository.update(
+      { id: blockId },
+      { ...block, course: { id: courseId } as CourseEntity },
+    );
   }
 }

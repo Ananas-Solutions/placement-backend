@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsArray,
   ArrayMinSize,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateStudentDto {
@@ -24,6 +25,10 @@ export class CreateBulkStudentDto {
   @IsString()
   @IsNotEmpty()
   courseId: string;
+
+  @IsString()
+  @IsOptional()
+  blockId?: string;
 
   @IsArray()
   @ArrayMinSize(1)

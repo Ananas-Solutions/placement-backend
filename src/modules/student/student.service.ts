@@ -69,6 +69,7 @@ export class StudentService {
     await this.studentCourseService.assignStudents({
       courseId: body.courseId,
       studentsId: mappedStudents,
+      blockId: body.blockId,
     });
 
     return { message: 'Student uploaded successfully.' };

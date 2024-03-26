@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsArray, ArrayMinSize } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsArray,
+  ArrayMinSize,
+  IsOptional,
+} from 'class-validator';
 
 export class AssignStudentsToCourseDto {
   @IsNotEmpty()
@@ -8,4 +14,8 @@ export class AssignStudentsToCourseDto {
   @IsArray()
   @ArrayMinSize(1)
   studentsId: any;
+
+  @IsString()
+  @IsOptional()
+  blockId?: string;
 }

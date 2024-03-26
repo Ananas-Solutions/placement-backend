@@ -23,6 +23,7 @@ import { CourseService } from './services/course.service';
 import {
   AddStudentDto,
   CourseTrainingSiteDto,
+  CreateBlockDto,
   CreateCourseDto,
   ExportCourseDataDto,
   TransferCourseSettingDto,
@@ -67,6 +68,12 @@ export class CourseController {
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async addStudent(@Body() body: AddStudentDto) {
     return this.coursesServices.addStudent(body);
+  }
+
+  @Post('block')
+  @Roles(UserRoleEnum.ADMIN)
+  async addBlocks(@Body() body: CreateBlockDto) {
+    return this.coursesServices.addBlocks(body);
   }
 
   @Post('transfer-students')
@@ -122,6 +129,12 @@ export class CourseController {
     return await this.coursesServices.findCourseStudents(courseId);
   }
 
+  @Get(':courseId/blocks')
+  @Roles(UserRoleEnum.ADMIN)
+  async getCourseBlocks(@Param('courseId') courseId: string) {
+    return await this.coursesServices.getCourseBlocks(courseId);
+  }
+
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get(':id')
   async queryOneCourse(@Param('id') id: string) {
@@ -144,6 +157,15 @@ export class CourseController {
       trainingSiteId,
       body,
     );
+  }
+
+  @Put('block/:blockId')
+  @Roles(UserRoleEnum.ADMIN)
+  async updateBlock(
+    @Param('blockId') blockId: string,
+    @Body() body: CreateBlockDto,
+  ) {
+    return await this.coursesServices.updateBlock(blockId, body);
   }
 
   @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)

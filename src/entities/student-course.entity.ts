@@ -1,5 +1,6 @@
 import { Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { CourseEntity, CustomBaseEntity, UserEntity } from './index.entity';
+import { CourseBlockEntity } from './course-block.entity';
 
 @Entity()
 export class StudentCourseEntity extends CustomBaseEntity {
@@ -12,4 +13,11 @@ export class StudentCourseEntity extends CustomBaseEntity {
   })
   @JoinColumn()
   course: CourseEntity;
+
+  @ManyToOne(() => CourseBlockEntity, (block) => block.students, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  block: CourseBlockEntity;
 }
