@@ -1,15 +1,17 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
+import { UserRoleEnum } from 'commons/enums';
+import { ISuccessMessageResponse } from 'commons/response';
 import { StudentProfileEntity } from 'entities/student-profile.entity';
 import { UserEntity } from 'entities/user.entity';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { IUserResponse } from './response';
-import { UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
+
 import { UpdateStudentUserDto } from './dto';
 
 @Injectable()
@@ -135,6 +137,30 @@ export class UserService {
     await this.userRepository.softRemove(user);
 
     return { message: 'User removed successfully.' };
+  }
+
+  async changePassword(
+    userId: string,
+    body: {
+      oldPassword: string;
+      newPassword: string;
+    },
+  ): Promise<ISuccessMessageResponse> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!bcrypt.compareSync(body.oldPassword, user.password)) {
+      throw new ConflictException('Old password is incorrect.');
+    }
+
+    const updatedPassword = await bcrypt.hash(body.newPassword, 10);
+    await this.userRepository.update(
+      { id: userId },
+      { password: updatedPassword },
+    );
+
+    return { message: 'Password updated successfully.' };
   }
 
   private transformToResponse(user: UserEntity): IUserResponse {

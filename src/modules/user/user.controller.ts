@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -70,5 +71,14 @@ export class UserController {
     @Body() body: UpdateStudentUserDto,
   ) {
     return this.userService.updateStudentUser(userId, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-password')
+  async changePassword(
+    @Req() req,
+    @Body() body: { oldPassword: string; newPassword: string },
+  ) {
+    return await this.userService.changePassword(req.user.id, body);
   }
 }
