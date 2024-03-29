@@ -152,6 +152,12 @@ export class CourseController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Get('block/:id')
+  async queryOneBlock(@Param('id') id: string) {
+    return await this.coursesServices.findOneCourseBlock(id);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get(':id')
   async queryOneCourse(@Param('id') id: string) {
     return await this.coursesServices.findOneCourse(id);

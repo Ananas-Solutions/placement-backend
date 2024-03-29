@@ -146,6 +146,21 @@ export class CourseService {
     }
   }
 
+  async findOneCourseBlock(id: string) {
+    const courseBlock = await this.courseBlocksRepository.findOne({
+      where: { id },
+      loadEagerRelations: false,
+      relations: [
+        'course',
+        'course.department',
+        'course.semester',
+        'course.coordinator',
+      ],
+    });
+
+    return courseBlock;
+  }
+
   async findOneCourse(id: string): Promise<ICourseDetailResponse> {
     const course = await this.courseRepository.findOne({
       where: { id },
