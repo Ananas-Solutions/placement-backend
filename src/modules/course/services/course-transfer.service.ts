@@ -8,6 +8,7 @@ import {
   UserEntity,
 } from 'entities/index.entity';
 import {
+  ImportCourseSettingDto,
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
 } from 'course/dto';
@@ -143,6 +144,55 @@ export class CourseTransferService {
       }
 
       return { message: 'Course setting transfer is completed successfully.' };
+    } catch (err) {
+      console.log('err here', err);
+      throw new BadRequestException('bad request');
+    }
+  }
+
+  public async importCourseSetting(body: ImportCourseSettingDto) {
+    try {
+      const { courseId, blockId } = body;
+      const course = await this.courseRepository.findOne({
+        where: { id: courseId },
+        loadEagerRelations: false,
+        relations: [
+          'trainingSite',
+          'trainingSite.departmentUnit',
+          'trainingSite.timeslots',
+        ],
+      });
+
+      if (body.transferProperties.includes('trainingSites')) {
+        const trainingSites = course.trainingSite;
+        await Promise.all(
+          trainingSites.map(async (site) => {
+            const departmentUnitId = site.departmentUnit.id;
+            const { trainingSiteId } =
+              await this.courseTrainingSiteService.createBlockTrainingSite({
+                courseId,
+                departmentUnitId,
+                blockId,
+              });
+
+            if (body.transferProperties.includes('timeslots')) {
+              const timeslots = site.timeslots;
+
+              await Promise.all(
+                timeslots.map(async (slot) => {
+                  const { startTime, endTime, capacity, day } = slot;
+                  await this.timeslotService.saveBlockTimeSlots({
+                    timeslots: [{ startTime, endTime, capacity, day }],
+                    blockTrainingSiteId: trainingSiteId,
+                  });
+                }),
+              );
+            }
+          }),
+        );
+      }
+
+      return { message: 'Course setting import is completed successfully.' };
     } catch (err) {
       console.log('err here', err);
       throw new BadRequestException('bad request');

@@ -7,10 +7,14 @@ import { UserModule } from 'user/user.module';
 
 import { TrainingSiteTimeSlotController } from './training-time-slot.controller';
 import { TrainingSiteTimeSlotService } from './training-time-slot.service';
+import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TrainingTimeSlotEntity]),
+    TypeOrmModule.forFeature([
+      TrainingTimeSlotEntity,
+      BlockTrainingTimeSlotEntity,
+    ]),
     UserModule,
     PlacementModule,
   ],

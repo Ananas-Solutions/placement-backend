@@ -26,6 +26,7 @@ import {
   CreateBlockDto,
   CreateCourseDto,
   ExportCourseDataDto,
+  ImportCourseSettingDto,
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
   updateCourseBlockDto,
@@ -87,6 +88,12 @@ export class CourseController {
   @Roles(UserRoleEnum.ADMIN)
   async transferCourseSettings(@Body() body: TransferCourseSettingDto) {
     return this.courseTransferService.transferCourseSetting(body);
+  }
+
+  @Post('import-settings')
+  @Roles(UserRoleEnum.ADMIN)
+  async importCourseSettings(@Body() body: ImportCourseSettingDto) {
+    return this.courseTransferService.importCourseSetting(body);
   }
 
   @Get('export/training-sites/:courseId')

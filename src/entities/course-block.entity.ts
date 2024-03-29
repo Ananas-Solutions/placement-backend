@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { CustomBaseEntity } from './base.entity';
 import { CourseEntity } from './courses.entity';
 import { StudentCourseEntity } from './student-course.entity';
+import { CourseTrainingSiteEntity } from './course-training-site.entity';
 
 @Entity()
 export class CourseBlockEntity extends CustomBaseEntity {
@@ -31,4 +32,9 @@ export class CourseBlockEntity extends CustomBaseEntity {
     cascade: true,
   })
   students: StudentCourseEntity[];
+
+  @OneToMany(() => CourseBlockEntity, (block) => block.course, {
+    cascade: true,
+  })
+  trainingSite: CourseTrainingSiteEntity[];
 }

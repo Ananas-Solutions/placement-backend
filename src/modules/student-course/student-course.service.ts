@@ -97,7 +97,7 @@ export class StudentCourseService {
       }
     }
 
-    // find total students of the course
+    return { message: 'Student auto assign completed successfully.' };
   }
 
   async findStudentCourses(

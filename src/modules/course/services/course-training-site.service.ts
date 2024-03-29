@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
-import { CourseTrainingSiteDto } from 'course/dto';
+import { CourseBlockTrainingSiteDto, CourseTrainingSiteDto } from 'course/dto';
 import {
   CourseTrainingSiteResponse,
   IAddTrainingSiteResponse,
@@ -14,12 +14,16 @@ import {
   DepartmentUnitEntity,
   TrainingSiteEvaluationEntity,
 } from 'entities/index.entity';
+import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Injectable()
 export class CourseTrainingSiteService {
   constructor(
     @InjectRepository(CourseTrainingSiteEntity)
     private readonly trainingSiteRepository: Repository<CourseTrainingSiteEntity>,
+    @InjectRepository(CourseBlockTrainingSiteEntity)
+    private readonly blockTrainingSiteRepository: Repository<CourseBlockTrainingSiteEntity>,
     @InjectRepository(TrainingSiteEvaluationEntity)
     private readonly trainingSiteEvaluationRepository: Repository<TrainingSiteEvaluationEntity>,
   ) {}
@@ -75,11 +79,52 @@ export class CourseTrainingSiteService {
     };
   }
 
+  async createBlockTrainingSite(
+    body: CourseBlockTrainingSiteDto,
+  ): Promise<IAddTrainingSiteResponse> {
+    const { departmentUnitId, blockId } = body;
+
+    const existingBlockTrainingSite = await this.findExistingBlockTrainingSite(
+      departmentUnitId,
+      blockId,
+    );
+
+    if (existingBlockTrainingSite) {
+      return {
+        trainingSiteId: existingBlockTrainingSite.id,
+        message: 'Block Training site found successfully',
+      };
+    }
+
+    const newTrainingSite = await this.blockTrainingSiteRepository.save({
+      block: { id: blockId } as CourseBlockEntity,
+      departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
+    });
+
+    return {
+      trainingSiteId: newTrainingSite.id,
+      message: 'Block Training site added successfully.',
+    };
+  }
+
   async findExistingTrainingSite(courseId: string, departmentUnitId: string) {
     return await this.trainingSiteRepository.findOne({
       where: {
         course: { id: courseId },
         departmentUnit: { id: departmentUnitId },
+      },
+      loadEagerRelations: false,
+    });
+  }
+
+  async findExistingBlockTrainingSite(
+    departmentUnitId: string,
+    blockId: string,
+  ) {
+    return await this.blockTrainingSiteRepository.findOne({
+      where: {
+        departmentUnit: { id: departmentUnitId },
+        block: { id: blockId },
       },
       loadEagerRelations: false,
     });
