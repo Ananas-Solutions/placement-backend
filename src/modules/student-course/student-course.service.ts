@@ -7,7 +7,11 @@ import { CourseEntity } from 'entities/courses.entity';
 import { StudentCourseEntity } from 'entities/student-course.entity';
 import { UserEntity } from 'entities/user.entity';
 
-import { AssignCoursesToStudentDto, AssignStudentsToCourseDto } from './dto';
+import {
+  AssignCoursesToStudentDto,
+  AssignStudentsToCourseDto,
+  AutoAssignStudentsToBlockDto,
+} from './dto';
 import { ICourseStudentResponse, IStudentCourseResponse } from './response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 
@@ -16,6 +20,10 @@ export class StudentCourseService {
   constructor(
     @InjectRepository(StudentCourseEntity)
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
+    @InjectRepository(CourseEntity)
+    private readonly courseRepository: Repository<CourseEntity>,
+    @InjectRepository(CourseBlockEntity)
+    private readonly courseBlockRepository: Repository<CourseBlockEntity>,
   ) {}
 
   async assignStudents(
@@ -58,6 +66,40 @@ export class StudentCourseService {
     return { message: 'Courses assigend to student successfully.' };
   }
 
+  async autoAssignStudentsToBlocks(body: AutoAssignStudentsToBlockDto) {
+    const { courseId } = body;
+
+    // finding all the blocks of the course
+    const courseBlocks = await this.courseBlockRepository.find({
+      where: { course: { id: courseId } },
+    });
+
+    const studentCourses = await this.studentCourseRepository.find({
+      where: { course: { id: courseId } },
+      loadEagerRelations: false,
+    });
+
+    const totalStudentsInCourse = studentCourses.length;
+
+    // assign students to blocks
+    let studentIndex = 0;
+    for (let i = 0; i < courseBlocks.length; i++) {
+      const block = courseBlocks[i];
+      for (let j = 0; j < block.capacity; j++) {
+        if (studentIndex === totalStudentsInCourse) {
+          break;
+        }
+        const studentCourse = studentCourses[studentIndex];
+        studentCourse.block = block;
+
+        await this.studentCourseRepository.save(studentCourse);
+        studentIndex++;
+      }
+    }
+
+    // find total students of the course
+  }
+
   async findStudentCourses(
     studentId: string,
   ): Promise<IStudentCourseResponse[]> {
@@ -78,6 +120,21 @@ export class StudentCourseService {
   ): Promise<ICourseStudentResponse[]> {
     const studentCourses = await this.studentCourseRepository.find({
       where: { course: { id: courseId } },
+      loadEagerRelations: false,
+      relations: ['student', 'student.studentProfile'],
+    });
+    const users = studentCourses.map((studentCourse) =>
+      this.transformToCourseStudent(studentCourse),
+    );
+
+    return users;
+  }
+
+  async findCourseBlockStudents(
+    blockId: string,
+  ): Promise<ICourseStudentResponse[]> {
+    const studentCourses = await this.studentCourseRepository.find({
+      where: { block: { id: blockId } },
       loadEagerRelations: false,
       relations: ['student', 'student.studentProfile'],
     });

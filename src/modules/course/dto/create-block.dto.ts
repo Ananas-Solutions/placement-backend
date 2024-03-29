@@ -16,7 +16,7 @@ export class CreateBlockDto {
   @IsNotEmpty()
   public endsAt!: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
   public duration!: number;
 

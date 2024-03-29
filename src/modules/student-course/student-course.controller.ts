@@ -17,7 +17,11 @@ import { UserRoleEnum } from 'commons/enums';
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { StudentCourseService } from './student-course.service';
-import { AssignCoursesToStudentDto, AssignStudentsToCourseDto } from './dto';
+import {
+  AssignCoursesToStudentDto,
+  AssignStudentsToCourseDto,
+  AutoAssignStudentsToBlockDto,
+} from './dto';
 
 @ApiTags('student-course')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,6 +34,12 @@ export class StudentCourseController {
   @Post('assign-students')
   async assignStudents(@Body() body: AssignStudentsToCourseDto) {
     return this.studentCourseService.assignStudents(body);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post('block/auto-assign-students')
+  async assignBlockedStudents(@Body() body: AutoAssignStudentsToBlockDto) {
+    return this.studentCourseService.autoAssignStudentsToBlocks(body);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
@@ -59,6 +69,14 @@ export class StudentCourseController {
     @Param() { courseId }: { courseId: string },
   ) {
     return await this.studentCourseService.findCourseStudents(courseId);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Get('course/block/:blockId')
+  async queryCourseBlockAssignedStudents(
+    @Param() { blockId }: { blockId: string },
+  ) {
+    return await this.studentCourseService.findCourseBlockStudents(blockId);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)

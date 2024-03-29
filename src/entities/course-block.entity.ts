@@ -15,6 +15,12 @@ export class CourseBlockEntity extends CustomBaseEntity {
   @Column({ type: 'date', default: new Date() })
   endsAt: Date;
 
+  @Column()
+  capacity: number;
+
+  @Column()
+  duration: number;
+
   @ManyToOne(() => CourseEntity, (course) => course.blocks, {
     onDelete: 'CASCADE',
   })
