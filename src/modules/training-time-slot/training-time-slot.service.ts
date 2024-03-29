@@ -119,6 +119,38 @@ export class TrainingSiteTimeSlotService {
     return allAvailableTimeSlots;
   }
 
+  async findBlockTimeSlots(
+    blockTrainingSiteId: string,
+  ): Promise<BlockTrainingTimeSlotEntity[]> {
+    const trainingSiteTimeSlots = await this.blockTimeslotRepository.find({
+      where: { blockTrainingSite: { id: blockTrainingSiteId } },
+      loadEagerRelations: false,
+      relations: [
+        'supervisor',
+        'blockTrainingSite',
+        'blockTrainingSite.block.course',
+      ],
+    });
+
+    const allAvailableTimeSlots = await Promise.all(
+      trainingSiteTimeSlots.map(
+        async (timeSlot: BlockTrainingTimeSlotEntity) => {
+          const { blockTrainingSite } = timeSlot;
+          const { course } = blockTrainingSite.block;
+
+          return {
+            ...timeSlot,
+            totalCapacity: timeSlot.capacity,
+            // assignedCapacity: assingedStudents.length,
+            // remainingcapacity: timeSlot.capacity - assingedStudents.length,
+            courseId: course.id,
+          };
+        },
+      ),
+    );
+    return allAvailableTimeSlots;
+  }
+
   async updateTimeSlot(
     timeSlotId: string,
     body: UpdateTimeSlotDto,

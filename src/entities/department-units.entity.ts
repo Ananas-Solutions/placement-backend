@@ -13,6 +13,7 @@ import {
   DepartmentEntity,
   SupervisorDepartmentUnitEntity,
 } from './index.entity';
+import { CourseBlockTrainingSiteEntity } from './block-training-site.entity';
 
 @Entity()
 export class DepartmentUnitEntity extends CustomBaseEntity {
@@ -42,4 +43,11 @@ export class DepartmentUnitEntity extends CustomBaseEntity {
     { cascade: ['update', 'soft-remove'], eager: true },
   )
   trainingSites: CourseTrainingSiteEntity[];
+
+  @OneToMany(
+    () => CourseBlockTrainingSiteEntity,
+    (blockTrainingSites) => blockTrainingSites.departmentUnit,
+    { cascade: ['update', 'soft-remove'], eager: true },
+  )
+  blockTrainingSites: CourseBlockTrainingSiteEntity[];
 }

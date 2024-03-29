@@ -1,7 +1,6 @@
 import { Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import {
-  CourseEntity,
   CustomBaseEntity,
   DepartmentUnitEntity,
   PlacementEntity,
@@ -12,7 +11,7 @@ import { BlockTrainingTimeSlotEntity } from './block-training-time-slot.entity';
 
 @Entity()
 export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
-  @ManyToOne(() => CourseEntity, (block) => block.trainingSite, {
+  @ManyToOne(() => CourseBlockEntity, (block) => block.trainingSite, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
@@ -20,7 +19,7 @@ export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
 
   @ManyToOne(
     () => DepartmentUnitEntity,
-    (departmentUnit) => departmentUnit.trainingSites,
+    (departmentUnit) => departmentUnit.blockTrainingSites,
     {
       onDelete: 'CASCADE',
     },

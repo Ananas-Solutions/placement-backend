@@ -166,6 +166,36 @@ export class CourseTrainingSiteService {
     return mappedResult;
   }
 
+  async getAllBlockTrainingSite(
+    blockId: string,
+  ): Promise<CourseTrainingSiteResponse[]> {
+    const allTrainingSites = await this.blockTrainingSiteRepository.find({
+      where: { block: { id: blockId } },
+      loadEagerRelations: false,
+      relations: [
+        'departmentUnit',
+        'departmentUnit.department',
+        'departmentUnit.department.hospital',
+      ],
+    });
+
+    const mappedResult = await Promise.all(
+      allTrainingSites.map(async (trainingSite) => {
+        const { departmentUnit } = trainingSite;
+        const { department } = departmentUnit;
+        const { hospital } = department;
+        return {
+          id: trainingSite.id,
+          hospital: hospital.name,
+          department: department.name,
+          departmentUnit: departmentUnit.name,
+        };
+      }),
+    );
+
+    return mappedResult;
+  }
+
   public async updateTrainingSite(
     trainingSiteId: string,
     body: CourseTrainingSiteDto,

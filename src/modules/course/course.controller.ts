@@ -131,6 +131,14 @@ export class CourseController {
     return await this.courseTrainingSiteService.getAllTrainingSite(courseId);
   }
 
+  @Get(':blockId/training-sites')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async queryAllBlockTrainingSites(@Param('blockId') blockId: string) {
+    return await this.courseTrainingSiteService.getAllBlockTrainingSite(
+      blockId,
+    );
+  }
+
   @Get(':courseId/students')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async getCourseStudents(@Param('courseId') courseId: string) {
