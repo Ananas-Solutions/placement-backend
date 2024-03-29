@@ -5,3 +5,4 @@ export * from './add-student.dto';
 export * from './transfer-student-to-course.dto';
 export * from './transfer-course-settings.dto';
 export * from './create-block.dto';
+export * from './update-block.dto';

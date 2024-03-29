@@ -14,7 +14,12 @@ import {
 import { UserService } from 'user/user.service';
 import { IUserResponse } from 'user/response';
 
-import { AddStudentDto, CreateBlockDto, CreateCourseDto } from '../dto';
+import {
+  AddStudentDto,
+  CreateBlockDto,
+  CreateCourseDto,
+  updateCourseBlockDto,
+} from '../dto';
 import { ICourseDetailResponse, ICourseResponse } from '../response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 
@@ -242,12 +247,19 @@ export class CourseService {
   }
 
   public async addBlocks(body: CreateBlockDto) {
-    const { courseId, ...block } = body;
+    const { courseId, startsFrom, endsAt, blocks, duration } = body;
 
-    await this.courseBlocksRepository.save({
-      ...block,
-      course: { id: courseId } as CourseEntity,
-    });
+    await Promise.all(
+      blocks.map(async (block) => {
+        return await this.courseBlocksRepository.save({
+          ...block,
+          startsFrom,
+          endsAt,
+          duration,
+          course: { id: courseId } as CourseEntity,
+        });
+      }),
+    );
 
     return { message: 'Block added successfully.' };
   }
@@ -258,12 +270,9 @@ export class CourseService {
     });
   }
 
-  public async updateBlock(blockId: string, body: CreateBlockDto) {
-    const { courseId, ...block } = body;
+  public async updateBlock(blockId: string, body: updateCourseBlockDto) {
+    const { name } = body;
 
-    await this.courseBlocksRepository.update(
-      { id: blockId },
-      { ...block, course: { id: courseId } as CourseEntity },
-    );
+    await this.courseBlocksRepository.update({ id: blockId }, { name });
   }
 }

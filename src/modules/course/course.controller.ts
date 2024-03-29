@@ -28,6 +28,7 @@ import {
   ExportCourseDataDto,
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
+  updateCourseBlockDto,
 } from './dto';
 import { CourseTrainingSiteService } from './services/course-training-site.service';
 import { CourseTransferService } from './services/course-transfer.service';
@@ -163,7 +164,7 @@ export class CourseController {
   @Roles(UserRoleEnum.ADMIN)
   async updateBlock(
     @Param('blockId') blockId: string,
-    @Body() body: CreateBlockDto,
+    @Body() body: updateCourseBlockDto,
   ) {
     return await this.coursesServices.updateBlock(blockId, body);
   }

@@ -1,10 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class CreateBlockDto {
-  @IsNotEmpty()
-  @IsString()
-  public name!: string;
-
   @IsString()
   @IsNotEmpty()
   public startsFrom!: string;
@@ -15,5 +18,24 @@ export class CreateBlockDto {
 
   @IsString()
   @IsNotEmpty()
+  public duration!: number;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @Type(() => BlockInfoDto)
+  public blocks!: BlockInfoDto[];
+
+  @IsString()
+  @IsNotEmpty()
   public courseId!: string;
+}
+
+class BlockInfoDto {
+  @IsNotEmpty()
+  @IsString()
+  public name!: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  public capacity!: number;
 }
