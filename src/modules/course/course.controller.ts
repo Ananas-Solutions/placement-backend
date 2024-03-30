@@ -122,13 +122,13 @@ export class CourseController {
     return await this.courseTrainingSiteService.getTrainingSite(trainingSiteId);
   }
 
-  @Get('block-training-site/:trainingSiteId')
+  @Get('block-training-site/:blockTrainingSiteId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async queryBlockTrainingSite(
-    @Param('trainingSiteId') trainingSiteId: string,
+    @Param('blockTrainingSiteId') blockTrainingSiteId: string,
   ) {
     return await this.courseTrainingSiteService.getBlockTrainingSite(
-      trainingSiteId,
+      blockTrainingSiteId,
     );
   }
 

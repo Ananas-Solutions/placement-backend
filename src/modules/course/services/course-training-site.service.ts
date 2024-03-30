@@ -365,9 +365,9 @@ export class CourseTrainingSiteService {
     return trainingSite;
   }
 
-  public async getBlockTrainingSite(trainingSiteId: string) {
+  public async getBlockTrainingSite(blockTrainingSiteId: string) {
     const blockTrainingSite = await this.blockTrainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
+      where: { id: blockTrainingSiteId },
       loadEagerRelations: false,
       relations: [
         'departmentUnit',
