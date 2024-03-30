@@ -37,7 +37,7 @@ export class TrainingSiteTimeSlotController {
     return await this.timeslotService.save(body);
   }
 
-  @Post()
+  @Post('block')
   async saveBlockTimeSlots(@Body() body: BlockTrainingSiteTimeSlotDto) {
     return await this.timeslotService.saveBlockTimeSlots(body);
   }
