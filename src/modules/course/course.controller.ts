@@ -207,10 +207,32 @@ export class CourseController {
     return await this.coursesServices.updateBlock(blockId, body);
   }
 
+  @Put('block/training-site/:trainingSiteId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async updateBlockTrainingSite(
+    @Param('trainingSiteId') trainingSiteId: string,
+    @Body() body: CourseBlockTrainingSiteDto,
+  ) {
+    return await this.courseTrainingSiteService.updateBlockTrainingSite(
+      trainingSiteId,
+      body,
+    );
+  }
+
   @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
   @Delete('training-site/:trainingSiteId')
   async deleteTrainingSite(@Param('trainingSiteId') trainingSiteId: string) {
     return await this.courseTrainingSiteService.deleteTrainingSite(
+      trainingSiteId,
+    );
+  }
+
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
+  @Delete('block/training-site/:trainingSiteId')
+  async deleteBlockTrainingSite(
+    @Param('trainingSiteId') trainingSiteId: string,
+  ) {
+    return await this.courseTrainingSiteService.deleteBlockTrainingSite(
       trainingSiteId,
     );
   }

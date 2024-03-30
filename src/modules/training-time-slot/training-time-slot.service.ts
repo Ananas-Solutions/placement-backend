@@ -11,6 +11,7 @@ import { PlacementService } from 'placement/placement.service';
 import {
   BlockTrainingSiteTimeSlotDto,
   TrainingSiteTimeSlotDto,
+  UpdateBlockTimeSlotDto,
   UpdateTimeSlotDto,
 } from './dto';
 import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
@@ -87,6 +88,22 @@ export class TrainingSiteTimeSlotService {
       },
       loadEagerRelations: false,
       relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
+    });
+    return timeslot;
+  }
+
+  async findBlockTimeSlot(timeslotId: string): Promise<any> {
+    const timeslot = await this.blockTimeslotRepository.findOne({
+      where: {
+        id: timeslotId,
+      },
+      loadEagerRelations: false,
+      relations: [
+        'supervisor',
+        'blockTrainingSite',
+        'blockTrainingSite.block',
+        'blockTrainingSite.block.course',
+      ],
     });
     return timeslot;
   }
@@ -176,6 +193,43 @@ export class TrainingSiteTimeSlotService {
     );
 
     return { message: 'Time slot updated successfully.' };
+  }
+
+  async updateBlockTimeSlot(
+    timeSlotId: string,
+    body: UpdateBlockTimeSlotDto,
+  ): Promise<ISuccessMessageResponse> {
+    const { supervisor, ...rest } = body;
+    let entityData = {};
+    entityData = {
+      ...rest,
+    };
+    if (supervisor) {
+      entityData = {
+        ...entityData,
+        supervisor: { id: supervisor } as UserEntity,
+      };
+    }
+
+    await this.blockTimeslotRepository.update(
+      { id: timeSlotId },
+      {
+        ...entityData,
+      },
+    );
+
+    return { message: 'Time slot updated successfully.' };
+  }
+
+  async deleteBlockTimeSlot(
+    timeslotId: string,
+  ): Promise<ISuccessMessageResponse> {
+    const timeslot = await this.blockTimeslotRepository.findOne({
+      where: { id: timeslotId },
+    });
+    await this.blockTimeslotRepository.softRemove(timeslot);
+
+    return { message: 'Time slot removed successfully.' };
   }
 
   async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {

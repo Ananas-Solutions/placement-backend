@@ -16,7 +16,12 @@ import { Roles } from 'commons/decorator';
 import { UserRoleEnum } from 'commons/enums';
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
-import { TrainingSiteTimeSlotDto, UpdateTimeSlotDto } from './dto';
+import {
+  BlockTrainingSiteTimeSlotDto,
+  TrainingSiteTimeSlotDto,
+  UpdateBlockTimeSlotDto,
+  UpdateTimeSlotDto,
+} from './dto';
 import { TrainingSiteTimeSlotService } from './training-time-slot.service';
 
 @ApiTags('training site time slots')
@@ -30,6 +35,11 @@ export class TrainingSiteTimeSlotController {
   @Post()
   async saveTimeSlots(@Body() body: TrainingSiteTimeSlotDto) {
     return await this.timeslotService.save(body);
+  }
+
+  @Post()
+  async saveBlockTimeSlots(@Body() body: BlockTrainingSiteTimeSlotDto) {
+    return await this.timeslotService.saveBlockTimeSlots(body);
   }
 
   @Get('training-site/:trainingsiteId')
@@ -46,9 +56,22 @@ export class TrainingSiteTimeSlotController {
     return await this.timeslotService.findBlockTimeSlots(blockTrainingSiteId);
   }
 
+  @Get('block/:id')
+  async findBlockTrainingSiteTimeSlot(@Param('id') timeslotId: string) {
+    return await this.timeslotService.findBlockTimeSlot(timeslotId);
+  }
+
   @Get(':id')
   async findTrainingSiteTimeSlot(@Param('id') timeslotId: string) {
     return await this.timeslotService.findTimeSlot(timeslotId);
+  }
+
+  @Put('block/:id')
+  async updateBlockTrainingSiteTimeSlot(
+    @Param('id') id: string,
+    @Body() body: UpdateBlockTimeSlotDto,
+  ) {
+    return await this.timeslotService.updateBlockTimeSlot(id, body);
   }
 
   @Put(':id')
@@ -57,6 +80,11 @@ export class TrainingSiteTimeSlotController {
     @Body() body: UpdateTimeSlotDto,
   ) {
     return await this.timeslotService.updateTimeSlot(id, body);
+  }
+
+  @Delete('block/:id')
+  async deleteBlockTrainingSiteTimeSlot(@Param('id') id: string) {
+    return this.timeslotService.deleteBlockTimeSlot(id);
   }
 
   @Delete(':id')

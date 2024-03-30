@@ -254,6 +254,37 @@ export class CourseTrainingSiteService {
     return { message: 'Training site updated successfully.' };
   }
 
+  public async updateBlockTrainingSite(
+    trainingSiteId: string,
+    body: CourseBlockTrainingSiteDto,
+  ) {
+    const { departmentUnitId, blockId } = body;
+    const existingTrainingSite = await this.findExistingBlockTrainingSite(
+      departmentUnitId,
+      blockId,
+    );
+    if (existingTrainingSite) {
+      throw new ConflictException(
+        'The following department is already marked as the training site for the block.',
+      );
+    }
+
+    await this.blockTrainingSiteRepository.update(
+      { id: trainingSiteId },
+      {
+        block: { id: blockId } as CourseBlockEntity,
+        departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
+      },
+    );
+
+    await this.trainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+      loadEagerRelations: false,
+    });
+
+    return { message: 'Training site updated successfully.' };
+  }
+
   public async deleteTrainingSite(
     trainingSiteId: string,
   ): Promise<ISuccessMessageResponse> {
@@ -261,6 +292,17 @@ export class CourseTrainingSiteService {
       where: { id: trainingSiteId },
     });
     await this.trainingSiteRepository.softRemove(trainingSite);
+
+    return { message: 'Training site removed successfully.' };
+  }
+
+  public async deleteBlockTrainingSite(
+    trainingSiteId: string,
+  ): Promise<ISuccessMessageResponse> {
+    const trainingSite = await this.blockTrainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+    });
+    await this.blockTrainingSiteRepository.softRemove(trainingSite);
 
     return { message: 'Training site removed successfully.' };
   }
