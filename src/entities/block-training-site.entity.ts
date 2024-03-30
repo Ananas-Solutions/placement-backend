@@ -4,7 +4,6 @@ import {
   CustomBaseEntity,
   DepartmentUnitEntity,
   PlacementEntity,
-  TrainingTimeSlotEntity,
 } from './index.entity';
 import { CourseBlockEntity } from './course-block.entity';
 import { BlockTrainingTimeSlotEntity } from './block-training-time-slot.entity';
@@ -28,8 +27,8 @@ export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
   public departmentUnit: DepartmentUnitEntity;
 
   @OneToMany(
-    () => TrainingTimeSlotEntity,
-    (timeslots) => timeslots.trainingSite,
+    () => BlockTrainingTimeSlotEntity,
+    (timeslots) => timeslots.blockTrainingSite,
     { cascade: ['update', 'soft-remove'], eager: false },
   )
   blockTimeslots: BlockTrainingTimeSlotEntity[];
