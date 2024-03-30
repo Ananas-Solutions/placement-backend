@@ -55,7 +55,6 @@ export class TrainingSiteTimeSlotService {
   async saveBlockTimeSlots(
     bodyDto: BlockTrainingSiteTimeSlotDto,
   ): Promise<any> {
-    console.log('body dto', bodyDto);
     const { blockTrainingSiteId, ...body } = bodyDto;
     const newTimeSlots = await Promise.all(
       body.timeslots.map(async (timeslot) => {
@@ -66,9 +65,9 @@ export class TrainingSiteTimeSlotService {
           endTime: timeslot.endTime,
           day: timeslot.day,
           capacity: timeslot.capacity,
-          // blockTrainingSite: {
-          //   id: blockTrainingSiteId,
-          // } as CourseBlockTrainingSiteEntity,
+          blockTrainingSite: {
+            id: blockTrainingSiteId,
+          } as CourseBlockTrainingSiteEntity,
         };
 
         if (timeslot.supervisor) {
