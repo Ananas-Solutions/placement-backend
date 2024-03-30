@@ -53,6 +53,33 @@ export class CourseTrainingSiteService {
     };
   }
 
+  async addBlockTrainingSite(
+    body: CourseBlockTrainingSiteDto,
+  ): Promise<IAddTrainingSiteResponse> {
+    const { departmentUnitId, blockId } = body;
+
+    const existingBlockTrainingSite = await this.findExistingBlockTrainingSite(
+      departmentUnitId,
+      blockId,
+    );
+
+    if (existingBlockTrainingSite) {
+      throw new ConflictException(
+        'The following block training site already exists.',
+      );
+    }
+
+    const newTrainingSite = await this.blockTrainingSiteRepository.save({
+      block: { id: blockId } as CourseBlockEntity,
+      departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
+    });
+
+    return {
+      trainingSiteId: newTrainingSite.id,
+      message: 'Block Training site added successfully.',
+    };
+  }
+
   async createTrainingSite(
     body: CourseTrainingSiteDto,
   ): Promise<IAddTrainingSiteResponse> {
@@ -294,6 +321,20 @@ export class CourseTrainingSiteService {
       ],
     });
     return trainingSite;
+  }
+
+  public async getBlockTrainingSite(trainingSiteId: string) {
+    const blockTrainingSite = await this.blockTrainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+      loadEagerRelations: false,
+      relations: [
+        'departmentUnit',
+        'departmentUnit.department',
+        'departmentUnit.department.hospital',
+        'blockTimeslots',
+      ],
+    });
+    return blockTrainingSite;
   }
 
   public async getTrainingSiteSupervisor(trainingSiteId: string) {

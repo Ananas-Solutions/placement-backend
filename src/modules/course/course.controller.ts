@@ -22,6 +22,7 @@ import { Roles } from 'commons/decorator';
 import { CourseService } from './services/course.service';
 import {
   AddStudentDto,
+  CourseBlockTrainingSiteDto,
   CourseTrainingSiteDto,
   CreateBlockDto,
   CreateCourseDto,
@@ -60,6 +61,12 @@ export class CourseController {
     return this.courseTrainingSiteService.addTrainingSite(body);
   }
 
+  @Post('block/training-site')
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
+  async addBlockTrainingSite(@Body() body: CourseBlockTrainingSiteDto) {
+    return this.courseTrainingSiteService.addBlockTrainingSite(body);
+  }
+
   @Post('export')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async exportCourse(@Body() body: ExportCourseDataDto, @Res() res: Response) {
@@ -90,7 +97,7 @@ export class CourseController {
     return this.courseTransferService.transferCourseSetting(body);
   }
 
-  @Post('import-settings')
+  @Post('import-settings-to-block')
   @Roles(UserRoleEnum.ADMIN)
   async importCourseSettings(@Body() body: ImportCourseSettingDto) {
     return this.courseTransferService.importCourseSetting(body);
@@ -113,6 +120,16 @@ export class CourseController {
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async queryTrainingSite(@Param('trainingSiteId') trainingSiteId: string) {
     return await this.courseTrainingSiteService.getTrainingSite(trainingSiteId);
+  }
+
+  @Get('block-training-site/:trainingSiteId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async queryBlockTrainingSite(
+    @Param('trainingSiteId') trainingSiteId: string,
+  ) {
+    return await this.courseTrainingSiteService.getBlockTrainingSite(
+      trainingSiteId,
+    );
   }
 
   @Get('training-site/:trainingSiteId/supervisor')
