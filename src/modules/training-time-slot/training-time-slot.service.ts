@@ -160,8 +160,8 @@ export class TrainingSiteTimeSlotService {
           return {
             ...timeSlot,
             totalCapacity: timeSlot.capacity,
-            // assignedCapacity: assingedStudents.length,
-            // remainingcapacity: timeSlot.capacity - assingedStudents.length,
+            assignedCapacity: 0, //assingedStudents.length,
+            remainingcapacity: 0, //timeSlot.capacity - assingedStudents.length,
             courseId: course.id,
           };
         },
