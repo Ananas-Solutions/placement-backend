@@ -142,18 +142,18 @@ export class CourseController {
     );
   }
 
-  @Get(':courseId/training-sites')
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async queryAllTrainingSites(@Param('courseId') courseId: string) {
-    return await this.courseTrainingSiteService.getAllTrainingSite(courseId);
-  }
-
-  @Get(':blockId/training-sites')
+  @Get('block/:blockId/training-sites')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async queryAllBlockTrainingSites(@Param('blockId') blockId: string) {
     return await this.courseTrainingSiteService.getAllBlockTrainingSite(
       blockId,
     );
+  }
+
+  @Get(':courseId/training-sites')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async queryAllTrainingSites(@Param('courseId') courseId: string) {
+    return await this.courseTrainingSiteService.getAllTrainingSite(courseId);
   }
 
   @Get(':courseId/students')
