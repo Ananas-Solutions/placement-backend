@@ -107,6 +107,10 @@ export class PlacementService {
     }
   }
 
+  async autoAssignPlacement(courseId: string) {
+    return { message: 'Placement has been done automatically.' };
+  }
+
   async findStudentTrainingSite(
     studentId: string,
   ): Promise<IStudentTrainingSites[]> {

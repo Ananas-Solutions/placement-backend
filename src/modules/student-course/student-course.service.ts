@@ -145,6 +145,25 @@ export class StudentCourseService {
     return users;
   }
 
+  async deleteBlockStudent(
+    blockId: string,
+    studentId: string,
+  ): Promise<ISuccessMessageResponse> {
+    const existingStudent = await this.studentCourseRepository.findOne({
+      where: { student: { id: studentId }, block: { id: blockId } },
+    });
+
+    if (!existingStudent) {
+      throw new ConflictException('No student found for this course');
+    }
+    await this.studentCourseRepository.update(
+      { id: existingStudent.id },
+      { block: null },
+    );
+
+    return { message: 'Student removed from the block successfully' };
+  }
+
   async deleteCourseStudent(
     courseId: string,
     studentId: string,

@@ -26,6 +26,18 @@ import { PlacementService } from './placement.service';
 export class PlacementController {
   constructor(private readonly placementService: PlacementService) {}
 
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post()
+  async assignPlacement(@Body() body: StudentPlacementDto): Promise<any> {
+    return await this.placementService.assignPlacment(body);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post()
+  async autoAssignPlacement(@Body() body: { courseId: string }): Promise<any> {
+    return await this.placementService.autoAssignPlacement(body.courseId);
+  }
+
   @Roles(
     UserRoleEnum.ADMIN,
     UserRoleEnum.CLINICAL_COORDINATOR,
@@ -50,12 +62,6 @@ export class PlacementController {
     return await this.placementService.findBlockStudentsAvailability(
       blockTrainingSiteId,
     );
-  }
-
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Post()
-  async assignPlacement(@Body() body: StudentPlacementDto): Promise<any> {
-    return await this.placementService.assignPlacment(body);
   }
 
   @Roles(

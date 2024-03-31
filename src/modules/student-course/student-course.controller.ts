@@ -64,19 +64,19 @@ export class StudentCourseController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Get('course/:courseId')
-  async queryCourseAssignedStudents(
-    @Param() { courseId }: { courseId: string },
-  ) {
-    return await this.studentCourseService.findCourseStudents(courseId);
-  }
-
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('course/block/:blockId')
   async queryCourseBlockAssignedStudents(
     @Param() { blockId }: { blockId: string },
   ) {
     return await this.studentCourseService.findCourseBlockStudents(blockId);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Get('course/:courseId')
+  async queryCourseAssignedStudents(
+    @Param() { courseId }: { courseId: string },
+  ) {
+    return await this.studentCourseService.findCourseStudents(courseId);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
