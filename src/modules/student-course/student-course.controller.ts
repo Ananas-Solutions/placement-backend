@@ -38,7 +38,7 @@ export class StudentCourseController {
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post('block/auto-assign-students')
-  async assignBlockedStudents(@Body() body: AutoAssignStudentsToBlockDto) {
+  async autoAssignBlockStudents(@Body() body: AutoAssignStudentsToBlockDto) {
     return this.studentCourseService.autoAssignStudentsToBlocks(body);
   }
 
@@ -46,6 +46,12 @@ export class StudentCourseController {
   @Post('assign-courses')
   async assignCourses(@Body() body: AssignCoursesToStudentDto) {
     return this.studentCourseService.assignCourses(body);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Get('block/:blockId')
+  async getAvailableStudentsForBlock(@Param('blockId') blockId: string) {
+    return this.studentCourseService.getAvailableStudentsForBlock(blockId);
   }
 
   @Roles(UserRoleEnum.STUDENT)

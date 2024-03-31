@@ -145,6 +145,38 @@ export class StudentCourseService {
     return users;
   }
 
+  async getAvailableStudentsForBlock(blockId: string) {
+    const availableStudents = await this.studentCourseRepository.find({
+      where: {
+        course: { id: '' },
+        block: null,
+      },
+    });
+
+    const blockStudents = await this.studentCourseRepository.count({
+      where: {
+        block: {
+          id: blockId,
+        },
+      },
+    });
+
+    const blockInfo = await this.courseBlockRepository.findOne({
+      where: {
+        id: blockId,
+      },
+    });
+
+    const getAvailableStudentsForBlock = availableStudents.map((student) =>
+      this.transformToCourseStudent(student),
+    );
+
+    return {
+      remainingBlockCapacity: blockInfo.capacity - blockStudents,
+      availableStudents: getAvailableStudentsForBlock,
+    };
+  }
+
   async deleteBlockStudent(
     blockId: string,
     studentId: string,

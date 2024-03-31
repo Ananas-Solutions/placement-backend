@@ -133,7 +133,7 @@ export class PlacementService {
         courseId,
       );
 
-      const unplacedCourseStudents = await Promise.all(
+      let unplacedCourseStudents = await Promise.all(
         courseStudents.map(async (student) => {
           const studentPlacement = await this.findStudentPlacement(
             student.id,
@@ -148,61 +148,48 @@ export class PlacementService {
         }),
       );
 
-      await Promise.all(
-        await Promise.all(
-          courseTrainingSites.map(async (courseTrainingSite) => {
-            const { id, timeslots } = courseTrainingSite;
+      unplacedCourseStudents = unplacedCourseStudents.filter(Boolean);
 
-            await Promise.all(
-              timeslots.map(async (timeSlot) => {
-                const totalTimeSlotCapacity = timeSlot.capacity;
+      let unplacedCourseStudentIndex = 0;
 
-                const timeslotCapacity = await this.placementRepository.count({
-                  where: { timeSlot: { id: timeSlot.id } },
+      if (unplacedCourseStudents.length !== 0) {
+        try {
+          for (let i = 0; i < courseTrainingSites.length; i++) {
+            const { id, timeslots } = courseTrainingSites[i];
+
+            for (let j = 0; j < timeslots.length; j++) {
+              const totalTimeSlotCapacity = timeslots[j].capacity;
+
+              const timeslotCapacity = await this.placementRepository.count({
+                where: { timeSlot: { id: timeslots[j].id } },
+              });
+
+              for (
+                let k = 0;
+                k < totalTimeSlotCapacity - timeslotCapacity;
+                k++
+              ) {
+                const student =
+                  unplacedCourseStudents[unplacedCourseStudentIndex];
+
+                await this.placementRepository.save({
+                  student: { id: student.id } as UserEntity,
+                  trainingSite: {
+                    id,
+                  } as CourseTrainingSiteEntity,
+                  timeSlot: {
+                    id: timeslots[j].id,
+                  } as TrainingTimeSlotEntity,
                 });
 
-                if (totalTimeSlotCapacity >= timeslotCapacity) {
-                  return;
-                }
-
-                courseStudents.map(async (student) => {
-                  const studentPlacement = await this.findStudentPlacement(
-                    student.id,
-                    courseId,
-                  );
-
-                  if (studentPlacement.length > 0) {
-                    return;
-                  }
-
-                  const existingPlacement =
-                    await this.placementRepository.findOne({
-                      where: {
-                        student: { id: student.id },
-                        trainingSite: { id: id },
-                        timeSlot: { id: timeSlot.id },
-                      },
-                    });
-
-                  if (existingPlacement) {
-                    return;
-                  }
-
-                  return await this.placementRepository.save({
-                    student: { id: student.id } as UserEntity,
-                    trainingSite: {
-                      id,
-                    } as CourseTrainingSiteEntity,
-                    timeSlot: {
-                      id: timeSlot.id,
-                    } as TrainingTimeSlotEntity,
-                  });
-                });
-              }),
-            );
-          }),
-        ),
-      );
+                unplacedCourseStudentIndex++;
+              }
+            }
+          }
+        } catch (error) {
+          console.log('error,error', error);
+        }
+      }
     }
 
     return { message: 'Placement has been done automatically.' };
