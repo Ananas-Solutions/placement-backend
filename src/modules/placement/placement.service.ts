@@ -108,6 +108,23 @@ export class PlacementService {
   }
 
   async autoAssignPlacement(courseId: string) {
+    // find if course has blocks or not
+    const courseBlockTrainingSites = await this.courseBlockTrainingSite.find({
+      where: { block: { id: courseId } },
+      loadEagerRelations: false,
+      relations: ['blockTimeslots'],
+    });
+
+    const courseTrainingSites = await this.courseTrainingSite.find({
+      where: { course: { id: courseId } },
+      loadEagerRelations: false,
+      relations: ['trainingSite', 'trainingSite.timeSlots'],
+    });
+
+    const courseStudents = await this.studentCourseService.findCourseStudents(
+      courseId,
+    );
+
     return { message: 'Placement has been done automatically.' };
   }
 
@@ -188,6 +205,40 @@ export class PlacementService {
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,
           day: timeSlot.day,
+        };
+      },
+    );
+
+    return mappedTrainingSiteStudents;
+  }
+
+  async findBlockTrainingSiteStudents(
+    blockTrainingSiteId: string,
+    blockTimeSlotId: string,
+  ): Promise<ITrainingSiteStudents[]> {
+    const studentsPlacement = await this.placementRepository.find({
+      where: {
+        blockTimeSlot: { id: blockTimeSlotId },
+        blockTrainingSite: { id: blockTrainingSiteId },
+      },
+      loadEagerRelations: false,
+      relations: ['student', 'blockTimeSlot'],
+    });
+
+    const mappedTrainingSiteStudents = studentsPlacement.map(
+      (studentPlacement) => {
+        const { id, student, blockTimeSlot } = studentPlacement;
+        return {
+          placementId: id,
+          student: {
+            id: student.id,
+            studentId: student.studentId,
+            name: student.name,
+            email: student.email,
+          },
+          startTime: blockTimeSlot.startTime,
+          endTime: blockTimeSlot.endTime,
+          day: blockTimeSlot.day,
         };
       },
     );

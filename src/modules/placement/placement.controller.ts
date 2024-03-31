@@ -100,6 +100,22 @@ export class PlacementController {
     );
   }
 
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
+  @Get('block/training-site/:blockTrainingSiteId/:blockTimeSlotId')
+  async getBlockTrainingSiteStudents(
+    @Param('blockTrainingSiteId') blockTrainingSiteId: string,
+    @Param('blockTimeSlotId') blockTimeSlotId: string,
+  ): Promise<any> {
+    return await this.placementService.findBlockTrainingSiteStudents(
+      blockTrainingSiteId,
+      blockTimeSlotId,
+    );
+  }
+
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Delete(':placementId')
   async deletePlacement(@Param('placementId') placementId: string) {
