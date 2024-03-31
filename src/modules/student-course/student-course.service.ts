@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { CourseEntity } from 'entities/courses.entity';
@@ -156,10 +156,12 @@ export class StudentCourseService {
     const availableStudents = await this.studentCourseRepository.find({
       where: {
         course: { id: blockInfo.course.id },
-        block: null,
+        block: IsNull(),
       },
       relations: ['student'],
     });
+
+    console.log('available students', availableStudents);
 
     const blockStudents = await this.studentCourseRepository.count({
       where: {

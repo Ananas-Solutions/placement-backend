@@ -10,7 +10,7 @@ import { BlockTrainingTimeSlotEntity } from './block-training-time-slot.entity';
 
 @Entity()
 export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
-  @ManyToOne(() => CourseBlockEntity, (block) => block.trainingSite, {
+  @ManyToOne(() => CourseBlockEntity, (block) => block.blockTrainingSite, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

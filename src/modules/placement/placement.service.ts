@@ -120,6 +120,82 @@ export class PlacementService {
 
     if (hasCourseBlocks) {
       // act accordingly
+
+      for (let i = 0; i < courseBlocks.length; i++) {
+        const blockInfo = courseBlocks[i];
+        const courseBlockTrainingSites =
+          await this.courseBlockTrainingSite.find({
+            where: { block: { id: blockInfo.id } },
+            loadEagerRelations: false,
+            relations: ['blockTimeslots'],
+          });
+
+        const courseBlockStudents =
+          await this.studentCourseService.findCourseBlockStudents(blockInfo.id);
+
+        let unplacedCourseStudents = await Promise.all(
+          courseBlockStudents.map(async (student) => {
+            const studentPlacement = await this.findBlockStudentPlacement({
+              studentId: student.id,
+              courseId,
+            });
+
+            if (studentPlacement.length > 0) {
+              return null;
+            }
+
+            return student;
+          }),
+        );
+
+        unplacedCourseStudents = unplacedCourseStudents.filter(Boolean);
+
+        let unplacedCourseStudentIndex = 0;
+
+        if (unplacedCourseStudents.length !== 0) {
+          try {
+            for (let i = 0; i < courseBlockTrainingSites.length; i++) {
+              const { id, blockTimeslots } = courseBlockTrainingSites[i];
+
+              for (let j = 0; j < blockTimeslots.length; j++) {
+                const blockTotalTimeSlotCapacity = blockTimeslots[j].capacity;
+
+                const blockTimeSlotCapacity =
+                  await this.placementRepository.count({
+                    where: { blockTimeSlot: { id: blockTimeslots[j].id } },
+                  });
+
+                for (
+                  let k = 0;
+                  k < blockTotalTimeSlotCapacity - blockTimeSlotCapacity;
+                  k++
+                ) {
+                  const student =
+                    unplacedCourseStudents[unplacedCourseStudentIndex];
+
+                  if (!student) {
+                    continue;
+                  }
+
+                  await this.placementRepository.save({
+                    student: { id: student.id } as UserEntity,
+                    blockTrainingSite: {
+                      id,
+                    } as CourseBlockTrainingSiteEntity,
+                    blockTimeSlot: {
+                      id: blockTimeslots[j].id,
+                    } as BlockTrainingTimeSlotEntity,
+                  });
+
+                  unplacedCourseStudentIndex++;
+                }
+              }
+            }
+          } catch (error) {
+            console.log('error,error', error);
+          }
+        }
+      }
     }
 
     if (!hasCourseBlocks) {
@@ -171,6 +247,10 @@ export class PlacementService {
               ) {
                 const student =
                   unplacedCourseStudents[unplacedCourseStudentIndex];
+
+                if (!student) {
+                  continue;
+                }
 
                 await this.placementRepository.save({
                   student: { id: student.id } as UserEntity,
@@ -460,6 +540,22 @@ export class PlacementService {
       where: {
         student: { id: studentId },
         trainingSite: { course: { id: courseId } },
+      },
+      loadEagerRelations: false,
+    });
+  }
+
+  private async findBlockStudentPlacement({
+    studentId,
+    courseId,
+  }: {
+    studentId: string;
+    courseId: string;
+  }) {
+    return await this.placementRepository.find({
+      where: {
+        student: { id: studentId },
+        blockTrainingSite: { block: { course: { id: courseId } } },
       },
       loadEagerRelations: false,
     });
