@@ -1,13 +1,29 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class StudentPlacementDto {
+  @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
-  timeSlotIds: string[];
+  timeSlotIds?: string[];
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  trainingSiteId: string;
+  trainingSiteId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  blockTimeSlotIds?: string[];
+
+  @IsOptional()
+  @IsString()
+  blockTrainingSiteId?: string;
 
   @IsNotEmpty()
   @IsArray()

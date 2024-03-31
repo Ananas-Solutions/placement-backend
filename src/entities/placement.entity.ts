@@ -6,6 +6,8 @@ import {
   TrainingTimeSlotEntity,
   UserEntity,
 } from './index.entity';
+import { CourseBlockTrainingSiteEntity } from './block-training-site.entity';
+import { BlockTrainingTimeSlotEntity } from './block-training-time-slot.entity';
 
 @Entity()
 export class PlacementEntity extends CustomBaseEntity {
@@ -21,6 +23,7 @@ export class PlacementEntity extends CustomBaseEntity {
     (trainingSite) => trainingSite.placement,
     {
       onDelete: 'CASCADE',
+      nullable: true,
     },
   )
   @JoinColumn()
@@ -31,8 +34,31 @@ export class PlacementEntity extends CustomBaseEntity {
     (timeslot) => timeslot.trainingSite,
     {
       onDelete: 'CASCADE',
+      nullable: true,
     },
   )
   @JoinColumn()
   timeSlot: TrainingTimeSlotEntity;
+
+  @ManyToOne(
+    () => CourseBlockTrainingSiteEntity,
+    (blockTrainingSite) => blockTrainingSite.placement,
+    {
+      onDelete: 'CASCADE',
+      nullable: true,
+    },
+  )
+  @JoinColumn()
+  blockTrainingSite: CourseBlockTrainingSiteEntity;
+
+  @ManyToOne(
+    () => BlockTrainingTimeSlotEntity,
+    (blockTimeslot) => blockTimeslot.blockTrainingSite,
+    {
+      onDelete: 'CASCADE',
+      nullable: true,
+    },
+  )
+  @JoinColumn()
+  blockTimeSlot: BlockTrainingTimeSlotEntity;
 }

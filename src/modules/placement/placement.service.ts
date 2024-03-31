@@ -19,6 +19,8 @@ import {
   IStudentTrainingSites,
   ITrainingSiteStudents,
 } from './interface';
+import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
+import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
 
 @Injectable()
 export class PlacementService {
@@ -27,35 +29,77 @@ export class PlacementService {
     private readonly placementRepository: Repository<PlacementEntity>,
     @InjectRepository(CourseTrainingSiteEntity)
     private readonly courseTrainingSite: Repository<CourseTrainingSiteEntity>,
+    @InjectRepository(CourseBlockTrainingSiteEntity)
+    private readonly courseBlockTrainingSite: Repository<CourseBlockTrainingSiteEntity>,
     private readonly studentCourseService: StudentCourseService,
   ) {}
 
   async assignPlacment(bodyDto: StudentPlacementDto): Promise<any> {
     try {
-      const { trainingSiteId, timeSlotIds } = bodyDto;
-      await Promise.all(
-        timeSlotIds.map((timeslotId) => {
-          bodyDto.studentIds.map(async (studentId) => {
-            const existingPlacement = await this.placementRepository.findOne({
-              where: {
-                student: { id: studentId },
-                trainingSite: { id: trainingSiteId },
-                timeSlot: { id: timeslotId },
-              },
-            });
+      const {
+        trainingSiteId,
+        timeSlotIds,
+        blockTimeSlotIds,
+        blockTrainingSiteId,
+      } = bodyDto;
 
-            if (existingPlacement) {
-              return;
-            }
+      if (trainingSiteId && timeSlotIds) {
+        await Promise.all(
+          timeSlotIds.map((timeslotId) => {
+            bodyDto.studentIds.map(async (studentId) => {
+              const existingPlacement = await this.placementRepository.findOne({
+                where: {
+                  student: { id: studentId },
+                  trainingSite: { id: trainingSiteId },
+                  timeSlot: { id: timeslotId },
+                },
+              });
 
-            return await this.placementRepository.save({
-              student: { id: studentId } as UserEntity,
-              trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
-              timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
+              if (existingPlacement) {
+                return;
+              }
+
+              return await this.placementRepository.save({
+                student: { id: studentId } as UserEntity,
+                trainingSite: {
+                  id: trainingSiteId,
+                } as CourseTrainingSiteEntity,
+                timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
+              });
             });
-          });
-        }),
-      );
+          }),
+        );
+      }
+
+      if (blockTimeSlotIds && blockTrainingSiteId) {
+        await Promise.all(
+          blockTimeSlotIds.map((timeslotId) => {
+            bodyDto.studentIds.map(async (studentId) => {
+              const existingPlacement = await this.placementRepository.findOne({
+                where: {
+                  student: { id: studentId },
+                  blockTrainingSite: { id: blockTrainingSiteId },
+                  blockTimeSlot: { id: timeslotId },
+                },
+              });
+
+              if (existingPlacement) {
+                return;
+              }
+
+              return await this.placementRepository.save({
+                student: { id: studentId } as UserEntity,
+                blockTrainingSite: {
+                  id: blockTrainingSiteId,
+                } as CourseBlockTrainingSiteEntity,
+                blockTimeSlot: {
+                  id: timeslotId,
+                } as BlockTrainingTimeSlotEntity,
+              });
+            });
+          }),
+        );
+      }
 
       return { message: 'Student assigned to training placement succesfully.' };
     } catch (err) {
@@ -205,6 +249,42 @@ export class PlacementService {
 
       const allResults = await Promise.all(
         courseStudents.map(async (student: UserEntity) => {
+          const studentTrainingSitePlacement =
+            await this.findStudentPlacementByStudentId(student.id);
+
+          return {
+            id: student.id,
+            email: student.email,
+            name: student.name,
+            isStudentPlaced:
+              studentTrainingSitePlacement.length > 0 ? true : false,
+          };
+        }),
+      );
+
+      return allResults;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findBlockStudentsAvailability(
+    blockTrainingSiteId: string,
+  ): Promise<IStudentAvailabilityInterface[]> {
+    try {
+      const blockTrainingSite = await this.courseBlockTrainingSite.findOne({
+        where: { id: blockTrainingSiteId },
+        loadEagerRelations: false,
+        relations: ['block', 'block.course'],
+      });
+
+      const block = blockTrainingSite.block;
+
+      const blockStudents =
+        await this.studentCourseService.findCourseBlockStudents(block.id);
+
+      const allResults = await Promise.all(
+        blockStudents.map(async (student: UserEntity) => {
           const studentTrainingSitePlacement =
             await this.findStudentPlacementByStudentId(student.id);
 

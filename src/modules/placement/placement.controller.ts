@@ -38,6 +38,20 @@ export class PlacementController {
     return await this.placementService.findStudentsAvailability(trainingSiteId);
   }
 
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
+  @Get('block/student-availability')
+  async findBlockStudentsAvailability(
+    @Query('blockTrainingSiteId') blockTrainingSiteId: string,
+  ) {
+    return await this.placementService.findBlockStudentsAvailability(
+      blockTrainingSiteId,
+    );
+  }
+
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post()
   async assignPlacement(@Body() body: StudentPlacementDto): Promise<any> {

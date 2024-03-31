@@ -33,9 +33,13 @@ export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
   )
   blockTimeslots: BlockTrainingTimeSlotEntity[];
 
-  @OneToMany(() => PlacementEntity, (placement) => placement.trainingSite, {
-    cascade: ['update', 'soft-remove'],
-    eager: true,
-  })
+  @OneToMany(
+    () => PlacementEntity,
+    (placement) => placement.blockTrainingSite,
+    {
+      cascade: ['update', 'soft-remove'],
+      eager: true,
+    },
+  )
   placement: PlacementEntity[];
 }

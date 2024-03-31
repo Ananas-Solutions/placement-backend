@@ -10,10 +10,15 @@ import { UserModule } from 'user/user.module';
 
 import { PlacementController } from './placement.controller';
 import { PlacementService } from './placement.service';
+import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PlacementEntity, CourseTrainingSiteEntity]),
+    TypeOrmModule.forFeature([
+      PlacementEntity,
+      CourseTrainingSiteEntity,
+      CourseBlockTrainingSiteEntity,
+    ]),
     UserModule,
     StudentCourseModule,
   ],
