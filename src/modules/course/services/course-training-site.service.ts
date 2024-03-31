@@ -373,6 +373,7 @@ export class CourseTrainingSiteService {
         'departmentUnit',
         'departmentUnit.department',
         'departmentUnit.department.hospital',
+        'block',
         'blockTimeslots',
       ],
     });

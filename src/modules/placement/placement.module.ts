@@ -11,6 +11,7 @@ import { UserModule } from 'user/user.module';
 import { PlacementController } from './placement.controller';
 import { PlacementService } from './placement.service';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.enti
       PlacementEntity,
       CourseTrainingSiteEntity,
       CourseBlockTrainingSiteEntity,
+      CourseBlockEntity,
     ]),
     UserModule,
     StudentCourseModule,

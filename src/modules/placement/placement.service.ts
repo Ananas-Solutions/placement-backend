@@ -21,6 +21,7 @@ import {
 } from './interface';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Injectable()
 export class PlacementService {
@@ -31,6 +32,8 @@ export class PlacementService {
     private readonly courseTrainingSite: Repository<CourseTrainingSiteEntity>,
     @InjectRepository(CourseBlockTrainingSiteEntity)
     private readonly courseBlockTrainingSite: Repository<CourseBlockTrainingSiteEntity>,
+    @InjectRepository(CourseBlockEntity)
+    private readonly courseBlock: Repository<CourseBlockEntity>,
     private readonly studentCourseService: StudentCourseService,
   ) {}
 
@@ -109,21 +112,71 @@ export class PlacementService {
 
   async autoAssignPlacement(courseId: string) {
     // find if course has blocks or not
-    const courseBlockTrainingSites = await this.courseBlockTrainingSite.find({
-      where: { block: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['blockTimeslots'],
-    });
-
-    const courseTrainingSites = await this.courseTrainingSite.find({
+    const courseBlocks = await this.courseBlock.find({
       where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['trainingSite', 'trainingSite.timeSlots'],
     });
 
-    const courseStudents = await this.studentCourseService.findCourseStudents(
-      courseId,
-    );
+    const hasCourseBlocks = courseBlocks.length > 0;
+
+    if (hasCourseBlocks) {
+      // act accordingly
+    }
+
+    if (!hasCourseBlocks) {
+      const courseTrainingSites = await this.courseTrainingSite.find({
+        where: { course: { id: courseId } },
+        loadEagerRelations: false,
+        relations: ['trainingSite', 'trainingSite.timeSlots'],
+      });
+
+      const courseStudents = await this.studentCourseService.findCourseStudents(
+        courseId,
+      );
+
+      await Promise.all(
+        courseStudents.map(async (student) => {
+          const studentPlacement = await this.findStudentPlacement(
+            student.id,
+            courseId,
+          );
+
+          if (studentPlacement.length > 0) {
+            return;
+          }
+
+          await Promise.all(
+            courseTrainingSites.map(async (courseTrainingSite) => {
+              const { id, timeslots } = courseTrainingSite;
+
+              await Promise.all(
+                timeslots.map(async (timeSlot) => {
+                  const existingPlacement =
+                    await this.placementRepository.findOne({
+                      where: {
+                        student: { id: student.id },
+                        trainingSite: { id: id },
+                        timeSlot: { id: timeSlot.id },
+                      },
+                    });
+
+                  if (existingPlacement) {
+                    return;
+                  }
+
+                  return await this.placementRepository.save({
+                    student: { id: student.id } as UserEntity,
+                    trainingSite: {
+                      id,
+                    } as CourseTrainingSiteEntity,
+                    timeSlot: { id: timeSlot.id } as TrainingTimeSlotEntity,
+                  });
+                }),
+              );
+            }),
+          );
+        }),
+      );
+    }
 
     return { message: 'Placement has been done automatically.' };
   }
