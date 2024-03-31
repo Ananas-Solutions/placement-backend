@@ -158,6 +158,7 @@ export class StudentCourseService {
         course: { id: blockInfo.course.id },
         block: null,
       },
+      relations: ['student'],
     });
 
     const blockStudents = await this.studentCourseRepository.count({
@@ -166,6 +167,7 @@ export class StudentCourseService {
           id: blockId,
         },
       },
+      relations: ['student'],
     });
 
     const getAvailableStudentsForBlock = availableStudents.map((student) =>
