@@ -80,6 +80,18 @@ export class StudentCourseController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Delete('block/:blockId/:studentId')
+  async deleteStudentFromBlock(
+    @Param('blockId') blockId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return await this.studentCourseService.deleteBlockStudent(
+      blockId,
+      studentId,
+    );
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Delete(':courseId/:studentId')
   async deleteStudentFromCourse(
     @Param('courseId') courseId: string,
