@@ -234,6 +234,24 @@ export class PlacementService {
     }
   }
 
+  async findBlockTimeSlotStudents(
+    blockTimeslotId: string,
+  ): Promise<PlacementEntity[]> {
+    try {
+      return await this.placementRepository.find({
+        where: { blockTimeSlot: { id: blockTimeslotId } },
+        loadEagerRelations: false,
+        relations: [
+          'blockTrainingSite',
+          'blockTrainingSite.departmentUnit',
+          'student',
+        ],
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findStudentsAvailability(
     trainingSiteId: string,
   ): Promise<IStudentAvailabilityInterface[]> {

@@ -141,7 +141,7 @@ export class TrainingSiteTimeSlotService {
   async findBlockTimeSlots(
     blockTrainingSiteId: string,
   ): Promise<BlockTrainingTimeSlotEntity[]> {
-    const trainingSiteTimeSlots = await this.blockTimeslotRepository.find({
+    const blockTimeSlots = await this.blockTimeslotRepository.find({
       where: { blockTrainingSite: { id: blockTrainingSiteId } },
       loadEagerRelations: false,
       relations: [
@@ -152,20 +152,21 @@ export class TrainingSiteTimeSlotService {
     });
 
     const allAvailableTimeSlots = await Promise.all(
-      trainingSiteTimeSlots.map(
-        async (timeSlot: BlockTrainingTimeSlotEntity) => {
-          const { blockTrainingSite } = timeSlot;
-          const { course } = blockTrainingSite.block;
+      blockTimeSlots.map(async (timeSlot: BlockTrainingTimeSlotEntity) => {
+        const { blockTrainingSite } = timeSlot;
+        const { course } = blockTrainingSite.block;
 
-          return {
-            ...timeSlot,
-            totalCapacity: timeSlot.capacity,
-            assignedCapacity: 0, //assingedStudents.length,
-            remainingcapacity: 0, //timeSlot.capacity - assingedStudents.length,
-            courseId: course.id,
-          };
-        },
-      ),
+        const assingedStudents =
+          await this.placementService.findBlockTimeSlotStudents(timeSlot.id);
+
+        return {
+          ...timeSlot,
+          totalCapacity: timeSlot.capacity,
+          assignedCapacity: assingedStudents.length,
+          remainingcapacity: timeSlot.capacity - assingedStudents.length,
+          courseId: course.id,
+        };
+      }),
     );
     return allAvailableTimeSlots;
   }
