@@ -146,9 +146,16 @@ export class StudentCourseService {
   }
 
   async getAvailableStudentsForBlock(blockId: string) {
+    const blockInfo = await this.courseBlockRepository.findOne({
+      where: {
+        id: blockId,
+      },
+      relations: ['course'],
+    });
+
     const availableStudents = await this.studentCourseRepository.find({
       where: {
-        course: { id: '' },
+        course: { id: blockInfo.course.id },
         block: null,
       },
     });
@@ -158,12 +165,6 @@ export class StudentCourseService {
         block: {
           id: blockId,
         },
-      },
-    });
-
-    const blockInfo = await this.courseBlockRepository.findOne({
-      where: {
-        id: blockId,
       },
     });
 
