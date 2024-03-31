@@ -33,7 +33,7 @@ export class PlacementController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Post()
+  @Post('auto-assign')
   async autoAssignPlacement(@Body() body: { courseId: string }): Promise<any> {
     return await this.placementService.autoAssignPlacement(body.courseId);
   }

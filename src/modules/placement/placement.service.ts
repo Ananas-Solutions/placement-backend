@@ -126,14 +126,14 @@ export class PlacementService {
       const courseTrainingSites = await this.courseTrainingSite.find({
         where: { course: { id: courseId } },
         loadEagerRelations: false,
-        relations: ['trainingSite', 'trainingSite.timeSlots'],
+        relations: ['timeslots'],
       });
 
       const courseStudents = await this.studentCourseService.findCourseStudents(
         courseId,
       );
 
-      await Promise.all(
+      const unplacedCourseStudents = await Promise.all(
         courseStudents.map(async (student) => {
           const studentPlacement = await this.findStudentPlacement(
             student.id,
@@ -141,15 +141,40 @@ export class PlacementService {
           );
 
           if (studentPlacement.length > 0) {
-            return;
+            return null;
           }
 
-          await Promise.all(
-            courseTrainingSites.map(async (courseTrainingSite) => {
-              const { id, timeslots } = courseTrainingSite;
+          return student;
+        }),
+      );
 
-              await Promise.all(
-                timeslots.map(async (timeSlot) => {
+      await Promise.all(
+        await Promise.all(
+          courseTrainingSites.map(async (courseTrainingSite) => {
+            const { id, timeslots } = courseTrainingSite;
+
+            await Promise.all(
+              timeslots.map(async (timeSlot) => {
+                const totalTimeSlotCapacity = timeSlot.capacity;
+
+                const timeslotCapacity = await this.placementRepository.count({
+                  where: { timeSlot: { id: timeSlot.id } },
+                });
+
+                if (totalTimeSlotCapacity >= timeslotCapacity) {
+                  return;
+                }
+
+                courseStudents.map(async (student) => {
+                  const studentPlacement = await this.findStudentPlacement(
+                    student.id,
+                    courseId,
+                  );
+
+                  if (studentPlacement.length > 0) {
+                    return;
+                  }
+
                   const existingPlacement =
                     await this.placementRepository.findOne({
                       where: {
@@ -168,13 +193,15 @@ export class PlacementService {
                     trainingSite: {
                       id,
                     } as CourseTrainingSiteEntity,
-                    timeSlot: { id: timeSlot.id } as TrainingTimeSlotEntity,
+                    timeSlot: {
+                      id: timeSlot.id,
+                    } as TrainingTimeSlotEntity,
                   });
-                }),
-              );
-            }),
-          );
-        }),
+                });
+              }),
+            );
+          }),
+        ),
       );
     }
 
