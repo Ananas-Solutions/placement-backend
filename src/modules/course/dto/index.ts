@@ -8,3 +8,4 @@ export * from './create-block.dto';
 export * from './update-block.dto';
 export * from './import-course-settings.dto';
 export * from './create-block-training-site.dto';
+export * from './add-student-to-block.dto';

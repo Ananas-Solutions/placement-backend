@@ -22,6 +22,7 @@ import { Roles } from 'commons/decorator';
 import { CourseService } from './services/course.service';
 import {
   AddStudentDto,
+  AddStudentToBlockDto,
   CourseBlockTrainingSiteDto,
   CourseTrainingSiteDto,
   CreateBlockDto,
@@ -77,6 +78,12 @@ export class CourseController {
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async addStudent(@Body() body: AddStudentDto) {
     return this.coursesServices.addStudent(body);
+  }
+
+  @Post('add-student-to-block')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async addStudentToBlock(@Body() body: AddStudentToBlockDto) {
+    return this.coursesServices.addStudentToBlock(body);
   }
 
   @Post('block')

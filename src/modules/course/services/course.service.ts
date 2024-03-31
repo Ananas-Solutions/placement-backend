@@ -16,6 +16,7 @@ import { IUserResponse } from 'user/response';
 
 import {
   AddStudentDto,
+  AddStudentToBlockDto,
   CreateBlockDto,
   CreateCourseDto,
   updateCourseBlockDto,
@@ -112,6 +113,25 @@ export class CourseService {
     });
 
     return { message: 'Student has been added to the course successfully.' };
+  }
+
+  async addStudentToBlock(body: AddStudentToBlockDto) {
+    const { courseId, blockId, studentIds } = body;
+
+    await Promise.all(
+      studentIds.map(async (studentId) => {
+        return await this.studentCourseRepository.update(
+          {
+            student: { id: studentId },
+            course: { id: courseId },
+          },
+          {
+            block: { id: blockId } as CourseBlockEntity,
+          },
+        );
+      }),
+    );
+    return { message: 'Students added to block successfully' };
   }
 
   async allCourses(userId: string): Promise<ICourseDetailResponse[]> {
