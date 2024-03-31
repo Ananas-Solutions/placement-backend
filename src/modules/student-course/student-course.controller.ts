@@ -49,7 +49,7 @@ export class StudentCourseController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Get('block/:blockId')
+  @Get('student-availability/block/:blockId')
   async getAvailableStudentsForBlock(@Param('blockId') blockId: string) {
     return this.studentCourseService.getAvailableStudentsForBlock(blockId);
   }
