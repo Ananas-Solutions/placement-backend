@@ -1,6 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
-import { CustomBaseEntity, UserEntity } from './index.entity';
+import { CustomBaseEntity, PlacementEntity, UserEntity } from './index.entity';
 import { CourseBlockTrainingSiteEntity } from './block-training-site.entity';
 
 @Entity()
@@ -30,4 +30,10 @@ export class BlockTrainingTimeSlotEntity extends CustomBaseEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   supervisor: UserEntity;
+
+  @OneToMany(() => PlacementEntity, (placement) => placement.blockTimeSlot, {
+    cascade: ['update', 'soft-remove'],
+    eager: true,
+  })
+  placements: PlacementEntity[];
 }

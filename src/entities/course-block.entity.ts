@@ -36,5 +36,5 @@ export class CourseBlockEntity extends CustomBaseEntity {
   @OneToMany(() => CourseBlockTrainingSiteEntity, (block) => block.block, {
     cascade: true,
   })
-  blockTrainingSite: CourseBlockTrainingSiteEntity[];
+  blockTrainingSites: CourseBlockTrainingSiteEntity[];
 }
