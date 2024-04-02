@@ -180,6 +180,7 @@ export class ExportService {
       Hospital Name
       Department Name
       Department Unit Name
+      Placed Students: id, name and email
      */
 
     const authorityInitialsCol = 1;
@@ -198,6 +199,9 @@ export class ExportService {
       3: 'Hospital Name',
       4: 'Department Name',
       5: 'Department Unit Name',
+      6: 'Student Id',
+      7: 'Student Name',
+      8: 'Student Email',
     };
 
     let rowIndex = 4;

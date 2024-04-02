@@ -9,6 +9,7 @@ import {
 } from 'entities/index.entity';
 import {
   ImportCourseSettingDto,
+  TransferAndShuffleCourseSettingDto,
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
 } from 'course/dto';
@@ -16,6 +17,7 @@ import { ISuccessMessageResponse } from 'commons/response';
 import { CourseTrainingSiteService } from './course-training-site.service';
 import { TrainingSiteTimeSlotService } from 'training-time-slot/training-time-slot.service';
 import { PlacementService } from 'placement/placement.service';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Injectable()
 export class CourseTransferService {
@@ -24,6 +26,8 @@ export class CourseTransferService {
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
     @InjectRepository(CourseEntity)
     private readonly courseRepository: Repository<CourseEntity>,
+    @InjectRepository(CourseBlockEntity)
+    private readonly courseBlocksRepository: Repository<CourseBlockEntity>,
     private readonly courseTrainingSiteService: CourseTrainingSiteService,
     private readonly timeslotService: TrainingSiteTimeSlotService,
     private readonly placementService: PlacementService,
@@ -148,6 +152,131 @@ export class CourseTransferService {
       console.log('err here', err);
       throw new BadRequestException('bad request');
     }
+  }
+
+  public async transferAndShuffleCourseSettings(
+    body: TransferAndShuffleCourseSettingDto,
+  ) {
+    const { sourceCourseId, destinationCourseId } = body;
+
+    const sourceCourseData = await this.courseRepository.findOne({
+      where: {
+        id: sourceCourseId,
+      },
+      loadEagerRelations: false,
+      relations: [
+        'students',
+        'trainingSite',
+        'timeslots',
+        'blocks',
+        'blocks.blockTrainingSites',
+        'blocks.blockTrainingSites.blockTimeslots',
+      ],
+    });
+
+    if (sourceCourseData.blocks.length === 0) {
+      await this.transferCourseSetting({
+        sourceCourseId,
+        destinationCourseId,
+        transferProperties: ['trainingSites', 'timeslots', 'students'],
+      });
+    }
+
+    if (sourceCourseData.blocks.length !== 0) {
+      const trainingSites = sourceCourseData.trainingSite;
+      await Promise.all(
+        trainingSites.map(async (site) => {
+          const departmentUnitId = site.departmentUnit.id;
+          const { trainingSiteId } =
+            await this.courseTrainingSiteService.createTrainingSite({
+              courseId: destinationCourseId,
+              departmentUnitId,
+            });
+
+          const timeslots = site.timeslots;
+
+          await Promise.all(
+            timeslots.map(async (slot) => {
+              const { startTime, endTime, capacity, day } = slot;
+              await this.timeslotService.save({
+                timeslots: [{ startTime, endTime, capacity, day }],
+                trainingSiteId,
+              });
+            }),
+          );
+        }),
+      );
+
+      const students = sourceCourseData.student;
+
+      await Promise.all(
+        students.map(async ({ student }) => {
+          const existingStudent = await this.studentCourseRepository.findOne({
+            where: {
+              course: { id: destinationCourseId },
+              student: { id: student.id },
+            },
+          });
+
+          if (existingStudent) {
+            return;
+          }
+
+          await this.studentCourseRepository.save({
+            course: { id: destinationCourseId } as CourseEntity,
+            student: { id: student.id } as UserEntity,
+          });
+        }),
+      );
+
+      const courseBlocks = await sourceCourseData.blocks;
+      await Promise.all(
+        courseBlocks.map(async (block) => {
+          const {
+            name,
+            startsFrom,
+            endsAt,
+            capacity,
+            duration,
+            blockTrainingSites,
+          } = block;
+
+          const newBlock = await this.courseBlocksRepository.save({
+            name,
+            startsFrom,
+            endsAt,
+            capacity,
+            duration,
+            course: { id: destinationCourseId } as CourseEntity,
+          });
+
+          await blockTrainingSites.map(async (blockTrainingSite) => {
+            const { blockTimeslots, departmentUnit } = blockTrainingSite;
+
+            const newTrainingSite =
+              await this.courseTrainingSiteService.addBlockTrainingSite({
+                courseId: destinationCourseId,
+                departmentUnitId: departmentUnit.id,
+                blockId: newBlock.id,
+              });
+
+            const blockTimeslotsInfo = blockTimeslots.map((slot) => {
+              const { startTime, endTime, capacity, day } = slot;
+              return { startTime, endTime, capacity, day };
+            });
+
+            await this.timeslotService.saveBlockTimeSlots({
+              timeslots: blockTimeslotsInfo,
+              blockTrainingSiteId: newTrainingSite.trainingSiteId,
+            });
+          });
+        }),
+      );
+    }
+
+    return {
+      message: 'Course setting and shuffle is completed successfully.',
+    };
   }
 
   public async importCourseSetting(body: ImportCourseSettingDto) {

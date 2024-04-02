@@ -19,23 +19,19 @@ import { UserRoleEnum } from 'commons/enums';
 import { JwtAuthGuard, RolesGuard } from 'auth/guards';
 import { Roles } from 'commons/decorator';
 
-import { CourseService } from './services/course.service';
+import { CourseService } from '../services/course.service';
 import {
   AddStudentDto,
-  AddStudentToBlockDto,
-  CourseBlockTrainingSiteDto,
   CourseTrainingSiteDto,
-  CreateBlockDto,
   CreateCourseDto,
   ExportCourseDataDto,
-  ImportCourseSettingDto,
+  TransferAndShuffleCourseSettingDto,
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
-  updateCourseBlockDto,
-} from './dto';
-import { CourseTrainingSiteService } from './services/course-training-site.service';
-import { CourseTransferService } from './services/course-transfer.service';
-import { CourseExportService } from './services/course-export.service';
+} from '../dto';
+import { CourseTrainingSiteService } from '../services/course-training-site.service';
+import { CourseTransferService } from '../services/course-transfer.service';
+import { CourseExportService } from '../services/course-export.service';
 
 @ApiTags('course')
 @UseInterceptors(ErrorInterceptor)
@@ -62,34 +58,16 @@ export class CourseController {
     return this.courseTrainingSiteService.addTrainingSite(body);
   }
 
-  @Post('block/training-site')
-  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
-  async addBlockTrainingSite(@Body() body: CourseBlockTrainingSiteDto) {
-    return this.courseTrainingSiteService.addBlockTrainingSite(body);
-  }
-
-  @Post('export')
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async exportCourse(@Body() body: ExportCourseDataDto, @Res() res: Response) {
-    return this.courseExportService.exportCourseData(body, res);
-  }
-
   @Post('add-student')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async addStudent(@Body() body: AddStudentDto) {
     return this.coursesServices.addStudent(body);
   }
 
-  @Post('add-student-to-block')
+  @Post('export')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async addStudentToBlock(@Body() body: AddStudentToBlockDto) {
-    return this.coursesServices.addStudentToBlock(body);
-  }
-
-  @Post('block')
-  @Roles(UserRoleEnum.ADMIN)
-  async addBlocks(@Body() body: CreateBlockDto) {
-    return this.coursesServices.addBlocks(body);
+  async exportCourse(@Body() body: ExportCourseDataDto, @Res() res: Response) {
+    return this.courseExportService.exportCourseData(body, res);
   }
 
   @Post('transfer-students')
@@ -104,10 +82,10 @@ export class CourseController {
     return this.courseTransferService.transferCourseSetting(body);
   }
 
-  @Post('import-settings-to-block')
+  @Post('transfer-and-shuffle')
   @Roles(UserRoleEnum.ADMIN)
-  async importCourseSettings(@Body() body: ImportCourseSettingDto) {
-    return this.courseTransferService.importCourseSetting(body);
+  async importAndShuffle(@Body() body: TransferAndShuffleCourseSettingDto) {
+    return this.courseTransferService.transferAndShuffleCourseSettings(body);
   }
 
   @Get('export/training-sites/:courseId')
@@ -129,16 +107,6 @@ export class CourseController {
     return await this.courseTrainingSiteService.getTrainingSite(trainingSiteId);
   }
 
-  @Get('block-training-site/:blockTrainingSiteId')
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async queryBlockTrainingSite(
-    @Param('blockTrainingSiteId') blockTrainingSiteId: string,
-  ) {
-    return await this.courseTrainingSiteService.getBlockTrainingSite(
-      blockTrainingSiteId,
-    );
-  }
-
   @Get('training-site/:trainingSiteId/supervisor')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async queryAllTrainingSiteSupervisor(
@@ -146,14 +114,6 @@ export class CourseController {
   ) {
     return await this.courseTrainingSiteService.getTrainingSiteSupervisor(
       trainingSiteId,
-    );
-  }
-
-  @Get('block/:blockId/training-sites')
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async queryAllBlockTrainingSites(@Param('blockId') blockId: string) {
-    return await this.courseTrainingSiteService.getAllBlockTrainingSite(
-      blockId,
     );
   }
 
@@ -173,12 +133,6 @@ export class CourseController {
   @Roles(UserRoleEnum.ADMIN)
   async getCourseBlocks(@Param('courseId') courseId: string) {
     return await this.coursesServices.getCourseBlocks(courseId);
-  }
-
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Get('block/:id')
-  async queryOneBlock(@Param('id') id: string) {
-    return await this.coursesServices.findOneCourseBlock(id);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
@@ -205,41 +159,10 @@ export class CourseController {
     );
   }
 
-  @Put('block/:blockId')
-  @Roles(UserRoleEnum.ADMIN)
-  async updateBlock(
-    @Param('blockId') blockId: string,
-    @Body() body: updateCourseBlockDto,
-  ) {
-    return await this.coursesServices.updateBlock(blockId, body);
-  }
-
-  @Put('block/training-site/:trainingSiteId')
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async updateBlockTrainingSite(
-    @Param('trainingSiteId') trainingSiteId: string,
-    @Body() body: CourseBlockTrainingSiteDto,
-  ) {
-    return await this.courseTrainingSiteService.updateBlockTrainingSite(
-      trainingSiteId,
-      body,
-    );
-  }
-
   @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
   @Delete('training-site/:trainingSiteId')
   async deleteTrainingSite(@Param('trainingSiteId') trainingSiteId: string) {
     return await this.courseTrainingSiteService.deleteTrainingSite(
-      trainingSiteId,
-    );
-  }
-
-  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
-  @Delete('block/training-site/:trainingSiteId')
-  async deleteBlockTrainingSite(
-    @Param('trainingSiteId') trainingSiteId: string,
-  ) {
-    return await this.courseTrainingSiteService.deleteBlockTrainingSite(
       trainingSiteId,
     );
   }
