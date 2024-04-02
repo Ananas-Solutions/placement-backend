@@ -81,7 +81,6 @@ export class CourseTransferService {
         const trainingSites = course.trainingSite;
         await Promise.all(
           trainingSites.map(async (site) => {
-            console.log('site', site);
             const departmentUnitId = site.departmentUnit.id;
             const { trainingSiteId } =
               await this.courseTrainingSiteService.createTrainingSite({
@@ -165,14 +164,20 @@ export class CourseTransferService {
       },
       loadEagerRelations: false,
       relations: [
-        'students',
+        'student',
+        'student.student',
         'trainingSite',
-        'timeslots',
+        'trainingSite.departmentUnit',
+        'trainingSite.timeslots',
         'blocks',
         'blocks.blockTrainingSites',
+        'blocks.blockTrainingSites.departmentUnit',
         'blocks.blockTrainingSites.blockTimeslots',
+        'blocks.students',
       ],
     });
+
+    console.log('source course data', sourceCourseData.blocks);
 
     if (sourceCourseData.blocks.length === 0) {
       await this.transferCourseSetting({
@@ -183,95 +188,145 @@ export class CourseTransferService {
     }
 
     if (sourceCourseData.blocks.length !== 0) {
-      const trainingSites = sourceCourseData.trainingSite;
-      await Promise.all(
-        trainingSites.map(async (site) => {
-          const departmentUnitId = site.departmentUnit.id;
-          const { trainingSiteId } =
-            await this.courseTrainingSiteService.createTrainingSite({
-              courseId: destinationCourseId,
-              departmentUnitId,
-            });
+      try {
+        const trainingSites = sourceCourseData.trainingSite;
 
-          const timeslots = site.timeslots;
-
-          await Promise.all(
-            timeslots.map(async (slot) => {
-              const { startTime, endTime, capacity, day } = slot;
-              await this.timeslotService.save({
-                timeslots: [{ startTime, endTime, capacity, day }],
-                trainingSiteId,
-              });
-            }),
-          );
-        }),
-      );
-
-      const students = sourceCourseData.student;
-
-      await Promise.all(
-        students.map(async ({ student }) => {
-          const existingStudent = await this.studentCourseRepository.findOne({
-            where: {
-              course: { id: destinationCourseId },
-              student: { id: student.id },
-            },
-          });
-
-          if (existingStudent) {
-            return;
-          }
-
-          await this.studentCourseRepository.save({
-            course: { id: destinationCourseId } as CourseEntity,
-            student: { id: student.id } as UserEntity,
-          });
-        }),
-      );
-
-      const courseBlocks = await sourceCourseData.blocks;
-      await Promise.all(
-        courseBlocks.map(async (block) => {
-          const {
-            name,
-            startsFrom,
-            endsAt,
-            capacity,
-            duration,
-            blockTrainingSites,
-          } = block;
-
-          const newBlock = await this.courseBlocksRepository.save({
-            name,
-            startsFrom,
-            endsAt,
-            capacity,
-            duration,
-            course: { id: destinationCourseId } as CourseEntity,
-          });
-
-          await blockTrainingSites.map(async (blockTrainingSite) => {
-            const { blockTimeslots, departmentUnit } = blockTrainingSite;
-
-            const newTrainingSite =
-              await this.courseTrainingSiteService.addBlockTrainingSite({
+        await Promise.all(
+          trainingSites.map(async (site) => {
+            const departmentUnitId = site.departmentUnit.id;
+            const { trainingSiteId } =
+              await this.courseTrainingSiteService.createTrainingSite({
                 courseId: destinationCourseId,
-                departmentUnitId: departmentUnit.id,
-                blockId: newBlock.id,
+                departmentUnitId,
               });
 
-            const blockTimeslotsInfo = blockTimeslots.map((slot) => {
-              const { startTime, endTime, capacity, day } = slot;
-              return { startTime, endTime, capacity, day };
+            const timeslots = site.timeslots;
+
+            await Promise.all(
+              timeslots.map(async (slot) => {
+                const { startTime, endTime, capacity, day } = slot;
+                await this.timeslotService.save({
+                  timeslots: [{ startTime, endTime, capacity, day }],
+                  trainingSiteId,
+                });
+              }),
+            );
+          }),
+        );
+
+        const students = sourceCourseData.student;
+
+        await Promise.all(
+          students.map(async ({ student }) => {
+            const existingStudent = await this.studentCourseRepository.findOne({
+              where: {
+                course: { id: destinationCourseId },
+                student: { id: student.id },
+              },
             });
 
-            await this.timeslotService.saveBlockTimeSlots({
-              timeslots: blockTimeslotsInfo,
-              blockTrainingSiteId: newTrainingSite.trainingSiteId,
+            if (existingStudent) {
+              return;
+            }
+
+            await this.studentCourseRepository.save({
+              course: { id: destinationCourseId } as CourseEntity,
+              student: { id: student.id } as UserEntity,
             });
-          });
-        }),
-      );
+          }),
+        );
+
+        const courseBlocks = await sourceCourseData.blocks;
+
+        await Promise.all(
+          courseBlocks.map(async (block) => {
+            const {
+              name,
+              startsFrom,
+              endsAt,
+              capacity,
+              duration,
+              blockTrainingSites,
+            } = block;
+
+            const newBlock = await this.courseBlocksRepository.save({
+              name,
+              startsFrom,
+              endsAt,
+              capacity,
+              duration,
+              course: { id: destinationCourseId } as CourseEntity,
+            });
+
+            await blockTrainingSites.map(async (blockTrainingSite) => {
+              const { blockTimeslots, departmentUnit } = blockTrainingSite;
+
+              const newTrainingSite =
+                await this.courseTrainingSiteService.addBlockTrainingSite({
+                  courseId: destinationCourseId,
+                  departmentUnitId: departmentUnit.id,
+                  blockId: newBlock.id,
+                });
+
+              const blockTimeslotsInfo = blockTimeslots.map((slot) => {
+                const { startTime, endTime, capacity, day } = slot;
+                return { startTime, endTime, capacity, day };
+              });
+
+              await this.timeslotService.saveBlockTimeSlots({
+                timeslots: blockTimeslotsInfo,
+                blockTrainingSiteId: newTrainingSite.trainingSiteId,
+              });
+            });
+          }),
+        );
+      } catch (error) {
+        console.log('error', error);
+      }
+
+      try {
+        const destinationBlocks = await this.courseBlocksRepository.find({
+          where: {
+            course: { id: destinationCourseId },
+          },
+        });
+
+        await Promise.all(
+          destinationBlocks.map(async (block, index) => {
+            const { id: blockId } = block;
+
+            console.log('destination block', block);
+
+            const sourceCourseBlockIndex =
+              index + 1 === sourceCourseData.blocks.length ? 0 : index + 1;
+
+            const sourceCourseBlock =
+              sourceCourseData.blocks[sourceCourseBlockIndex];
+            console.log('sourceCourseBlock', sourceCourseBlock);
+
+            const blockStudents = await this.studentCourseRepository.find({
+              where: {
+                block: { id: sourceCourseBlock.id },
+              },
+              relations: ['student'],
+            });
+
+            console.log('blockStudents', blockStudents);
+
+            await Promise.all(
+              blockStudents.map(async (student) => {
+                await this.studentCourseRepository.save({
+                  course: { id: destinationCourseId } as CourseEntity,
+                  student: { id: student.student.id } as UserEntity,
+                  block: { id: blockId } as CourseBlockEntity,
+                });
+              }),
+            );
+          }),
+        );
+      } catch (error) {
+        console.log('error', error);
+      }
     }
 
     return {
