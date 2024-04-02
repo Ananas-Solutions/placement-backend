@@ -312,6 +312,8 @@ export class CourseService {
       { id: blockId },
       { name, capacity },
     );
+
+    return { message: 'Course block edited successfully.' };
   }
 
   public async deleteBlock(blockId: string) {

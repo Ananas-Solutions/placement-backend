@@ -311,8 +311,6 @@ export class CourseTransferService {
               relations: ['student'],
             });
 
-            console.log('blockStudents', blockStudents);
-
             await Promise.all(
               blockStudents.map(async (student) => {
                 await this.studentCourseRepository.save({
