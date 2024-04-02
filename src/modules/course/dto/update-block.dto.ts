@@ -1,7 +1,11 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class updateCourseBlockDto {
+export class UpdateCourseBlockDto {
   @IsString()
   @IsNotEmpty()
   public name!: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  public capacity!: number;
 }

@@ -19,7 +19,7 @@ import {
   AddStudentToBlockDto,
   CreateBlockDto,
   CreateCourseDto,
-  updateCourseBlockDto,
+  UpdateCourseBlockDto,
 } from '../dto';
 import { ICourseDetailResponse, ICourseResponse } from '../response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
@@ -305,9 +305,25 @@ export class CourseService {
     });
   }
 
-  public async updateBlock(blockId: string, body: updateCourseBlockDto) {
-    const { name } = body;
+  public async updateBlock(blockId: string, body: UpdateCourseBlockDto) {
+    const { name, capacity } = body;
 
-    await this.courseBlocksRepository.update({ id: blockId }, { name });
+    await this.courseBlocksRepository.update(
+      { id: blockId },
+      { name, capacity },
+    );
+  }
+
+  public async deleteBlock(blockId: string) {
+    const courseBlock = await this.courseBlocksRepository.findOne({
+      where: {
+        id: blockId,
+      },
+      loadEagerRelations: true,
+    });
+
+    await this.courseBlocksRepository.softRemove(courseBlock);
+
+    return { message: 'Course block deleted successfully.' };
   }
 }

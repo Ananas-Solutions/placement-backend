@@ -19,7 +19,7 @@ import {
   CourseBlockTrainingSiteDto,
   CreateBlockDto,
   ImportCourseSettingDto,
-  updateCourseBlockDto,
+  UpdateCourseBlockDto,
 } from 'course/dto';
 import { CourseExportService } from 'course/services/course-export.service';
 import { CourseTrainingSiteService } from 'course/services/course-training-site.service';
@@ -103,7 +103,7 @@ export class CourseBlockController {
   @Roles(UserRoleEnum.ADMIN)
   async updateBlock(
     @Param('blockId') blockId: string,
-    @Body() body: updateCourseBlockDto,
+    @Body() body: UpdateCourseBlockDto,
   ) {
     return await this.courseService.updateBlock(blockId, body);
   }
@@ -116,5 +116,11 @@ export class CourseBlockController {
     return await this.courseTrainingSiteService.deleteBlockTrainingSite(
       trainingSiteId,
     );
+  }
+
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR, UserRoleEnum.ADMIN)
+  @Delete(':id')
+  async deleteBlock(@Param('id') id: string) {
+    return await this.courseService.deleteBlock(id);
   }
 }
