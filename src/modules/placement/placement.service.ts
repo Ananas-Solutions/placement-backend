@@ -133,22 +133,17 @@ export class PlacementService {
         const courseBlockStudents =
           await this.studentCourseService.findCourseBlockStudents(blockInfo.id);
 
-        let unplacedCourseStudents = await Promise.all(
-          courseBlockStudents.map(async (student) => {
-            const studentPlacement = await this.findBlockStudentPlacement({
-              studentId: student.id,
-              courseId,
-            });
-
-            if (studentPlacement.length > 0) {
-              return null;
-            }
-
-            return student;
-          }),
-        );
-
-        unplacedCourseStudents = unplacedCourseStudents.filter(Boolean);
+        const unplacedCourseStudents = [];
+        for (let i = 0; i < courseBlockStudents.length; i++) {
+          const studentPlacement = await this.findBlockStudentPlacement({
+            studentId: courseBlockStudents[i].id,
+            courseId,
+          });
+          if (studentPlacement.length > 0) {
+            continue;
+          }
+          unplacedCourseStudents.push(courseBlockStudents[i]);
+        }
 
         let unplacedCourseStudentIndex = 0;
 
@@ -166,8 +161,8 @@ export class PlacementService {
                   });
 
                 for (
-                  let k = 0;
-                  k < blockTotalTimeSlotCapacity - blockTimeSlotCapacity;
+                  let k = 1;
+                  k <= blockTotalTimeSlotCapacity - blockTimeSlotCapacity;
                   k++
                 ) {
                   const student =
