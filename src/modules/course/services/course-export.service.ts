@@ -217,14 +217,15 @@ export class CourseExportService {
     const { department, blocks } = courseData;
 
     const blockCol = 1;
-    const hospitalCol = 2;
-    const departmentCol = 3;
-    const departmentUnitCol = 4;
-    const dayCol = 5;
-    const timeslotCol = 6;
-    const studentIdCol = 7;
-    const studentNameCol = 8;
-    const studentEmailCol = 9;
+    const blockTimingCol = 2;
+    const hospitalCol = 3;
+    const departmentCol = 4;
+    const departmentUnitCol = 5;
+    const dayCol = 6;
+    const timeslotCol = 7;
+    const studentIdCol = 8;
+    const studentNameCol = 9;
+    const studentEmailCol = 10;
 
     const wb = new excel4node.Workbook({
       defaultFont: {
@@ -285,6 +286,9 @@ export class CourseExportService {
 
     let rowIndex = 4;
     ws.cell(rowIndex, blockCol).string('Blocks').style(rowHeaderStyle);
+    ws.cell(rowIndex, blockTimingCol)
+      .string('Block Timing')
+      .style(rowHeaderStyle);
     ws.cell(rowIndex, hospitalCol).string('Hospital').style(rowHeaderStyle);
     ws.cell(rowIndex, departmentCol).string('Department').style(rowHeaderStyle);
     ws.cell(rowIndex, departmentUnitCol).string('Unit').style(rowHeaderStyle);
@@ -375,6 +379,9 @@ export class CourseExportService {
 
         ws.cell(blockRow, blockCol, siteRow - 1, blockCol, true)
           .string(block?.name ?? '-')
+          .style(mergedCellStyle);
+        ws.cell(blockRow, blockTimingCol, siteRow - 1, blockTimingCol, true)
+          .string(`${block?.startsFrom} till ${block?.endsAt}`)
           .style(mergedCellStyle);
 
         blockRow = siteRow;
