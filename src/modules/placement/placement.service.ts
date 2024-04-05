@@ -137,7 +137,7 @@ export class PlacementService {
         for (let i = 0; i < courseBlockStudents.length; i++) {
           const studentPlacement = await this.findBlockStudentPlacement({
             studentId: courseBlockStudents[i].id,
-            courseId,
+            blockId: blockInfo.id,
           });
           if (studentPlacement.length > 0) {
             continue;
@@ -542,15 +542,15 @@ export class PlacementService {
 
   private async findBlockStudentPlacement({
     studentId,
-    courseId,
+    blockId,
   }: {
     studentId: string;
-    courseId: string;
+    blockId: string;
   }) {
     return await this.placementRepository.find({
       where: {
         student: { id: studentId },
-        blockTrainingSite: { block: { course: { id: courseId } } },
+        blockTrainingSite: { block: { id: blockId } },
       },
       loadEagerRelations: false,
     });

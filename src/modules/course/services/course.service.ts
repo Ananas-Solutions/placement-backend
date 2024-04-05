@@ -302,6 +302,9 @@ export class CourseService {
   public async getCourseBlocks(courseId: string) {
     return await this.courseBlocksRepository.find({
       where: { course: { id: courseId } },
+      order: {
+        name: 'ASC',
+      },
     });
   }
 
