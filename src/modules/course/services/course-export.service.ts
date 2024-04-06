@@ -6,6 +6,7 @@ import { Response } from 'express';
 
 import { CourseEntity } from 'entities/index.entity';
 import { ExportCourseDataDto } from 'course/dto';
+import { addDays, format } from 'date-fns';
 
 @Injectable()
 export class CourseExportService {
@@ -306,86 +307,114 @@ export class CourseExportService {
 
     let blockRow = rowIndex;
     if (blocks.length) {
-      blocks.forEach((block) => {
-        let siteRow = blockRow;
-        const { blockTrainingSites } = block;
+      blocks
+        .sort((a, b) => (a.name.toUpperCase() < b.name.toUpperCase() ? -1 : 1))
+        .forEach((block, index) => {
+          let siteRow = blockRow;
+          const { blockTrainingSites } = block;
 
-        if (blockTrainingSites.length) {
-          blockTrainingSites.forEach((blockTrainingSite) => {
-            const { departmentUnit, blockTimeslots } = blockTrainingSite;
-            const { department } = departmentUnit;
-            const { hospital } = department;
+          if (blockTrainingSites.length) {
+            blockTrainingSites.forEach((blockTrainingSite) => {
+              const { departmentUnit, blockTimeslots } = blockTrainingSite;
+              const { department } = departmentUnit;
+              const { hospital } = department;
 
-            let slotRow = siteRow;
+              let slotRow = siteRow;
 
-            if (blockTimeslots.length) {
-              blockTimeslots.forEach((slot) => {
-                const { day, startTime, endTime, placements } = slot;
+              if (blockTimeslots.length) {
+                blockTimeslots.forEach((slot) => {
+                  const { day, startTime, endTime, placements } = slot;
 
-                let studentRow = slotRow;
+                  let studentRow = slotRow;
 
-                if (placements.length) {
-                  placements.forEach((p) => {
-                    const {
-                      student: { studentId, name, email },
-                    } = p;
+                  if (placements.length) {
+                    placements.forEach((p) => {
+                      const {
+                        student: { studentId, name, email },
+                      } = p;
 
-                    ws.cell(studentRow, studentIdCol).string(studentId ?? '-');
-                    ws.cell(studentRow, studentNameCol).string(name ?? '-');
-                    ws.cell(studentRow, studentEmailCol).string(email ?? '-');
+                      ws.cell(studentRow, studentIdCol).string(
+                        studentId ?? '-',
+                      );
+                      ws.cell(studentRow, studentNameCol).string(name ?? '-');
+                      ws.cell(studentRow, studentEmailCol).string(email ?? '-');
 
+                      studentRow += 1;
+                    });
+                  } else {
                     studentRow += 1;
-                  });
-                } else {
-                  studentRow += 1;
-                }
+                  }
 
-                const updatedDay = day.join(', ');
+                  const updatedDay = day.join(', ');
 
-                ws.cell(slotRow, dayCol, studentRow - 1, dayCol, true)
-                  .string(updatedDay ?? '-')
-                  .style(mergedCellStyle);
-                ws.cell(slotRow, timeslotCol, studentRow - 1, timeslotCol, true)
-                  .string(`${startTime}-${endTime}` ?? '-')
-                  .style(mergedCellStyle);
+                  ws.cell(slotRow, dayCol, studentRow - 1, dayCol, true)
+                    .string(updatedDay ?? '-')
+                    .style(mergedCellStyle);
+                  ws.cell(
+                    slotRow,
+                    timeslotCol,
+                    studentRow - 1,
+                    timeslotCol,
+                    true,
+                  )
+                    .string(`${startTime}-${endTime}` ?? '-')
+                    .style(mergedCellStyle);
 
-                slotRow = studentRow;
-              });
-            } else {
-              slotRow += 1;
-            }
+                  slotRow = studentRow;
+                });
+              } else {
+                slotRow += 1;
+              }
 
-            ws.cell(siteRow, hospitalCol, slotRow - 1, hospitalCol, true)
-              .string(hospital?.name ?? '-')
-              .style(mergedCellStyle);
-            ws.cell(siteRow, departmentCol, slotRow - 1, departmentCol, true)
-              .string(department?.name ?? '-')
-              .style(mergedCellStyle);
-            ws.cell(
-              siteRow,
-              departmentUnitCol,
-              slotRow - 1,
-              departmentUnitCol,
-              true,
-            )
-              .string(departmentUnit?.name ?? '-')
-              .style(mergedCellStyle);
+              ws.cell(siteRow, hospitalCol, slotRow - 1, hospitalCol, true)
+                .string(hospital?.name ?? '-')
+                .style(mergedCellStyle);
+              ws.cell(siteRow, departmentCol, slotRow - 1, departmentCol, true)
+                .string(department?.name ?? '-')
+                .style(mergedCellStyle);
+              ws.cell(
+                siteRow,
+                departmentUnitCol,
+                slotRow - 1,
+                departmentUnitCol,
+                true,
+              )
+                .string(departmentUnit?.name ?? '-')
+                .style(mergedCellStyle);
 
-            siteRow = slotRow;
-          });
-        } else {
-          siteRow += 1;
-        }
+              siteRow = slotRow;
+            });
+          } else {
+            siteRow += 1;
+          }
 
-        ws.cell(blockRow, blockCol, siteRow - 1, blockCol, true)
-          .string(block?.name ?? '-')
-          .style(mergedCellStyle);
-        ws.cell(blockRow, blockTimingCol, siteRow - 1, blockTimingCol, true)
-          .string(`${block?.startsFrom} till ${block?.endsAt}`)
-          .style(mergedCellStyle);
+          ws.cell(blockRow, blockCol, siteRow - 1, blockCol, true)
+            .string(block?.name ?? '-')
+            .style(mergedCellStyle);
 
-        blockRow = siteRow;
-      });
+          const blockStartTime = block?.startsFrom;
+          const blockEndTime = block?.endsAt;
+
+          const updatedBlockStartTime = format(
+            index === 0
+              ? blockStartTime
+              : addDays(blockStartTime, index * block.duration),
+            'yyyy-MM-dd',
+          );
+
+          const updatedBlockEndTime = format(
+            index === blocks.length - 1
+              ? blockEndTime
+              : addDays(updatedBlockStartTime, block.duration - 1),
+            'yyyy-MM-dd',
+          );
+
+          ws.cell(blockRow, blockTimingCol, siteRow - 1, blockTimingCol, true)
+            .string(`${updatedBlockStartTime} till ${updatedBlockEndTime}`)
+            .style(mergedCellStyle);
+
+          blockRow = siteRow;
+        });
     } else {
       blockRow += 1;
     }
