@@ -6,8 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: ['https://uos.myplacement.me'],
-      credentials: true,
+      origin: ['https://uos.myplacement.me', 'http://localhost:6768'],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     },
   });
