@@ -7,13 +7,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ['https://uos.myplacement.me', 'http://localhost:6768'], // Set the allowed origin
+    origin: '*', // Set the allowed origin
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Set the allowed HTTP methods
   });
 
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(new ValidationPipe());
-  // app.use(cookieParser(process.env.COOKIE_SECRET));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Placement API')
@@ -23,6 +22,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('/v1/api', app, document);
+
   await app.listen(4500);
 }
 bootstrap();
