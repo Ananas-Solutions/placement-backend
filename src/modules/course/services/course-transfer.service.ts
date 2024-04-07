@@ -236,34 +236,62 @@ export class CourseTransferService {
           },
         });
 
-        await Promise.all(
-          destinationBlocks.map(async (block, index) => {
-            const { id: blockId } = block;
+        for (let i = 0; i < destinationBlocks.length; i++) {
+          const block = destinationBlocks[i];
 
-            const sourceCourseBlockIndex =
-              index + 1 === sourceCourseData.blocks.length ? 0 : index + 1;
+          const { id: blockId } = block;
 
-            const sourceCourseBlock =
-              sourceCourseData.blocks[sourceCourseBlockIndex];
+          const sourceCourseBlockIndex =
+            i + 1 === sourceCourseData.blocks.length ? 0 : i + 1;
 
-            const blockStudents = await this.studentCourseRepository.find({
-              where: {
-                block: { id: sourceCourseBlock.id },
-              },
-              relations: ['student'],
+          const sourceCourseBlock =
+            sourceCourseData.blocks[sourceCourseBlockIndex];
+
+          const blockStudents = await this.studentCourseRepository.find({
+            where: {
+              block: { id: sourceCourseBlock.id },
+            },
+            relations: ['student'],
+          });
+
+          for (let j = 0; j < blockStudents.length; j++) {
+            const student = blockStudents[j];
+            await this.studentCourseRepository.save({
+              course: { id: destinationCourseId } as CourseEntity,
+              student: { id: student.student.id } as UserEntity,
+              block: { id: blockId } as CourseBlockEntity,
             });
+          }
+        }
 
-            await Promise.all(
-              blockStudents.map(async (student) => {
-                await this.studentCourseRepository.save({
-                  course: { id: destinationCourseId } as CourseEntity,
-                  student: { id: student.student.id } as UserEntity,
-                  block: { id: blockId } as CourseBlockEntity,
-                });
-              }),
-            );
-          }),
-        );
+        // await Promise.all(
+        //   destinationBlocks.map(async (block, index) => {
+        //     const { id: blockId } = block;
+
+        //     const sourceCourseBlockIndex =
+        //       index + 1 === sourceCourseData.blocks.length ? 0 : index + 1;
+
+        //     const sourceCourseBlock =
+        //       sourceCourseData.blocks[sourceCourseBlockIndex];
+
+        //     const blockStudents = await this.studentCourseRepository.find({
+        //       where: {
+        //         block: { id: sourceCourseBlock.id },
+        //       },
+        //       relations: ['student'],
+        //     });
+
+        //     await Promise.all(
+        //       blockStudents.map(async (student) => {
+        //         await this.studentCourseRepository.save({
+        //           course: { id: destinationCourseId } as CourseEntity,
+        //           student: { id: student.student.id } as UserEntity,
+        //           block: { id: blockId } as CourseBlockEntity,
+        //         });
+        //       }),
+        //     );
+        //   }),
+        // );
       } catch (error) {
         console.log('error', error);
       }

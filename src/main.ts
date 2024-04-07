@@ -4,15 +4,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: '*',
-      credentials: true,
-    },
-  });
+  const app = await NestFactory.create(AppModule);
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.useGlobalPipes(new ValidationPipe());
   // app.use(cookieParser(process.env.COOKIE_SECRET));
+  app.enableCors({
+    origin: ['https://uos.myplacement.me'],
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Placement API')
