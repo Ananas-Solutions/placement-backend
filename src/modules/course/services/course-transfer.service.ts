@@ -156,150 +156,119 @@ export class CourseTransferService {
   public async transferAndShuffleCourseSettings(
     body: TransferAndShuffleCourseSettingDto,
   ) {
-    const { sourceCourseId, destinationCourseId } = body;
+    try {
+      const { sourceCourseId, destinationCourseId } = body;
 
-    const sourceCourseData = await this.courseRepository.findOne({
-      where: {
-        id: sourceCourseId,
-      },
-      loadEagerRelations: false,
-      relations: [
-        'student',
-        'student.student',
-        'trainingSite',
-        'trainingSite.departmentUnit',
-        'trainingSite.timeslots',
-        'blocks',
-        'blocks.blockTrainingSites',
-        'blocks.blockTrainingSites.departmentUnit',
-        'blocks.blockTrainingSites.blockTimeslots',
-        'blocks.students',
-      ],
-    });
-
-    if (sourceCourseData.blocks.length === 0) {
-      await this.transferCourseSetting({
-        sourceCourseId,
-        destinationCourseId,
-        transferProperties: ['trainingSites', 'timeslots', 'students'],
+      const sourceCourseData = await this.courseRepository.findOne({
+        where: {
+          id: sourceCourseId,
+        },
+        loadEagerRelations: false,
+        relations: ['student', 'student.student', 'blocks'],
       });
-    }
 
-    if (sourceCourseData.blocks.length !== 0) {
-      try {
-        const students = sourceCourseData.student;
-
-        await Promise.all(
-          students.map(async ({ student }) => {
-            const existingStudent = await this.studentCourseRepository.findOne({
-              where: {
-                course: { id: destinationCourseId },
-                student: { id: student.id },
-              },
-            });
-
-            if (existingStudent) {
-              return;
-            }
-
-            await this.studentCourseRepository.save({
-              course: { id: destinationCourseId } as CourseEntity,
-              student: { id: student.id } as UserEntity,
-            });
-          }),
-        );
-
-        const courseBlocks = await sourceCourseData.blocks;
-
-        await Promise.all(
-          courseBlocks.map(async (block) => {
-            const { name, startsFrom, endsAt, capacity, duration } = block;
-
-            await this.courseBlocksRepository.save({
-              name,
-              startsFrom,
-              endsAt,
-              capacity,
-              duration,
-              course: { id: destinationCourseId } as CourseEntity,
-            });
-          }),
-        );
-      } catch (error) {
-        console.log('error', error);
+      if (sourceCourseData.blocks.length === 0) {
+        await this.transferCourseSetting({
+          sourceCourseId,
+          destinationCourseId,
+          transferProperties: ['trainingSites', 'timeslots', 'students'],
+        });
       }
 
-      try {
-        const destinationBlocks = await this.courseBlocksRepository.find({
-          where: {
-            course: { id: destinationCourseId },
-          },
-        });
+      if (sourceCourseData.blocks.length !== 0) {
+        try {
+          const students = sourceCourseData.student;
 
-        for (let i = 0; i < destinationBlocks.length; i++) {
-          const block = destinationBlocks[i];
+          await Promise.all(
+            students.map(async ({ student }) => {
+              const existingStudent =
+                await this.studentCourseRepository.findOne({
+                  where: {
+                    course: { id: destinationCourseId },
+                    student: { id: student.id },
+                  },
+                });
 
-          const { id: blockId } = block;
+              if (existingStudent) {
+                return;
+              }
 
-          const sourceCourseBlockIndex =
-            i + 1 === sourceCourseData.blocks.length ? 0 : i + 1;
+              await this.studentCourseRepository.save({
+                course: { id: destinationCourseId } as CourseEntity,
+                student: { id: student.id } as UserEntity,
+              });
+            }),
+          );
 
-          const sourceCourseBlock =
-            sourceCourseData.blocks[sourceCourseBlockIndex];
+          const courseBlocks = sourceCourseData.blocks;
 
-          const blockStudents = await this.studentCourseRepository.find({
-            where: {
-              block: { id: sourceCourseBlock.id },
-            },
-            relations: ['student'],
-          });
+          await Promise.all(
+            courseBlocks.map(async (block) => {
+              const { name, startsFrom, endsAt, capacity, duration } = block;
 
-          for (let j = 0; j < blockStudents.length; j++) {
-            const student = blockStudents[j];
-            await this.studentCourseRepository.save({
-              course: { id: destinationCourseId } as CourseEntity,
-              student: { id: student.student.id } as UserEntity,
-              block: { id: blockId } as CourseBlockEntity,
-            });
-          }
+              await this.courseBlocksRepository.save({
+                name,
+                startsFrom,
+                endsAt,
+                capacity,
+                duration,
+                course: { id: destinationCourseId } as CourseEntity,
+              });
+            }),
+          );
+        } catch (error) {
+          console.log('error', error);
         }
 
-        // await Promise.all(
-        //   destinationBlocks.map(async (block, index) => {
-        //     const { id: blockId } = block;
+        try {
+          const destinationBlocks = await this.courseBlocksRepository.find({
+            where: {
+              course: { id: destinationCourseId },
+            },
+          });
 
-        //     const sourceCourseBlockIndex =
-        //       index + 1 === sourceCourseData.blocks.length ? 0 : index + 1;
+          for (let i = 0; i < destinationBlocks.length; i++) {
+            const block = destinationBlocks[i];
 
-        //     const sourceCourseBlock =
-        //       sourceCourseData.blocks[sourceCourseBlockIndex];
+            const { id: blockId } = block;
 
-        //     const blockStudents = await this.studentCourseRepository.find({
-        //       where: {
-        //         block: { id: sourceCourseBlock.id },
-        //       },
-        //       relations: ['student'],
-        //     });
+            const sourceCourseBlockIndex =
+              i + 1 === sourceCourseData.blocks.length ? 0 : i + 1;
 
-        //     await Promise.all(
-        //       blockStudents.map(async (student) => {
-        //         await this.studentCourseRepository.save({
-        //           course: { id: destinationCourseId } as CourseEntity,
-        //           student: { id: student.student.id } as UserEntity,
-        //           block: { id: blockId } as CourseBlockEntity,
-        //         });
-        //       }),
-        //     );
-        //   }),
-        // );
-      } catch (error) {
-        console.log('error', error);
+            const sourceCourseBlock =
+              sourceCourseData.blocks[sourceCourseBlockIndex];
+
+            const blockStudents = await this.studentCourseRepository.find({
+              where: {
+                block: { id: sourceCourseBlock.id },
+              },
+              relations: ['student'],
+            });
+
+            for (let j = 0; j < blockStudents.length; j++) {
+              const { student } = blockStudents[j];
+              await this.studentCourseRepository.update(
+                {
+                  course: { id: destinationCourseId },
+                  student: { id: student.id },
+                },
+                {
+                  block: { id: blockId } as CourseBlockEntity,
+                },
+              );
+            }
+          }
+        } catch (error) {
+          console.log('error', error);
+        }
       }
-    }
 
-    return {
-      message: 'Course setting and shuffle is completed successfully.',
-    };
+      return {
+        message: 'Course setting and shuffle is completed successfully.',
+      };
+    } catch (error) {
+      throw new BadRequestException('Something went wrong');
+    }
   }
 
   public async importCourseSetting(body: ImportCourseSettingDto) {
