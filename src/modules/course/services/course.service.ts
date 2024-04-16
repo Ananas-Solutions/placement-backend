@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -23,6 +27,7 @@ import {
 } from '../dto';
 import { ICourseDetailResponse, ICourseResponse } from '../response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
+import { CourseTransferService } from './course-transfer.service';
 
 @Injectable()
 export class CourseService {
@@ -34,6 +39,7 @@ export class CourseService {
     @InjectRepository(CourseBlockEntity)
     private readonly courseBlocksRepository: Repository<CourseBlockEntity>,
     private readonly userService: UserService,
+    private readonly courseTransferService: CourseTransferService,
   ) {}
 
   async createCourse(
@@ -330,5 +336,31 @@ export class CourseService {
     await this.courseBlocksRepository.softRemove(courseBlock);
 
     return { message: 'Course block deleted successfully.' };
+  }
+
+  public async importSettingsToAllBlocks(courseId: string) {
+    try {
+      const course = await this.courseRepository.findOne({
+        where: { id: courseId },
+        relations: ['blocks'],
+      });
+
+      await Promise.all(
+        course.blocks.map(async (block) => {
+          await this.courseTransferService.importCourseSetting({
+            courseId,
+            blockId: block.id,
+            transferProperties: ['trainingSites', 'timeslots'],
+          });
+        }),
+      );
+
+      return {
+        message: 'Course settings imported to all blocks successfully.',
+      };
+    } catch (err) {
+      console.log('err here', err);
+      throw new BadRequestException('bad request');
+    }
   }
 }

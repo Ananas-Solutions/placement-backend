@@ -43,6 +43,16 @@ export class PlacementController {
     UserRoleEnum.CLINICAL_COORDINATOR,
     UserRoleEnum.CLINICAL_SUPERVISOR,
   )
+  @Get('course/:courseId/student-unplaced')
+  async findCourseStudentsAvailability(@Param('courseId') courseId: string) {
+    return await this.placementService.findCourseStudentsAvailability(courseId);
+  }
+
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
   @Get('student-availability')
   async findStudentsAvailability(
     @Query('trainingSiteId') trainingSiteId: string,

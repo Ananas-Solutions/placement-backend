@@ -88,6 +88,12 @@ export class CourseController {
     return this.courseTransferService.transferAndShuffleCourseSettings(body);
   }
 
+  @Post('import-settings-to-all-blocks/:courseId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async importSettingsToAllBlocks(@Param('courseId') courseId: string) {
+    return this.coursesServices.importSettingsToAllBlocks(courseId);
+  }
+
   @Get('export/training-sites/:courseId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async getExportTrainingSites(@Param('courseId') courseId: string) {

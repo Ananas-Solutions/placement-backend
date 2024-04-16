@@ -167,6 +167,8 @@ export class CourseTrainingSiteService {
         'departmentUnit',
         'departmentUnit.department',
         'departmentUnit.department.hospital',
+        'timeslots',
+        'placement',
       ],
     });
 
@@ -180,12 +182,23 @@ export class CourseTrainingSiteService {
         const { departmentUnit } = trainingSite;
         const { department } = departmentUnit;
         const { hospital } = department;
+
+        const { timeslots } = trainingSite;
+
+        const { placement } = trainingSite;
+
+        const totalTimeslotsCapacity = timeslots.reduce((acc, curr) => {
+          return acc + curr.capacity;
+        }, 0);
+
         return {
           id: trainingSite.id,
           hospital: hospital.name,
           department: department.name,
           departmentUnit: departmentUnit.name,
           totalEvaluations: allTrainingSiteEvaluation.length,
+          totalCapacity: totalTimeslotsCapacity,
+          availableCapacity: totalTimeslotsCapacity - placement.length,
         };
       }),
     );
@@ -203,6 +216,8 @@ export class CourseTrainingSiteService {
         'departmentUnit',
         'departmentUnit.department',
         'departmentUnit.department.hospital',
+        'blockTimeslots',
+        'placement',
       ],
     });
 
@@ -211,11 +226,22 @@ export class CourseTrainingSiteService {
         const { departmentUnit } = trainingSite;
         const { department } = departmentUnit;
         const { hospital } = department;
+
+        const { blockTimeslots } = trainingSite;
+
+        const { placement } = trainingSite;
+
+        const totalTimeslotsCapacity = blockTimeslots.reduce((acc, curr) => {
+          return acc + curr.capacity;
+        }, 0);
+
         return {
           id: trainingSite.id,
           hospital: hospital.name,
           department: department.name,
           departmentUnit: departmentUnit.name,
+          totalCapacity: totalTimeslotsCapacity,
+          availableCapacity: totalTimeslotsCapacity - placement.length,
         };
       }),
     );

@@ -14,6 +14,7 @@ import {
 } from './dto';
 import { ICourseStudentResponse, IStudentCourseResponse } from './response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
+import { PlacementEntity } from 'entities/placement.entity';
 
 @Injectable()
 export class StudentCourseService {
@@ -24,6 +25,8 @@ export class StudentCourseService {
     private readonly courseRepository: Repository<CourseEntity>,
     @InjectRepository(CourseBlockEntity)
     private readonly courseBlockRepository: Repository<CourseBlockEntity>,
+    @InjectRepository(PlacementEntity)
+    private readonly placementRepository: Repository<PlacementEntity>,
   ) {}
 
   async assignStudents(
@@ -123,8 +126,10 @@ export class StudentCourseService {
       loadEagerRelations: false,
       relations: ['student', 'student.studentProfile'],
     });
-    const users = studentCourses.map((studentCourse) =>
-      this.transformToCourseStudent(studentCourse),
+    const users = await Promise.all(
+      studentCourses.map((studentCourse) =>
+        this.transformToCourseStudent(studentCourse, courseId, undefined),
+      ),
     );
 
     return users;
@@ -138,8 +143,10 @@ export class StudentCourseService {
       loadEagerRelations: false,
       relations: ['student', 'student.studentProfile'],
     });
-    const users = studentCourses.map((studentCourse) =>
-      this.transformToCourseStudent(studentCourse),
+    const users = await Promise.all(
+      studentCourses.map((studentCourse) =>
+        this.transformToCourseStudent(studentCourse, undefined, blockId),
+      ),
     );
 
     return users;
@@ -227,13 +234,53 @@ export class StudentCourseService {
     };
   }
 
-  private transformToCourseStudent(entity: StudentCourseEntity) {
+  private async transformToCourseStudent(
+    entity: StudentCourseEntity,
+    courseId?: string,
+    blockId?: string,
+  ) {
     const { student } = entity;
+
+    // find whether that student is placed inside that course or not
+    let studentPlacementOnCourseLevel;
+    let studentOnBlock;
+    if (courseId) {
+      studentPlacementOnCourseLevel = await this.placementRepository.find({
+        where: {
+          trainingSite: { course: { id: courseId } },
+          student: { id: student.id },
+        },
+      });
+
+      // check if student is inside block or not
+      studentOnBlock = await this.studentCourseRepository.find({
+        where: {
+          student: { id: student.id },
+          block: { course: { id: courseId } },
+        },
+        relations: ['block'],
+      });
+    }
+
+    let studentPlacementOnBlockLevel;
+    if (blockId) {
+      studentPlacementOnBlockLevel = await this.placementRepository.find({
+        where: {
+          blockTrainingSite: { block: { id: blockId } },
+          student: { id: student.id },
+        },
+      });
+    }
 
     return {
       id: student.id,
       name: student.name,
       email: student.email,
+      placement: {
+        coursePlacementCount: studentPlacementOnCourseLevel?.length,
+        blockPlacementCount: studentPlacementOnBlockLevel?.length,
+      },
+      blocks: studentOnBlock?.map((block) => block.block.name),
     };
   }
 }

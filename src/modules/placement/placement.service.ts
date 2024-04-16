@@ -445,6 +445,28 @@ export class PlacementService {
     }
   }
 
+  async findCourseStudentsAvailability(courseId: string) {
+    try {
+      const allStudentsOnCourse =
+        await this.studentCourseService.findCourseStudents(courseId);
+
+      const studentsPlaced = await this.placementRepository.find({
+        where: [
+          { trainingSite: { course: { id: courseId } } },
+          { blockTrainingSite: { block: { course: { id: courseId } } } },
+        ],
+      });
+
+      return {
+        allStudents: allStudentsOnCourse.length,
+        studentsPlaced: studentsPlaced.length,
+        studentsUnplaced: allStudentsOnCourse.length - studentsPlaced.length,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findStudentsAvailability(
     trainingSiteId: string,
   ): Promise<IStudentAvailabilityInterface[]> {
