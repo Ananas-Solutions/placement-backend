@@ -41,13 +41,16 @@ export class ExportService {
         relations: {
           hospitals: {
             departments: {
-              departmentUnits: true,
+              departmentUnits: {
+                trainingSites: { placement: { student: true } },
+                blockTrainingSites: { placement: { student: true } },
+              },
             },
           },
         },
       });
 
-      return { data, length: 4 };
+      return { data, length: 7 };
     }
 
     if (body.department) {
@@ -188,8 +191,11 @@ export class ExportService {
     const hospitalNameCol = 3;
     const departmentNameCol = 4;
     const departmentUnitNameCol = 5;
+    const studentIdCol = 6;
+    const studentNameCol = 7;
+    const studentEmailCol = 8;
 
-    ws.cell(1, authorityInitialsCol, 3, departmentUnitNameCol, true)
+    ws.cell(1, authorityInitialsCol, 3, studentEmailCol, true)
       .string(`\r Data Exported\r`)
       .style(titleHeaderStyle);
 
@@ -232,11 +238,48 @@ export class ExportService {
               if (departmentUnits?.length) {
                 // iterating over all the department units of a hospital department
                 for (let m = 0; m < departmentUnits.length; m++) {
-                  const { name } = departmentUnits[m];
+                  const { name, trainingSites } = departmentUnits[m];
+
+                  let studentRow = departmentUnitRow;
+
+                  if (trainingSites?.length) {
+                    // iterating over all the training sites of a department unit
+                    for (let n = 0; n < trainingSites.length; n++) {
+                      const { placement } = trainingSites[n];
+                      if (placement.length) {
+                        // iterating over all the students placed in a training site
+                        for (let p = 0; p < placement.length; p++) {
+                          const { student } = placement[p];
+                          ws.cell(studentRow, studentIdCol).string(
+                            student?.studentId ?? '-',
+                          );
+
+                          ws.cell(studentRow, studentNameCol).string(
+                            student?.name ?? '-',
+                          );
+
+                          ws.cell(studentRow, studentEmailCol).string(
+                            student?.email ?? '-',
+                          );
+
+                          studentRow += 1;
+                        }
+                      } else {
+                        studentRow += 1;
+                      }
+                    }
+                  } else {
+                    studentRow += 1;
+                  }
+
                   // populating the department unit name column
-                  ws.cell(departmentUnitRow, departmentUnitNameCol).string(
-                    name ?? '-',
-                  );
+                  ws.cell(
+                    departmentUnitRow,
+                    departmentUnitNameCol,
+                    studentRow - 1,
+                    departmentUnitNameCol,
+                    true,
+                  ).string(name ?? '-');
                   departmentUnitRow++;
                 }
               } else {
@@ -283,11 +326,18 @@ export class ExportService {
         authorityInitialsCol,
         hospitalRow - 1,
         authorityInitialsCol,
+        true,
       )
         .string(initials ?? '-')
         .style(mergedCellStyle);
 
-      ws.cell(authorityRow, authorityNameCol, hospitalRow - 1, authorityNameCol)
+      ws.cell(
+        authorityRow,
+        authorityNameCol,
+        hospitalRow - 1,
+        authorityNameCol,
+        true,
+      )
         .string(name ?? '-')
         .style(mergedCellStyle);
 
