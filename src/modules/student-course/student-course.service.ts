@@ -246,10 +246,16 @@ export class StudentCourseService {
     let studentOnBlock;
     if (courseId) {
       studentPlacementOnCourseLevel = await this.placementRepository.find({
-        where: {
-          trainingSite: { course: { id: courseId } },
-          student: { id: student.id },
-        },
+        where: [
+          {
+            trainingSite: { course: { id: courseId } },
+            student: { id: student.id },
+          },
+          {
+            blockTrainingSite: { block: { course: { id: courseId } } },
+            student: { id: student.id },
+          },
+        ],
       });
 
       // check if student is inside block or not

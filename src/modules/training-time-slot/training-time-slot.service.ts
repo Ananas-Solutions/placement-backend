@@ -113,29 +113,33 @@ export class TrainingSiteTimeSlotService {
   async findTimeSlots(
     trainingSiteId: string,
   ): Promise<TrainingTimeSlotEntity[]> {
-    const trainingSiteTimeSlots = await this.timeslotRepository.find({
-      where: { trainingSite: { id: trainingSiteId } },
-      loadEagerRelations: false,
-      relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
-    });
+    try {
+      const trainingSiteTimeSlots = await this.timeslotRepository.find({
+        where: { trainingSite: { id: trainingSiteId } },
+        loadEagerRelations: false,
+        relations: ['supervisor', 'trainingSite', 'trainingSite.course'],
+      });
 
-    const allAvailableTimeSlots = await Promise.all(
-      trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlotEntity) => {
-        const { trainingSite } = timeSlot;
-        const { course } = trainingSite;
-        const assingedStudents =
-          await this.placementService.findTimeSlotStudents(timeSlot.id);
+      const allAvailableTimeSlots = await Promise.all(
+        trainingSiteTimeSlots.map(async (timeSlot: TrainingTimeSlotEntity) => {
+          const { trainingSite } = timeSlot;
+          const { course } = trainingSite;
+          const assingedStudents =
+            await this.placementService.findTimeSlotStudents(timeSlot.id);
 
-        return {
-          ...timeSlot,
-          totalCapacity: timeSlot.capacity,
-          assignedCapacity: assingedStudents.length,
-          remainingcapacity: timeSlot.capacity - assingedStudents.length,
-          courseId: course.id,
-        };
-      }),
-    );
-    return allAvailableTimeSlots;
+          return {
+            ...timeSlot,
+            totalCapacity: timeSlot.capacity,
+            assignedCapacity: assingedStudents.length,
+            remainingcapacity: timeSlot.capacity - assingedStudents.length,
+            courseId: course.id,
+          };
+        }),
+      );
+      return allAvailableTimeSlots;
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 
   async findBlockTimeSlots(

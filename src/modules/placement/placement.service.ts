@@ -453,7 +453,7 @@ export class PlacementService {
       const studentsPlaced = await this.placementRepository.find({
         where: [
           { trainingSite: { course: { id: courseId } } },
-          { blockTrainingSite: { block: { course: { id: courseId } } } },
+          // { blockTrainingSite: { block: { course: { id: courseId } } } },
         ],
       });
 
