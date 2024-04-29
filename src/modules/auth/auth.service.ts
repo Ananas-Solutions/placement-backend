@@ -42,6 +42,7 @@ export class AuthService {
         role: user.role,
         id: user.id,
         name: user.name,
+        isFirstLogin: user.isFirstLogin,
       };
     } catch (err) {
       throw err;

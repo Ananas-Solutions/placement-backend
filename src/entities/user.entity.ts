@@ -42,6 +42,9 @@ export class UserEntity extends CustomBaseEntity {
   @Column({ default: false })
   locked: boolean;
 
+  @Column({ default: false })
+  isFirstLogin: boolean;
+
   @OneToMany(() => UserDocumentEntity, (userDocument) => userDocument.user, {
     cascade: ['update', 'soft-remove'],
     eager: true,

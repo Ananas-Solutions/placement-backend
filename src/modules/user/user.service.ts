@@ -7,6 +7,7 @@ import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
 import { StudentProfileEntity } from 'entities/student-profile.entity';
 import { UserEntity } from 'entities/user.entity';
+import { EmailService } from 'helper/send-email.service';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
@@ -21,6 +22,7 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(StudentProfileEntity)
     private readonly studentRepository: Repository<StudentProfileEntity>,
+    private readonly emailService: EmailService,
   ) {}
 
   async saveUser(body: UserDto): Promise<IUserResponse> {
@@ -29,8 +31,36 @@ export class UserService {
     });
     if (existingUser) throw new ConflictException('Email already used');
 
-    const user = this.userRepository.create(body);
+    let updatedPassword = body.password;
+
+    // generating a random password if user role is student
+    if (body.role === UserRoleEnum.STUDENT) {
+      updatedPassword = this.generateRandomString(
+        Math.floor(Math.random() * 3) + 10,
+      );
+    }
+
+    const user = this.userRepository.create({
+      ...body,
+      password: updatedPassword,
+      isFirstLogin: body.role === UserRoleEnum.STUDENT ? true : false,
+    });
+
     const newUser = await this.userRepository.save(user);
+
+    if (body.role === UserRoleEnum.STUDENT) {
+      // send email to student with their email and randomly generated password
+
+      await this.emailService.sendLoginDetails({
+        to: body.email,
+        emailData: {
+          name: body.name,
+          email: body.email,
+          password: updatedPassword,
+          role: UserRoleEnum.STUDENT.toLowerCase(),
+        },
+      });
+    }
 
     return this.transformToResponse(newUser);
   }
@@ -157,7 +187,7 @@ export class UserService {
     const updatedPassword = await bcrypt.hash(body.newPassword, 10);
     await this.userRepository.update(
       { id: userId },
-      { password: updatedPassword },
+      { password: updatedPassword, isFirstLogin: false },
     );
 
     return { message: 'Password updated successfully.' };
@@ -183,5 +213,16 @@ export class UserService {
       email,
       role,
     };
+  }
+
+  private generateRandomString(length) {
+    const charset =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    let randomString = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      randomString += charset[randomIndex];
+    }
+    return randomString;
   }
 }
