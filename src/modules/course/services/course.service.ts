@@ -305,20 +305,22 @@ export class CourseService {
       where: { id: body.courseId },
     });
 
-    const courseBlockType = course.blockType;
+    const courseBlockType = course.blockType || 'rotating';
 
-    if (!courseBlockType) {
-      throw new BadRequestException(
-        'No block type is defined for the course. Define course block type first.',
-      );
-    }
+    // if (!courseBlockType) {
+    //   throw new BadRequestException(
+    //     'No block type is defined for the course. Define course block type first.',
+    //   );
+    // }
 
     if (courseBlockType === 'rotating') {
       // check if all the startsFrom and endsAt dates are same for the payload or not
       const startsFrom = body.blocks[0].startsFrom;
       const endsAt = body.blocks[0].endsAt;
+
       for (let i = 1; i < body.blocks.length; i++) {
-        if (body[i].startsFrom !== startsFrom || body[i].endsAt !== endsAt) {
+        const block = body.blocks[i];
+        if (block.startsFrom !== startsFrom || block.endsAt !== endsAt) {
           throw new BadRequestException(
             'All the block dates should be same for rotating block type.',
           );
