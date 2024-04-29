@@ -299,9 +299,9 @@ export class CourseService {
     };
   }
 
-  public async addBlocks(body: CreateBlockDto[]) {
+  public async addBlocks(body: CreateBlockDto) {
     const course = await this.courseRepository.findOne({
-      where: { id: body[0].courseId },
+      where: { id: body.courseId },
     });
 
     const courseBlockType = course.blockType;
@@ -314,9 +314,9 @@ export class CourseService {
 
     if (courseBlockType === 'rotating') {
       // check if all the startsFrom and endsAt dates are same for the payload or not
-      const startsFrom = body[0].startsFrom;
-      const endsAt = body[0].endsAt;
-      for (let i = 1; i < body.length; i++) {
+      const startsFrom = body.blocks[0].startsFrom;
+      const endsAt = body.blocks[0].endsAt;
+      for (let i = 1; i < body.blocks.length; i++) {
         if (body[i].startsFrom !== startsFrom || body[i].endsAt !== endsAt) {
           throw new BadRequestException(
             'All the block dates should be same for rotating block type.',
@@ -325,10 +325,10 @@ export class CourseService {
       }
     }
 
+    const courseId = body.courseId;
     await Promise.all(
-      body.map(async (block) => {
-        const { courseId, startsFrom, endsAt, duration, name, capacity } =
-          block;
+      body.blocks.map(async (block) => {
+        const { startsFrom, endsAt, duration, name, capacity } = block;
 
         await this.courseBlocksRepository.save({
           name,
