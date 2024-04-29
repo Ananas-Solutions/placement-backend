@@ -175,7 +175,7 @@ export class UserService {
       oldPassword: string;
       newPassword: string;
     },
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
@@ -190,7 +190,7 @@ export class UserService {
       { password: updatedPassword, isFirstLogin: false },
     );
 
-    return { message: 'Password updated successfully.' };
+    return { message: 'Password updated successfully.', userId };
   }
 
   private transformToResponse(user: UserEntity): IUserResponse {
