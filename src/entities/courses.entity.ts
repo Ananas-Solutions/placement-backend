@@ -24,6 +24,9 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({ type: 'boolean', default: false })
   isPublished!: boolean;
 
+  @Column({ nullable: true })
+  blockType?: string;
+
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   coordinator: UserEntity;

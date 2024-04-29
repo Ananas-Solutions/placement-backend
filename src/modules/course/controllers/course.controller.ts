@@ -24,6 +24,7 @@ import {
   AddStudentDto,
   CourseTrainingSiteDto,
   CreateCourseDto,
+  DefineCourseBlockDto,
   ExportCourseDataDto,
   TransferAndShuffleCourseSettingDto,
   TransferCourseSettingDto,
@@ -50,6 +51,12 @@ export class CourseController {
   async saveCourse(@Req() req, @Body() body: CreateCourseDto) {
     const userId = req.user.id;
     return await this.coursesServices.createCourse(userId, body);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post('define-block')
+  async defineCourseBlock(@Body() body: DefineCourseBlockDto) {
+    return await this.coursesServices.defineCourseBlock(body);
   }
 
   @Post('training-site')

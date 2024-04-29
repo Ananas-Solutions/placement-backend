@@ -23,6 +23,7 @@ import {
   AddStudentToBlockDto,
   CreateBlockDto,
   CreateCourseDto,
+  DefineCourseBlockDto,
   UpdateCourseBlockDto,
 } from '../dto';
 import { ICourseDetailResponse, ICourseResponse } from '../response';
@@ -67,6 +68,17 @@ export class CourseService {
     const newCourse = await this.courseRepository.save(course);
 
     return this.transformToResponse(newCourse);
+  }
+
+  async defineCourseBlock(bodyDto: DefineCourseBlockDto) {
+    const { courseId, blockType } = bodyDto;
+
+    await this.courseRepository.update(
+      { id: courseId },
+      { blockType: blockType },
+    );
+
+    return { message: 'Course block defined successfully.' };
   }
 
   async addStudent(bodyDto: AddStudentDto): Promise<ISuccessMessageResponse> {
@@ -287,13 +299,40 @@ export class CourseService {
     };
   }
 
-  public async addBlocks(body: CreateBlockDto) {
-    const { courseId, startsFrom, endsAt, blocks, duration } = body;
+  public async addBlocks(body: CreateBlockDto[]) {
+    const course = await this.courseRepository.findOne({
+      where: { id: body[0].courseId },
+    });
+
+    const courseBlockType = course.blockType;
+
+    if (!courseBlockType) {
+      throw new BadRequestException(
+        'No block type is defined for the course. Define course block type first.',
+      );
+    }
+
+    if (courseBlockType === 'rotating') {
+      // check if all the startsFrom and endsAt dates are same for the payload or not
+      const startsFrom = body[0].startsFrom;
+      const endsAt = body[0].endsAt;
+      for (let i = 1; i < body.length; i++) {
+        if (body[i].startsFrom !== startsFrom || body[i].endsAt !== endsAt) {
+          throw new BadRequestException(
+            'All the block dates should be same for rotating block type.',
+          );
+        }
+      }
+    }
 
     await Promise.all(
-      blocks.map(async (block) => {
-        return await this.courseBlocksRepository.save({
-          ...block,
+      body.map(async (block) => {
+        const { courseId, startsFrom, endsAt, duration, name, capacity } =
+          block;
+
+        await this.courseBlocksRepository.save({
+          name,
+          capacity,
           startsFrom,
           endsAt,
           duration,
@@ -302,7 +341,7 @@ export class CourseService {
       }),
     );
 
-    return { message: 'Block added successfully.' };
+    return { message: 'Blocks added successfully.' };
   }
 
   public async getCourseBlocks(courseId: string) {
@@ -315,12 +354,33 @@ export class CourseService {
   }
 
   public async updateBlock(blockId: string, body: UpdateCourseBlockDto) {
-    const { name, capacity } = body;
+    const { name, capacity, startsFrom, endsAt, duration } = body;
 
     await this.courseBlocksRepository.update(
       { id: blockId },
-      { name, capacity },
+      { name, capacity, startsFrom, endsAt, duration },
     );
+
+    const blockInfo = await this.courseBlocksRepository.findOne({
+      where: {
+        id: blockId,
+      },
+      loadEagerRelations: false,
+      relations: ['course'],
+    });
+
+    const courseBlockType = blockInfo.course.blockType;
+
+    if (courseBlockType === 'rotating') {
+      await this.courseBlocksRepository.update(
+        { course: { id: blockInfo.course.id } },
+        {
+          startsFrom,
+          endsAt,
+          duration,
+        },
+      );
+    }
 
     return { message: 'Course block edited successfully.' };
   }

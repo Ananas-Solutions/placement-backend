@@ -41,7 +41,7 @@ export class CourseBlockController {
 
   @Post()
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  async addBlocks(@Body() body: CreateBlockDto) {
+  async addBlocks(@Body() body: CreateBlockDto[]) {
     return this.courseService.addBlocks(body);
   }
 
