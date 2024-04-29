@@ -109,7 +109,7 @@ export class StudentCourseService {
     const studentCourses = await this.studentCourseRepository.find({
       where: { student: { id: studentId } },
       loadEagerRelations: false,
-      relations: ['course'],
+      relations: ['course', 'block'],
     });
     const allCourses = studentCourses.map((studentCourse) =>
       this.transformToStudentCourse(studentCourse),
@@ -226,11 +226,13 @@ export class StudentCourseService {
   private transformToStudentCourse(
     entity: StudentCourseEntity,
   ): IStudentCourseResponse {
-    const { course } = entity;
+    const { course, block } = entity;
 
     return {
       id: course.id,
       name: course.name,
+      blockId: block?.id,
+      blockName: block?.name,
     };
   }
 
