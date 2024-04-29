@@ -78,7 +78,7 @@ export class CourseService {
       { blockType: blockType },
     );
 
-    return { message: 'Course block defined successfully.' };
+    return { message: 'Course block defined successfully.', blockType };
   }
 
   async addStudent(bodyDto: AddStudentDto): Promise<ISuccessMessageResponse> {
@@ -279,11 +279,12 @@ export class CourseService {
   private transformToDetailResponse(
     entity: CourseEntity,
   ): ICourseDetailResponse {
-    const { id, name, coordinator, department, semester } = entity;
+    const { id, name, coordinator, department, semester, blockType } = entity;
 
     return {
       id,
       name,
+      blockType,
       coordinator: {
         id: coordinator?.id,
         name: coordinator?.name,
