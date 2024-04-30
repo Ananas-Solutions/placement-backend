@@ -227,8 +227,8 @@ export class StudentService {
         postalCode,
       },
       kin,
-      imageUrl: null,
-      // imageUrl: await this.fileUploadService.getUploadedFile(profile.imageUrl),
+
+      imageUrl: await this.fileUploadService.getUploadedFile(profile.imageUrl),
     };
   }
 
