@@ -11,5 +11,5 @@ export class UploadDocumentDto {
 
   @IsOptional()
   @IsString()
-  public expiryDate: Date;
+  public documentExpiryDate: Date;
 }
