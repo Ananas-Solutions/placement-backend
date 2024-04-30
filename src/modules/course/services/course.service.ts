@@ -348,12 +348,32 @@ export class CourseService {
   }
 
   public async getCourseBlocks(courseId: string) {
-    return await this.courseBlocksRepository.find({
+    const courseInfo = await this.courseRepository.findOne({
+      where: { id: courseId },
+    });
+
+    const allBlocks = await this.courseBlocksRepository.find({
       where: { course: { id: courseId } },
       order: {
         name: 'ASC',
       },
     });
+
+    const mappedCourseBlocks = allBlocks.map((block) => {
+      const { name, duration, capacity, startsFrom, endsAt, id } = block;
+
+      return {
+        id,
+        name,
+        duration,
+        capacity,
+        startsFrom,
+        endsAt,
+        courseBlockType: courseInfo.blockType,
+      };
+    });
+
+    return mappedCourseBlocks;
   }
 
   public async updateBlock(blockId: string, body: UpdateCourseBlockDto) {
