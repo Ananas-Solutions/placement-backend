@@ -1,6 +1,10 @@
 export interface IStudentTrainingTimeSlotsResponse {
   placementId: string;
-  hospital: string;
+  hospital: {
+    id: string;
+    name: string;
+    location: any;
+  };
   department: string;
   departmentUnit: string;
   supervisor: {

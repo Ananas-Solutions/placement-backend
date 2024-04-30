@@ -52,7 +52,7 @@ export class StudentController {
     return await this.studentService.saveBulkStudent(body);
   }
 
-  @Get()
+  @Get('assigned-training-sites')
   async getStudentTimeSlots(@Req() req) {
     return this.studentService.getStudentTimeSlots(req.user.id);
   }

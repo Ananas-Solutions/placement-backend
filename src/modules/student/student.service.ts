@@ -255,7 +255,11 @@ export class StudentService {
 
       return {
         placementId: id,
-        hospital: hospital.name,
+        hospital: {
+          id: hospital.id,
+          name: hospital.name,
+          location: hospital.location,
+        },
         department: department.name,
         departmentUnit: departmentUnit.name,
         supervisor: {
