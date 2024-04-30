@@ -186,7 +186,9 @@ export class StudentService {
           postalCode: null,
         },
         kin: null,
-        imageUrl: '',
+        imageUrl: profile.imageUrl
+          ? await this.fileUploadService.getUploadedFile(profile.imageUrl)
+          : null,
       };
     }
 
