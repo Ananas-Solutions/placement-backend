@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
@@ -125,17 +125,34 @@ export class StudentService {
     studentId: string,
   ): Promise<IStudentTrainingTimeSlotsResponse[]> {
     const studentPlacement = await this.placementRepository.find({
-      where: { student: { id: studentId } },
+      where: { student: { id: studentId }, deletedAt: IsNull() },
       loadEagerRelations: false,
-      relations: [
-        'trainingSite',
-        'trainingSite.departmentUnit',
-        'trainingSite.departmentUnit.department',
-        'trainingSite.departmentUnit.department.hospital',
-        'trainingSite.course',
-        'timeSlot',
-        'timeSlot.supervisor',
-      ],
+      relations: {
+        trainingSite: {
+          departmentUnit: {
+            department: {
+              hospital: true,
+            },
+          },
+          course: true,
+        },
+        timeSlot: {
+          supervisor: true,
+        },
+        blockTrainingSite: {
+          departmentUnit: {
+            department: {
+              hospital: true,
+            },
+          },
+          block: {
+            course: true,
+          },
+        },
+        blockTimeSlot: {
+          supervisor: true,
+        },
+      },
     });
 
     const mappedResult = studentPlacement.map((placement) =>
@@ -213,35 +230,53 @@ export class StudentService {
   }
 
   private transformToTimeSlotResponse(placement: PlacementEntity) {
-    const { id, trainingSite, timeSlot } = placement;
-    const { course } = trainingSite;
-    const { startTime, endTime, day, supervisor, id: timeslotId } = timeSlot;
+    try {
+      const { id, trainingSite, timeSlot, blockTrainingSite, blockTimeSlot } =
+        placement;
 
-    const { departmentUnit } = trainingSite;
-    const { department } = departmentUnit;
-    const { hospital } = department;
+      let course;
+      if (blockTrainingSite) {
+        course = blockTrainingSite.block.course;
+      } else {
+        course = trainingSite.course;
+      }
 
-    return {
-      placementId: id,
-      hospital: hospital.name,
-      department: department.name,
-      departmentUnit: departmentUnit.name,
-      supervisor: {
-        name: supervisor.name,
-        email: supervisor.email,
-        id: supervisor.id,
-      },
-      course: {
-        name: course.name,
-        id: course.id,
-      },
-      trainingSite: {
-        id: trainingSite.id,
-      },
-      timeslotId,
-      startTime,
-      endTime,
-      day,
-    };
+      const {
+        startTime,
+        endTime,
+        day,
+        supervisor,
+        id: timeslotId,
+      } = blockTimeSlot || timeSlot;
+
+      const { departmentUnit } = blockTrainingSite || trainingSite;
+      const { department } = departmentUnit;
+      const { hospital } = department;
+
+      return {
+        placementId: id,
+        hospital: hospital.name,
+        department: department.name,
+        departmentUnit: departmentUnit.name,
+        supervisor: {
+          name: supervisor?.name,
+          email: supervisor?.email,
+          id: supervisor?.id,
+        },
+        course: {
+          name: course?.name,
+          id: course?.id,
+        },
+        trainingSite: {
+          id: (blockTrainingSite || trainingSite)?.id,
+        },
+        timeslotId,
+        startTime,
+        endTime,
+        day,
+      };
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 }
