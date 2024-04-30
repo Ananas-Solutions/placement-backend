@@ -14,6 +14,7 @@ import {
   StudentProfileEntity,
   UserDocumentEntity,
 } from './index.entity';
+import { TrainingSiteAttendanceEntity } from './training-site-attendance.entity';
 
 @Entity()
 export class UserEntity extends CustomBaseEntity {
@@ -59,4 +60,11 @@ export class UserEntity extends CustomBaseEntity {
     },
   )
   studentProfile: StudentProfileEntity;
+
+  @OneToMany(
+    () => TrainingSiteAttendanceEntity,
+    (attendance) => attendance.student,
+    { cascade: true },
+  )
+  attendance: TrainingSiteAttendanceEntity[];
 }

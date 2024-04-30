@@ -29,6 +29,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { WebsocketModule } from './websocket/websocket.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { ExportModule } from './modules/export/export.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ExportModule } from './modules/export/export.module';
     WebsocketModule,
     StatsModule,
     ExportModule,
+    AttendanceModule,
   ],
 
   controllers: [AppController],

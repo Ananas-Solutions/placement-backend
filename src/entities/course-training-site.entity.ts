@@ -7,6 +7,7 @@ import {
   PlacementEntity,
   TrainingTimeSlotEntity,
 } from './index.entity';
+import { TrainingSiteAttendanceEntity } from './training-site-attendance.entity';
 
 @Entity()
 export class CourseTrainingSiteEntity extends CustomBaseEntity {
@@ -38,4 +39,11 @@ export class CourseTrainingSiteEntity extends CustomBaseEntity {
     eager: true,
   })
   placement: PlacementEntity[];
+
+  @OneToMany(
+    () => TrainingSiteAttendanceEntity,
+    (attendance) => attendance.courseTrainingSite,
+    { cascade: true },
+  )
+  attendance: TrainingSiteAttendanceEntity[];
 }
