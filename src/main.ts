@@ -8,7 +8,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*', // Set the allowed origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Set the allowed HTTP methods
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'], // Set the allowed HTTP methods
   });
 
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
