@@ -12,6 +12,7 @@ import { UserModule } from 'user/user.module';
 
 import { SupervisorController } from './clinical-supervisor.controller';
 import { SupervisorService } from './clinical-supervisor.service';
+import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SupervisorService } from './clinical-supervisor.service';
       SupervisorProfileEntity,
       SupervisorDepartmentUnitEntity,
       TrainingTimeSlotEntity,
+      BlockTrainingTimeSlotEntity,
     ]),
     UserModule,
     HospitalModule,

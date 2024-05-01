@@ -14,6 +14,7 @@ import { HospitalService } from 'hospital/hospital.service';
 import { UserService } from 'user/user.service';
 
 import { SupervisorProfileDto, CreateSupervisorDto } from './dto';
+import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
 
 @Injectable()
 export class SupervisorService {
@@ -24,6 +25,8 @@ export class SupervisorService {
     private readonly supervisorDepartmentUnit: Repository<SupervisorDepartmentUnitEntity>,
     @InjectRepository(TrainingTimeSlotEntity)
     private readonly trainingTimeSlot: Repository<TrainingTimeSlotEntity>,
+    @InjectRepository(BlockTrainingTimeSlotEntity)
+    private readonly blockTrainingTimeSlot: Repository<BlockTrainingTimeSlotEntity>,
     private readonly userService: UserService,
     private readonly hospitalService: HospitalService,
     private readonly departmentService: DepartmentService,
@@ -87,24 +90,139 @@ export class SupervisorService {
   }
 
   async fetchAllTimeSlots(supervisorId: string) {
-    const supervisorTrainingTimeSlots = await this.trainingTimeSlot.find({
+    const fetchSupervisorTrainingTimeSlots = this.trainingTimeSlot.find({
       where: { supervisor: { id: supervisorId } },
-      relations: [
-        'placements',
-        'trainingSite',
-        'trainingSite.course',
-        'trainingSite.departmentUnit',
-        'trainingSite.departmentUnit.department',
-        'trainingSite.departmentUnit.department.hospital',
-      ],
+      loadEagerRelations: false,
+      relations: {
+        placements: true,
+        trainingSite: {
+          course: true,
+          departmentUnit: {
+            department: {
+              hospital: true,
+            },
+          },
+        },
+      },
     });
 
+    const fetchSupervisorBlockTrainingTimeSlots =
+      this.blockTrainingTimeSlot.find({
+        where: { supervisor: { id: supervisorId } },
+        loadEagerRelations: false,
+        relations: {
+          placements: true,
+          blockTrainingSite: {
+            block: {
+              course: true,
+            },
+            departmentUnit: {
+              department: {
+                hospital: true,
+              },
+            },
+          },
+        },
+      });
+
+    const [supervisorTrainingTimeSlots, supervisorBlockTrainingTimeSlots] =
+      await Promise.all([
+        fetchSupervisorTrainingTimeSlots,
+        fetchSupervisorBlockTrainingTimeSlots,
+      ]);
+
     const mappedTrainingSites = supervisorTrainingTimeSlots.map((timeSlot) => {
+      const { id, day, startTime, endTime, placements } = timeSlot;
+      const { departmentUnit, course } = timeSlot.trainingSite;
+      const trainingSite = timeSlot.trainingSite;
+      const { department } = departmentUnit;
+      const { hospital } = department;
+      return {
+        timeSlotId: id,
+        trainingSiteId: trainingSite.id,
+        hospital: {
+          id: hospital.id,
+          name: hospital.name,
+          location: hospital.location as any,
+        },
+        department: department.name,
+        departmentUnit: departmentUnit.name,
+        day,
+        startTime,
+        endTime,
+        course: {
+          name: course.name,
+          id: course.id,
+        },
+        totalStudents: placements.length,
+      };
+    });
+
+    const mappedBlockTrainingSites = supervisorBlockTrainingTimeSlots.map(
+      (timeSlot) => {
+        const { id, day, startTime, endTime, placements, blockTrainingSite } =
+          timeSlot;
+        const { departmentUnit } = timeSlot.blockTrainingSite;
+        const { course } = blockTrainingSite.block;
+        const { department } = departmentUnit;
+        const { hospital } = department;
+        return {
+          timeSlotId: id,
+          trainingSiteId: blockTrainingSite.id,
+          hospital: {
+            id: hospital.id,
+            name: hospital.name,
+            location: hospital.location as any,
+          },
+          department: department.name,
+          departmentUnit: departmentUnit.name,
+          day,
+          startTime,
+          endTime,
+          course: {
+            name: course.name,
+            id: course.id,
+          },
+          totalStudents: placements.length,
+        };
+      },
+    );
+
+    return { ...mappedTrainingSites, ...mappedBlockTrainingSites };
+  }
+
+  async fetchOneTimeSlot(timeSlotId: string) {
+    const timeSlot = await this.trainingTimeSlot.findOne({
+      where: { id: timeSlotId },
+      relations: {
+        placements: true,
+        trainingSite: {
+          course: true,
+          departmentUnit: {
+            department: {
+              hospital: true,
+            },
+          },
+        },
+      },
+    });
+
+    if (timeSlot) {
       const { id, day, startTime, endTime, placements, trainingSite } =
         timeSlot;
       const { departmentUnit, course } = trainingSite;
       const { department } = departmentUnit;
       const { hospital } = department;
+
+      const mappedStudents = placements.map((placement) => {
+        const { student } = placement;
+
+        return {
+          studentId: student.id,
+          name: student.name,
+          email: student.email,
+        };
+      });
       return {
         timeSlotId: id,
         trainingSiteId: trainingSite.id,
@@ -119,27 +237,31 @@ export class SupervisorService {
           id: course.id,
         },
         totalStudents: placements.length,
+        students: mappedStudents,
       };
-    });
-    return mappedTrainingSites;
-  }
+    }
 
-  async fetchOneTimeSlot(timeSlotId: string) {
-    const timeSlot = await this.trainingTimeSlot.findOne({
+    const blockTimeSlot = await this.blockTrainingTimeSlot.findOne({
       where: { id: timeSlotId },
-      relations: [
-        'placements',
-        'placements.student',
-        'trainingSite',
-        'trainingSite.course',
-        'trainingSite.departmentUnit',
-        'trainingSite.departmentUnit.department',
-        'trainingSite.departmentUnit.department.hospital',
-      ],
+      relations: {
+        placements: true,
+        blockTrainingSite: {
+          block: {
+            course: true,
+          },
+          departmentUnit: {
+            department: {
+              hospital: true,
+            },
+          },
+        },
+      },
     });
 
-    const { id, day, startTime, endTime, placements, trainingSite } = timeSlot;
-    const { departmentUnit, course } = trainingSite;
+    const { id, day, startTime, endTime, placements, blockTrainingSite } =
+      blockTimeSlot;
+    const { departmentUnit } = blockTrainingSite;
+    const course = blockTrainingSite.block.course;
     const { department } = departmentUnit;
     const { hospital } = department;
 
@@ -154,7 +276,7 @@ export class SupervisorService {
     });
     return {
       timeSlotId: id,
-      trainingSiteId: trainingSite.id,
+      trainingSiteId: blockTrainingSite.id,
       hospital: hospital.name,
       department: department.name,
       departmentUnit: departmentUnit.name,
