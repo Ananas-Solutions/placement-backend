@@ -188,7 +188,7 @@ export class SupervisorService {
       },
     );
 
-    return { ...mappedTrainingSites, ...mappedBlockTrainingSites };
+    return [...mappedTrainingSites, ...mappedBlockTrainingSites];
   }
 
   async fetchOneTimeSlot(timeSlotId: string) {
