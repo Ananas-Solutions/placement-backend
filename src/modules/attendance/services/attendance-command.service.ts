@@ -40,7 +40,7 @@ export class AttendanceCommandService {
     if (!existingAttendance) {
       await this.trainingSiteAttendanceRepository.save({
         student: { id: studentId },
-        trainingSite: { id: trainingSiteId },
+        trainingSite: trainingSiteId,
         checkInDate: serverDate,
       });
 

@@ -30,7 +30,7 @@ export class AttendanceQueryService {
     const attendance = await this.trainingSiteAttendanceRepository.find({
       where: {
         student: { id: studentId },
-        courseTrainingSite: { id: trainingSiteId },
+        trainingSite: trainingSiteId,
         createdAt: Between(startDate, endDate),
       },
     });
@@ -70,7 +70,7 @@ export class AttendanceQueryService {
 
         const attendance = await this.trainingSiteAttendanceRepository.findOne({
           where: {
-            courseTrainingSite: { id: trainingSiteId },
+            trainingSite: trainingSiteId,
             student: { id: student.id },
             createdAt: Between(startDate, endDate),
           },

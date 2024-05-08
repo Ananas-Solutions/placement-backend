@@ -24,6 +24,7 @@ export class TrainingSiteAttendanceEntity extends CustomBaseEntity {
   //   { onDelete: 'CASCADE' },
   // )
   // @JoinColumn()
+
   @Column({ nullable: true })
-  trainingSite: CourseTrainingSiteEntity;
+  trainingSite: string;
 }
