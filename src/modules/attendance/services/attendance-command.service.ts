@@ -28,7 +28,7 @@ export class AttendanceCommandService {
 
     whereClause = {
       ...whereClause,
-      courseTrainingSite: { id: trainingSiteId },
+      trainingSite: { id: trainingSiteId },
       createdAt: Between(startOfDay(todayDate), endOfDay(todayDate)),
     };
 
@@ -40,7 +40,7 @@ export class AttendanceCommandService {
     if (!existingAttendance) {
       await this.trainingSiteAttendanceRepository.save({
         student: { id: studentId },
-        courseTrainingSite: { id: trainingSiteId },
+        trainingSite: { id: trainingSiteId },
         checkInDate: serverDate,
       });
 

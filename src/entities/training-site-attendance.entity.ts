@@ -18,11 +18,12 @@ export class TrainingSiteAttendanceEntity extends CustomBaseEntity {
   @JoinColumn()
   student: UserEntity;
 
-  @ManyToOne(
-    () => CourseTrainingSiteEntity,
-    (courseTrainingSite) => courseTrainingSite.attendance,
-    { onDelete: 'CASCADE' },
-  )
-  @JoinColumn()
-  courseTrainingSite: CourseTrainingSiteEntity;
+  // @ManyToOne(
+  //   () => CourseTrainingSiteEntity,
+  //   (courseTrainingSite) => courseTrainingSite.attendance,
+  //   { onDelete: 'CASCADE' },
+  // )
+  // @JoinColumn()
+  @Column({ nullable: true })
+  trainingSite: CourseTrainingSiteEntity;
 }
