@@ -6,10 +6,10 @@ import { UserEntity } from './user.entity';
 
 @Entity()
 export class TrainingSiteAttendanceEntity extends CustomBaseEntity {
-  @Column()
+  @Column({ nullable: true })
   checkInDate!: string;
 
-  @Column()
+  @Column({ nullable: true })
   checkoutDate?: string;
 
   @ManyToOne(() => UserEntity, (student) => student.attendance, {
