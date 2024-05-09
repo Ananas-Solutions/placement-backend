@@ -64,6 +64,7 @@ export class AttendanceQueryService {
 
     const trainingSite = await this.courseTrainingSiteRepository.findOne({
       where: { id: trainingSiteId },
+      loadEagerRelations: false,
       relations: { placement: { student: true } },
     });
 
@@ -72,6 +73,7 @@ export class AttendanceQueryService {
         where: {
           id: trainingSiteId,
         },
+        loadEagerRelations: false,
         relations: {
           placement: {
             student: true,
@@ -80,6 +82,8 @@ export class AttendanceQueryService {
       });
 
     const actualTrainingSite = trainingSite || blockTrainingSite;
+
+    console.log('actualTrainingSite', actualTrainingSite.placement);
 
     const allStudents = await Promise.all(
       actualTrainingSite.placement.map(async (placement) => {
@@ -93,11 +97,15 @@ export class AttendanceQueryService {
           },
         });
 
+        console.log('attendance', attendance);
+
         return {
           studentId: student.id,
           studentName: student.name,
-          ...attendance,
-          createdAt: attendance.createdAt ? attendance.createdAt : body.date,
+          attendance: attendance
+            ? this.transformToAttendanceResponse(attendance)
+            : null,
+          createdAt: attendance?.createdAt,
         };
       }),
     );
