@@ -27,8 +27,8 @@ export class AttendanceQueryService {
   public async queryStudentAttendance(body: QueryStudentAttendanceReportDto) {
     const { studentId, trainingSiteId } = body;
 
-    const startDate = startOfDay(new Date(body.startDate));
-    const endDate = startOfDay(new Date(body.endDate));
+    const startDate = startOfDay(body.startDate);
+    const endDate = endOfDay(body.endDate);
 
     const attendance = await this.trainingSiteAttendanceRepository.find({
       where: {
