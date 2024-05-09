@@ -22,31 +22,31 @@ export class AttendanceController {
     private readonly attendanceQueryService: AttendanceQueryService,
   ) {}
 
-  @Roles(UserRoleEnum.CLINICAL_SUPERVISOR)
   @Post()
+  @Roles(UserRoleEnum.CLINICAL_SUPERVISOR)
   async recordStudentAttendance(@Body() body: RecordStudentAttendanceDto) {
     return this.attendanceCommandService.recordStudentAttendance(body);
   }
 
+  @Post('query-student-attendance')
   @Roles(
     UserRoleEnum.ADMIN,
     UserRoleEnum.CLINICAL_COORDINATOR,
     UserRoleEnum.CLINICAL_SUPERVISOR,
     UserRoleEnum.STUDENT,
   )
-  @Post()
   async queryStudentAttendanceReport(
     @Body() body: QueryStudentAttendanceReportDto,
   ) {
     return this.attendanceQueryService.queryStudentAttendance(body);
   }
 
+  @Post('query-training-site-attendance')
   @Roles(
     UserRoleEnum.ADMIN,
     UserRoleEnum.CLINICAL_COORDINATOR,
     UserRoleEnum.CLINICAL_SUPERVISOR,
   )
-  @Post()
   async queryTrainingSiteAttendanceReport(
     @Body() body: QueryTrainingSiteAttendanceDto,
   ) {

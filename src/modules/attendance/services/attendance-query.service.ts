@@ -11,6 +11,7 @@ import {
   QueryStudentAttendanceReportDto,
   QueryTrainingSiteAttendanceDto,
 } from '../dto';
+import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 
 @Injectable()
 export class AttendanceQueryService {
@@ -19,6 +20,8 @@ export class AttendanceQueryService {
     private readonly trainingSiteAttendanceRepository: Repository<TrainingSiteAttendanceEntity>,
     @InjectRepository(CourseTrainingSiteEntity)
     private readonly courseTrainingSiteRepository: Repository<CourseTrainingSiteEntity>,
+    @InjectRepository(CourseBlockTrainingSiteEntity)
+    private readonly courseBlockTrainingSiteRepository: Repository<CourseBlockTrainingSiteEntity>,
   ) {}
 
   public async queryStudentAttendance(body: QueryStudentAttendanceReportDto) {
@@ -59,13 +62,27 @@ export class AttendanceQueryService {
     const startDate = startOfDay(new Date(body.date));
     const endDate = startOfDay(new Date(body.date));
 
-    const trainingSite = await this.courseTrainingSiteRepository.find({
+    const trainingSite = await this.courseTrainingSiteRepository.findOne({
       where: { id: trainingSiteId },
       relations: { placement: { student: true } },
     });
 
+    const blockTrainingSite =
+      await this.courseBlockTrainingSiteRepository.findOne({
+        where: {
+          id: trainingSiteId,
+        },
+        relations: {
+          placement: {
+            student: true,
+          },
+        },
+      });
+
+    const actualTrainingSite = trainingSite || blockTrainingSite;
+
     const allStudents = await Promise.all(
-      trainingSite[0].placement.map(async (placement) => {
+      actualTrainingSite.placement.map(async (placement) => {
         const { student } = placement;
 
         const attendance = await this.trainingSiteAttendanceRepository.findOne({

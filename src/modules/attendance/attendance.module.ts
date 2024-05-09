@@ -9,11 +9,13 @@ import { AttendanceCommandService } from './services/attendance-command.service'
 import { AttendanceQueryService } from './services/attendance-query.service';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
 import { UserEntity } from 'entities/user.entity';
+import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       TrainingSiteAttendanceEntity,
+      CourseBlockTrainingSiteEntity,
       CourseTrainingSiteEntity,
       UserEntity,
     ]),
