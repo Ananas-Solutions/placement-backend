@@ -51,7 +51,7 @@ export class AttendanceCommandService {
       await this.trainingSiteAttendanceRepository.save({
         student: { id: studentId } as UserEntity,
         trainingSite: trainingSiteId,
-        checkInDate: serverDate,
+        checkInDate: new Date(),
       });
 
       return { message: `${studentInfo.name} checked in successfully.` };

@@ -7,10 +7,10 @@ import { UserEntity } from './user.entity';
 @Entity()
 export class TrainingSiteAttendanceEntity extends CustomBaseEntity {
   @Column({ nullable: true })
-  checkInDate!: string;
+  checkInDate!: Date;
 
   @Column({ nullable: true })
-  checkoutDate?: string;
+  checkoutDate?: Date;
 
   @ManyToOne(() => UserEntity, (student) => student.attendance, {
     onDelete: 'CASCADE',
