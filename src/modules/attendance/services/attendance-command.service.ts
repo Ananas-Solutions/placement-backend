@@ -21,7 +21,9 @@ export class AttendanceCommandService {
     const serverDate = format(todayDate, 'yyyy/MM/dd');
 
     if (serverDate !== date) {
-      throw new BadRequestException('Invalid date');
+      throw new BadRequestException(
+        'Server date and actual date do not match. Please try again.',
+      );
     }
 
     let whereClause = {};
