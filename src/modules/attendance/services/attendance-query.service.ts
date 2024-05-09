@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { orderBy, sortBy } from 'lodash';
-import { startOfDay } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
 
 import { TrainingSiteAttendanceEntity } from 'entities/training-site-attendance.entity';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
@@ -59,8 +59,8 @@ export class AttendanceQueryService {
   ) {
     const { trainingSiteId } = body;
 
-    const startDate = startOfDay(new Date(body.date));
-    const endDate = startOfDay(new Date(body.date));
+    const startDate = startOfDay(body.date);
+    const endDate = endOfDay(body.date);
 
     const trainingSite = await this.courseTrainingSiteRepository.findOne({
       where: { id: trainingSiteId },
