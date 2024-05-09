@@ -83,8 +83,6 @@ export class AttendanceQueryService {
 
     const actualTrainingSite = trainingSite || blockTrainingSite;
 
-    console.log('actualTrainingSite', actualTrainingSite.placement);
-
     const allStudents = await Promise.all(
       actualTrainingSite.placement.map(async (placement) => {
         const { student } = placement;
@@ -97,10 +95,9 @@ export class AttendanceQueryService {
           },
         });
 
-        console.log('attendance', attendance);
-
         return {
-          studentId: student.id,
+          id: student.id,
+          studentId: student.studentId,
           studentName: student.name,
           attendance: attendance
             ? this.transformToAttendanceResponse(attendance)

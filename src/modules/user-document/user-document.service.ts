@@ -76,12 +76,19 @@ export class UserDocumentService {
   async uploadDocuments(userId: string, body: UploadDocumentDto) {
     const user = await this.userService.findUserById(userId);
 
-    await this.documentRepository.save({
+    const data = {
       ...body,
       user: { id: userId } as UserEntity,
-    });
+    };
 
-    const message = `${user.name} has uploaded document for verification.`;
+    if (body.courseId) {
+      data['course'] = { id: body.courseId } as CourseEntity;
+    }
+
+    await this.documentRepository.save(data);
+
+    const message = `${user.name} has uploaded ${body.name} document for verification.`;
+
     const contentUrl = body.url;
 
     // find all coordinators for this student
@@ -159,11 +166,13 @@ export class UserDocumentService {
   }
 
   private async transformToResponse(document: UserDocumentEntity) {
-    const { id, name, url, status, comments, documentExpiryDate } = document;
+    const { id, name, url, status, comments, documentExpiryDate, implication } =
+      document;
 
     return {
       id,
       name,
+      implication,
       url: await this.fileUploadService.getUploadedFile(url),
       status,
       comments,
