@@ -9,10 +9,12 @@ import { WebsocketModule } from 'src/websocket/websocket.module';
 import { UserDocumentController } from './user-document.controller';
 import { UserDocumentService } from './user-document.service';
 import { NotificationEntity } from 'entities/notification.entity';
+import { MasterUserDocumentEntity } from 'entities/master-user-document.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      MasterUserDocumentEntity,
       UserDocumentEntity,
       StudentCourseEntity,
       NotificationEntity,

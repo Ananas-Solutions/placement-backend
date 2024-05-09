@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { DocumentVerificationEnum } from 'commons/enums';
-import { CustomBaseEntity, UserEntity } from './index.entity';
+import { CourseEntity, CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()
 export class UserDocumentEntity extends CustomBaseEntity {
@@ -24,9 +24,16 @@ export class UserDocumentEntity extends CustomBaseEntity {
   @Column({ type: 'date', nullable: true })
   documentExpiryDate: Date;
 
+  @Column()
+  implication: string;
+
   @ManyToOne(() => UserEntity, (user) => user.documents, {
     cascade: ['soft-remove'],
   })
   @JoinColumn()
   user: UserEntity;
+
+  @ManyToOne(() => CourseEntity)
+  @JoinColumn()
+  course: CourseEntity;
 }

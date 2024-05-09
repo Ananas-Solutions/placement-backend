@@ -17,6 +17,9 @@ import { NotificationEntity } from 'entities/notification.entity';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { FileUploadService } from 'helper/file-uploader.service';
 
+import { DefineMasterUserDocumentListDto } from './dto';
+import { CourseEntity } from 'entities/courses.entity';
+
 @Injectable()
 @WebSocketGateway({
   cors: {
@@ -38,6 +41,37 @@ export class UserDocumentService {
     private readonly websocketGateway: WebsocketGateway,
     private readonly fileUploadService: FileUploadService,
   ) {}
+
+  async defineUserDocumentMasterList(body: DefineMasterUserDocumentListDto) {
+    const { documentLists } = body;
+
+    await Promise.all(
+      documentLists.map(async (document) => {
+        const { name, implication, courseId } = document;
+
+        const data = {
+          name,
+          implication,
+        };
+
+        if (courseId) {
+          data['course'] = { id: courseId } as CourseEntity;
+        }
+
+        await this.documentRepository.save(data);
+      }),
+    );
+
+    return { message: 'Master document list defined successfully' };
+  }
+
+  async getMasterList() {
+    const allDocument = await this.documentRepository.find({
+      where: { implication: 'global' },
+    });
+
+    return allDocument;
+  }
 
   async uploadDocuments(userId: string, body: UploadDocumentDto) {
     const user = await this.userService.findUserById(userId);

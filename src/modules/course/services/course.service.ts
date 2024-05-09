@@ -51,14 +51,19 @@ export class CourseService {
     if (user.role !== UserRoleEnum.ADMIN && !bodyDto.coordinatorId) {
       bodyDto.coordinatorId = userId;
     }
-    const { semesterId, departmentId, coordinatorId, name } = bodyDto;
+    const { semesterId, departmentId, coordinatorId, name, creditHours } =
+      bodyDto;
+
     let course = {};
+
     course = {
       ...course,
       name,
+      creditHours,
       department: { id: departmentId } as CollegeDepartmentEntity,
       semester: { id: semesterId } as SemesterEntity,
     };
+
     if (coordinatorId) {
       course = {
         ...course,
@@ -242,6 +247,7 @@ export class CourseService {
     const { semesterId, departmentId, coordinatorId, ...body } = bodyDto;
 
     let updateBody = {};
+
     updateBody = {
       ...updateBody,
       ...body,
@@ -269,21 +275,31 @@ export class CourseService {
   }
 
   private transformToResponse(entity: CourseEntity): ICourseResponse {
-    const { id, name } = entity;
+    const { id, name, creditHours } = entity;
     return {
       id,
       name,
+      creditHours,
     };
   }
 
   private transformToDetailResponse(
     entity: CourseEntity,
   ): ICourseDetailResponse {
-    const { id, name, coordinator, department, semester, blockType } = entity;
+    const {
+      id,
+      name,
+      creditHours,
+      coordinator,
+      department,
+      semester,
+      blockType,
+    } = entity;
 
     return {
       id,
       name,
+      creditHours,
       blockType,
       coordinator: {
         id: coordinator?.id,

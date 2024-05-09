@@ -69,7 +69,7 @@ export class AttendanceCommandService {
 
       await this.trainingSiteAttendanceRepository.update(
         { id: existingAttendance.id },
-        { checkoutDate: serverDate },
+        { checkoutDate: new Date() },
       );
 
       return { message: `${studentInfo.name} checked out successfully.` };

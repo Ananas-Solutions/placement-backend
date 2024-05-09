@@ -5,6 +5,7 @@ import { IUserResponse } from 'user/response';
 export interface ICourseDetailResponse {
   id: string;
   name: string;
+  creditHours: number;
   blockType?: string;
   coordinator?: IUserResponse;
   department: ICollegeDepartmentResponse;

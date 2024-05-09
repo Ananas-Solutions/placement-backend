@@ -22,6 +22,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 import { DocumentVerifyDto } from './dto/document-verify.dto';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { UserDocumentService } from './user-document.service';
+import { DefineMasterUserDocumentListDto } from './dto';
 
 @ApiTags('user-document')
 @UseInterceptors(ErrorInterceptor)
@@ -32,6 +33,18 @@ export class UserDocumentController {
     private readonly documentService: UserDocumentService,
     private readonly fileUpload: FileUploadService,
   ) {}
+
+  @Roles(UserRoleEnum.ADMIN)
+  @Post('define-master-list')
+  async defineMasterList(@Body() body: DefineMasterUserDocumentListDto) {
+    return await this.documentService.defineUserDocumentMasterList(body);
+  }
+
+  @Roles(UserRoleEnum.STUDENT)
+  @Get('master-list')
+  async getMasterList() {
+    return await this.documentService.getMasterList();
+  }
 
   @Roles(UserRoleEnum.STUDENT)
   @Post()
