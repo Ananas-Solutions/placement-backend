@@ -8,12 +8,14 @@ import { AttendanceController } from './attendance.controller';
 import { AttendanceCommandService } from './services/attendance-command.service';
 import { AttendanceQueryService } from './services/attendance-query.service';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
+import { UserEntity } from 'entities/user.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       TrainingSiteAttendanceEntity,
       CourseTrainingSiteEntity,
+      UserEntity,
     ]),
     UserModule,
   ],

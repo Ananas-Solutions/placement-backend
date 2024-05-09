@@ -6,12 +6,15 @@ import { differenceInMinutes, endOfDay, format, startOfDay } from 'date-fns';
 import { TrainingSiteAttendanceEntity } from 'entities/training-site-attendance.entity';
 
 import { RecordStudentAttendanceDto } from '../dto';
+import { UserEntity } from 'entities/user.entity';
 
 @Injectable()
 export class AttendanceCommandService {
   constructor(
     @InjectRepository(TrainingSiteAttendanceEntity)
     private readonly trainingSiteAttendanceRepository: Repository<TrainingSiteAttendanceEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   public async recordStudentAttendance(body: RecordStudentAttendanceDto) {
@@ -25,6 +28,10 @@ export class AttendanceCommandService {
         'Server date and actual date do not match. Please try again.',
       );
     }
+
+    const studentInfo = await this.userRepository.findOne({
+      where: { id: studentId },
+    });
 
     let whereClause = {};
 
@@ -46,7 +53,7 @@ export class AttendanceCommandService {
         checkInDate: serverDate,
       });
 
-      return { message: 'Student attendance checked in successfully.' };
+      return { message: `${studentInfo.name} checked in successfully.` };
     }
 
     if (existingAttendance.checkInDate && !existingAttendance.checkoutDate) {
@@ -56,7 +63,7 @@ export class AttendanceCommandService {
       );
 
       if (timeDifference < 10) {
-        return { message: 'Student has already checked in.' };
+        return { message: `${studentInfo.name}  has already checked in.` };
       }
 
       await this.trainingSiteAttendanceRepository.update(
@@ -64,9 +71,9 @@ export class AttendanceCommandService {
         { checkoutDate: serverDate },
       );
 
-      return { message: 'Student attendance checked out successfully.' };
+      return { message: `${studentInfo.name} checked out successfully.` };
     }
 
-    return { message: 'Student has already checked out.' };
+    return { message: `${studentInfo.name} has already checked out.` };
   }
 }
