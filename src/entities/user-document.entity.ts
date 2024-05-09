@@ -24,7 +24,7 @@ export class UserDocumentEntity extends CustomBaseEntity {
   @Column({ type: 'date', nullable: true })
   documentExpiryDate: Date;
 
-  @Column()
+  @Column({ default: 'global' })
   implication: string;
 
   @ManyToOne(() => UserEntity, (user) => user.documents, {
