@@ -14,6 +14,9 @@ export class MasterUserDocumentEntity extends CustomBaseEntity {
   @Column()
   implication: string;
 
+  @Column()
+  comment: string;
+
   @ManyToOne(() => CourseEntity)
   @JoinColumn()
   course: CourseEntity;
