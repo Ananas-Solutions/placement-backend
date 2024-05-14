@@ -19,6 +19,7 @@ import { FileUploadService } from 'helper/file-uploader.service';
 
 import { DefineUserDocumentRequirementListDto } from './dto';
 import { CourseEntity } from 'entities/courses.entity';
+import { MasterUserDocumentEntity } from 'entities/master-user-document.entity';
 
 @Injectable()
 @WebSocketGateway({
@@ -33,6 +34,8 @@ export class UserDocumentService {
   constructor(
     @InjectRepository(UserDocumentEntity)
     private readonly documentRepository: Repository<UserDocumentEntity>,
+    @InjectRepository(MasterUserDocumentEntity)
+    private readonly masterDocumentRepository: Repository<MasterUserDocumentEntity>,
     @InjectRepository(StudentCourseEntity)
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
     @InjectRepository(NotificationEntity)
@@ -60,7 +63,7 @@ export class UserDocumentService {
           data['course'] = { id: courseId } as CourseEntity;
         }
 
-        await this.documentRepository.save(data);
+        await this.masterDocumentRepository.save(data);
       }),
     );
 
@@ -68,7 +71,7 @@ export class UserDocumentService {
   }
 
   async getMasterList() {
-    const allGlobalDocument = await this.documentRepository.find({
+    const allGlobalDocument = await this.masterDocumentRepository.find({
       where: { implication: 'global' },
     });
 
@@ -76,7 +79,7 @@ export class UserDocumentService {
   }
 
   async getCourseDocument(courseId: string) {
-    const allCourseDocument = await this.documentRepository.find({
+    const allCourseDocument = await this.masterDocumentRepository.find({
       where: { implication: 'course', course: { id: courseId } },
     });
 
