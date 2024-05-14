@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class DefineMasterUserDocumentListDto {
+export class DefineUserDocumentRequirementListDto {
   @IsArray()
   @ArrayMinSize(1)
   @Type(() => DocumentList)

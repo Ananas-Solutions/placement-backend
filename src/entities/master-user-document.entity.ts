@@ -8,7 +8,7 @@ export class MasterUserDocumentEntity extends CustomBaseEntity {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ default: false })
   isMandatory: boolean;
 
   @Column()

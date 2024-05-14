@@ -17,7 +17,7 @@ import { NotificationEntity } from 'entities/notification.entity';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { FileUploadService } from 'helper/file-uploader.service';
 
-import { DefineMasterUserDocumentListDto } from './dto';
+import { DefineUserDocumentRequirementListDto } from './dto';
 import { CourseEntity } from 'entities/courses.entity';
 
 @Injectable()
@@ -42,7 +42,9 @@ export class UserDocumentService {
     private readonly fileUploadService: FileUploadService,
   ) {}
 
-  async defineUserDocumentMasterList(body: DefineMasterUserDocumentListDto) {
+  async defineUserDocumentRequirement(
+    body: DefineUserDocumentRequirementListDto,
+  ) {
     const { documentLists } = body;
 
     await Promise.all(
@@ -66,11 +68,19 @@ export class UserDocumentService {
   }
 
   async getMasterList() {
-    const allDocument = await this.documentRepository.find({
+    const allGlobalDocument = await this.documentRepository.find({
       where: { implication: 'global' },
     });
 
-    return allDocument;
+    return allGlobalDocument;
+  }
+
+  async getCourseDocument(courseId: string) {
+    const allCourseDocument = await this.documentRepository.find({
+      where: { implication: 'course', course: { id: courseId } },
+    });
+
+    return allCourseDocument;
   }
 
   async uploadDocuments(userId: string, body: UploadDocumentDto) {

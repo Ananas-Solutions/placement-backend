@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { DocumentVerificationEnum } from 'commons/enums';
+
 import { CourseEntity, CustomBaseEntity, UserEntity } from './index.entity';
 
 @Entity()

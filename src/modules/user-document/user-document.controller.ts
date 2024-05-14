@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -22,7 +23,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 import { DocumentVerifyDto } from './dto/document-verify.dto';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { UserDocumentService } from './user-document.service';
-import { DefineMasterUserDocumentListDto } from './dto';
+import { DefineUserDocumentRequirementListDto } from './dto';
 
 @ApiTags('user-document')
 @UseInterceptors(ErrorInterceptor)
@@ -35,15 +36,21 @@ export class UserDocumentController {
   ) {}
 
   @Roles(UserRoleEnum.ADMIN)
-  @Post('define-master-list')
-  async defineMasterList(@Body() body: DefineMasterUserDocumentListDto) {
-    return await this.documentService.defineUserDocumentMasterList(body);
+  @Post('define-document-requirement')
+  async defineMasterList(@Body() body: DefineUserDocumentRequirementListDto) {
+    return await this.documentService.defineUserDocumentRequirement(body);
   }
 
   @Roles(UserRoleEnum.STUDENT)
   @Get('master-list')
   async getMasterList() {
     return await this.documentService.getMasterList();
+  }
+
+  @Roles(UserRoleEnum.STUDENT)
+  @Get('course-document')
+  async getCourseDocument(@Query('courseId') courseId: string) {
+    return await this.documentService.getCourseDocument(courseId);
   }
 
   @Roles(UserRoleEnum.STUDENT)
