@@ -35,7 +35,7 @@ export class UserDocumentController {
     private readonly fileUpload: FileUploadService,
   ) {}
 
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post('define-document-requirement')
   async defineMasterList(@Body() body: DefineUserDocumentRequirementListDto) {
     return await this.documentService.defineUserDocumentRequirement(body);
