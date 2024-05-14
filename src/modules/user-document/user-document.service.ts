@@ -72,12 +72,47 @@ export class UserDocumentService {
     return { message: 'Master document list defined successfully' };
   }
 
-  async getMasterList() {
+  async getMasterList(userId: string) {
     const allGlobalDocument = await this.masterDocumentRepository.find({
       where: { implication: 'global' },
     });
 
-    return allGlobalDocument;
+    const allUploadedUserDocument = await this.documentRepository.find({
+      where: {
+        implication: 'global',
+        user: { id: userId },
+      },
+    });
+
+    const transformedResponse = await Promise.all(
+      allGlobalDocument.map(async (document) => {
+        const uploadedDocument = allUploadedUserDocument.find(
+          (d) => d.name === document.name,
+        );
+
+        if (!uploadedDocument) {
+          return {
+            ...document,
+            isDocumentAlreadyUploaded: false,
+          };
+        }
+
+        return {
+          ...document,
+          isDocumentAlreadyUploaded: true,
+          uploadedDocumentStatus: uploadedDocument.status,
+          uploadedDocumentComments: uploadedDocument.comments,
+          uploadedDocumentExpiryDate: uploadedDocument.documentExpiryDate,
+          uploadedDocumenturl: !uploadedDocument.url
+            ? null
+            : await this.fileUploadService.getUploadedFile(
+                uploadedDocument.url,
+              ),
+        };
+      }),
+    );
+
+    return transformedResponse;
   }
 
   async getCourseDocument(courseId: string) {

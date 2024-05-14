@@ -47,8 +47,8 @@ export class UserDocumentController {
     UserRoleEnum.CLINICAL_COORDINATOR,
   )
   @Get('master-list')
-  async getMasterList() {
-    return await this.documentService.getMasterList();
+  async getMasterList(@Req() req) {
+    return await this.documentService.getMasterList(req.user.id);
   }
 
   @Roles(
