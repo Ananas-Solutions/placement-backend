@@ -41,13 +41,21 @@ export class UserDocumentController {
     return await this.documentService.defineUserDocumentRequirement(body);
   }
 
-  @Roles(UserRoleEnum.STUDENT)
+  @Roles(
+    UserRoleEnum.STUDENT,
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+  )
   @Get('master-list')
   async getMasterList() {
     return await this.documentService.getMasterList();
   }
 
-  @Roles(UserRoleEnum.STUDENT)
+  @Roles(
+    UserRoleEnum.STUDENT,
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+  )
   @Get('course-document')
   async getCourseDocument(@Query('courseId') courseId: string) {
     return await this.documentService.getCourseDocument(courseId);
