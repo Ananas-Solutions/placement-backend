@@ -52,11 +52,13 @@ export class UserDocumentService {
 
     await Promise.all(
       documentLists.map(async (document) => {
-        const { name, implication, courseId } = document;
+        const { name, implication, courseId, comment, isMandatory } = document;
 
         const data = {
           name,
           implication,
+          comment,
+          isMandatory,
         };
 
         if (courseId) {
