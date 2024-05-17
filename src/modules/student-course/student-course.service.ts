@@ -118,6 +118,40 @@ export class StudentCourseService {
     return allCourses;
   }
 
+  async findStudentCourseById(studentId: string, courseId: string) {
+    const studentCourse = await this.studentCourseRepository.findOne({
+      where: { student: { id: studentId }, course: { id: courseId } },
+      loadEagerRelations: false,
+      relations: {
+        course: {
+          coordinator: true,
+        },
+        block: true,
+      },
+    });
+
+    if (!studentCourse) {
+      throw new ConflictException('No course found for this student');
+    }
+
+    const {
+      course: { coordinator },
+      block,
+    } = studentCourse;
+
+    const transformedResponse = {
+      course: studentCourse.course,
+      block,
+      coordinator: {
+        id: coordinator.id,
+        name: coordinator.name,
+        email: coordinator.email,
+      },
+    };
+
+    return transformedResponse;
+  }
+
   async findCourseStudents(
     courseId: string,
   ): Promise<ICourseStudentResponse[]> {

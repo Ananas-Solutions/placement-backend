@@ -61,6 +61,19 @@ export class StudentCourseController {
     return await this.studentCourseService.findStudentCourses(userId);
   }
 
+  @Roles(UserRoleEnum.STUDENT)
+  @Get('student/course/:courseId')
+  async queryAssignedCourseById(
+    @Req() req,
+    @Param('courseId') courseId: string,
+  ) {
+    const userId = req.user.id;
+    return await this.studentCourseService.findStudentCourseById(
+      userId,
+      courseId,
+    );
+  }
+
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('student/:studentId')
   async queryStudentAssignedCourses(
