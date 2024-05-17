@@ -202,16 +202,31 @@ export class UserDocumentService {
     };
   }
 
-  async getUserAllDocuments(userId: string): Promise<IDocumentResponse[]> {
-    const allDocuments = await this.documentRepository.find({
+  async getUserAllDocuments(
+    userId: string,
+    courseId: string,
+  ): Promise<IDocumentResponse[]> {
+    const allGlobalDocuments = await this.documentRepository.find({
       where: {
         user: { id: userId },
+        implication: 'global',
+      },
+      loadEagerRelations: false,
+    });
+
+    const allCourseDocuments = await this.documentRepository.find({
+      where: {
+        user: { id: userId },
+        course: { id: courseId },
+        implication: 'course',
       },
       loadEagerRelations: false,
     });
 
     return await Promise.all(
-      allDocuments.map((document) => this.transformToResponse(document)),
+      [...allGlobalDocuments, ...allCourseDocuments].map((document) =>
+        this.transformToResponse(document),
+      ),
     );
   }
 

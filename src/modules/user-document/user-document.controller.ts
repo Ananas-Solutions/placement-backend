@@ -80,7 +80,7 @@ export class UserDocumentController {
     return await this.documentService.uploadDocuments(req.user.id, body);
   }
 
-  @Get()
+  @Get('global')
   async viewUploadedGlobalDocuments(@Req() req) {
     return await this.documentService.getUserGlobalDocuments(req.user.id);
   }
@@ -115,8 +115,11 @@ export class UserDocumentController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Get('user/:userId')
-  async userGlobalDocuments(@Param('userId') userId: string) {
-    return await this.documentService.getUserAllDocuments(userId);
+  @Get('user/:userId/:courseId')
+  async userGlobalDocuments(
+    @Param('userId') userId: string,
+    @Param('courseId') courseId: string,
+  ) {
+    return await this.documentService.getUserAllDocuments(userId, courseId);
   }
 }
