@@ -59,7 +59,7 @@ export class UserDocumentController {
   }
 
   @Roles(UserRoleEnum.STUDENT)
-  @Get('course-list/:courseId ')
+  @Get('course-list/:courseId')
   async getCourseDocument(@Req() req, @Param('courseId') courseId: string) {
     const userId = req.user.id;
 
