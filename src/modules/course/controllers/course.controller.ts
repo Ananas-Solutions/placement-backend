@@ -78,19 +78,19 @@ export class CourseController {
   }
 
   @Post('transfer-students')
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async transferStudentsToCourse(@Body() body: TransferStudentToCourseDto) {
     return this.courseTransferService.transferStudentsToCourse(body);
   }
 
   @Post('transfer-settings')
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async transferCourseSettings(@Body() body: TransferCourseSettingDto) {
     return this.courseTransferService.transferCourseSetting(body);
   }
 
   @Post('transfer-and-shuffle')
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async importAndShuffle(@Body() body: TransferAndShuffleCourseSettingDto) {
     return this.courseTransferService.transferAndShuffleCourseSettings(body);
   }
@@ -143,7 +143,7 @@ export class CourseController {
   }
 
   @Get(':courseId/blocks')
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async getCourseBlocks(@Param('courseId') courseId: string) {
     return await this.coursesServices.getCourseBlocks(courseId);
   }
@@ -180,7 +180,7 @@ export class CourseController {
     );
   }
 
-  @Roles(UserRoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Delete(':id')
   async deleteCourse(@Param('id') id: string) {
     return await this.coursesServices.deleteCourse(id);
