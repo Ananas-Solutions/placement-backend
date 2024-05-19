@@ -40,6 +40,18 @@ export class UserDocumentController {
     return await this.documentService.defineUserDocumentRequirement(body);
   }
 
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post('master-document-list')
+  async fetchMasterList() {
+    return await this.documentService.fetchMasterGlobalDocument();
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post('master-course-document-list/:courseId')
+  async fetchCourseMasterList(@Param('courseId') courseId: string) {
+    return await this.documentService.fetchMasterCourseDocument(courseId);
+  }
+
   @Roles(UserRoleEnum.STUDENT)
   @Get('master-list')
   async getMasterList(@Req() req) {

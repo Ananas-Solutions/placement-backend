@@ -72,6 +72,18 @@ export class UserDocumentService {
     return { message: 'Master document list defined successfully' };
   }
 
+  async fetchMasterGlobalDocument() {
+    return await this.masterDocumentRepository.find({
+      where: { implication: 'global' },
+    });
+  }
+
+  async fetchMasterCourseDocument(courseId: string) {
+    return await this.masterDocumentRepository.find({
+      where: { implication: 'course', course: { id: courseId } },
+    });
+  }
+
   async getMasterList(userId: string) {
     const allGlobalDocument = await this.masterDocumentRepository.find({
       where: { implication: 'global' },
