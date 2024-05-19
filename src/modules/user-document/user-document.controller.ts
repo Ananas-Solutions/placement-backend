@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   Post,
-  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -41,24 +40,18 @@ export class UserDocumentController {
     return await this.documentService.defineUserDocumentRequirement(body);
   }
 
-  @Roles(
-    UserRoleEnum.STUDENT,
-    UserRoleEnum.ADMIN,
-    UserRoleEnum.CLINICAL_COORDINATOR,
-  )
+  @Roles(UserRoleEnum.STUDENT)
   @Get('master-list')
   async getMasterList(@Req() req) {
     return await this.documentService.getMasterList(req.user.id);
   }
 
-  @Roles(
-    UserRoleEnum.STUDENT,
-    UserRoleEnum.ADMIN,
-    UserRoleEnum.CLINICAL_COORDINATOR,
-  )
-  @Get('course-document')
-  async getCourseDocument(@Query('courseId') courseId: string) {
-    return await this.documentService.getCourseDocument(courseId);
+  @Roles(UserRoleEnum.STUDENT)
+  @Get('course-list')
+  async getCourseDocument(@Req() req, @Param('courseId') courseId: string) {
+    const userId = req.user.id;
+
+    return await this.documentService.getCourseMasterList(userId, courseId);
   }
 
   @Roles(UserRoleEnum.STUDENT)

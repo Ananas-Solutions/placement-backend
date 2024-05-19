@@ -115,6 +115,50 @@ export class UserDocumentService {
     return transformedResponse;
   }
 
+  async getCourseMasterList(userId: string, courseId: string) {
+    const allCourseDocument = await this.masterDocumentRepository.find({
+      where: { implication: 'course', course: { id: courseId } },
+    });
+
+    const allUploadedCourseDocument = await this.documentRepository.find({
+      where: {
+        implication: 'course',
+        user: { id: userId },
+        course: { id: courseId },
+      },
+    });
+
+    const transformedResponse = await Promise.all(
+      allCourseDocument.map(async (document) => {
+        const uploadedDocument = allUploadedCourseDocument.find(
+          (d) => d.name === document.name,
+        );
+
+        if (!uploadedDocument) {
+          return {
+            ...document,
+            isDocumentAlreadyUploaded: false,
+          };
+        }
+
+        return {
+          ...document,
+          isDocumentAlreadyUploaded: true,
+          uploadedDocumentStatus: uploadedDocument.status,
+          uploadedDocumentComments: uploadedDocument.comments,
+          uploadedDocumentExpiryDate: uploadedDocument.documentExpiryDate,
+          uploadedDocumenturl: !uploadedDocument.url
+            ? null
+            : await this.fileUploadService.getUploadedFile(
+                uploadedDocument.url,
+              ),
+        };
+      }),
+    );
+
+    return transformedResponse;
+  }
+
   async getCourseDocument(courseId: string) {
     const allCourseDocument = await this.masterDocumentRepository.find({
       where: { implication: 'course', course: { id: courseId } },
