@@ -128,47 +128,52 @@ export class UserDocumentService {
   }
 
   async getCourseMasterList(userId: string, courseId: string) {
-    const allCourseDocument = await this.masterDocumentRepository.find({
-      where: { implication: 'course', course: { id: courseId } },
-    });
+    try {
+      const allCourseDocument = await this.masterDocumentRepository.find({
+        where: { implication: 'course', course: { id: courseId } },
+      });
 
-    const allUploadedCourseDocument = await this.documentRepository.find({
-      where: {
-        implication: 'course',
-        user: { id: userId },
-        course: { id: courseId },
-      },
-    });
+      const allUploadedCourseDocument = await this.documentRepository.find({
+        where: {
+          implication: 'course',
+          user: { id: userId },
+          course: { id: courseId },
+        },
+      });
 
-    const transformedResponse = await Promise.all(
-      allCourseDocument.map(async (document) => {
-        const uploadedDocument = allUploadedCourseDocument.find(
-          (d) => d.name === document.name,
-        );
+      const transformedResponse = await Promise.all(
+        allCourseDocument.map(async (document) => {
+          const uploadedDocument = allUploadedCourseDocument.find(
+            (d) => d.name === document.name,
+          );
 
-        if (!uploadedDocument) {
+          if (!uploadedDocument) {
+            return {
+              ...document,
+              isDocumentAlreadyUploaded: false,
+            };
+          }
+
           return {
             ...document,
-            isDocumentAlreadyUploaded: false,
+            isDocumentAlreadyUploaded: true,
+            uploadedDocumentStatus: uploadedDocument.status,
+            uploadedDocumentComments: uploadedDocument.comments,
+            uploadedDocumentExpiryDate: uploadedDocument.documentExpiryDate,
+            uploadedDocumenturl: !uploadedDocument.url
+              ? null
+              : await this.fileUploadService.getUploadedFile(
+                  uploadedDocument.url,
+                ),
           };
-        }
+        }),
+      );
 
-        return {
-          ...document,
-          isDocumentAlreadyUploaded: true,
-          uploadedDocumentStatus: uploadedDocument.status,
-          uploadedDocumentComments: uploadedDocument.comments,
-          uploadedDocumentExpiryDate: uploadedDocument.documentExpiryDate,
-          uploadedDocumenturl: !uploadedDocument.url
-            ? null
-            : await this.fileUploadService.getUploadedFile(
-                uploadedDocument.url,
-              ),
-        };
-      }),
-    );
-
-    return transformedResponse;
+      return transformedResponse;
+    } catch (error) {
+      console.log('error here', error);
+      return;
+    }
   }
 
   async getCourseDocument(courseId: string) {
