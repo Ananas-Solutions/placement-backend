@@ -139,6 +139,8 @@ export class StudentCourseService {
       block,
     } = studentCourse;
 
+    delete studentCourse.course.coordinator;
+
     const transformedResponse = {
       course: studentCourse.course,
       block,
