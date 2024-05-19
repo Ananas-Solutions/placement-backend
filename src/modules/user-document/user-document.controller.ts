@@ -59,7 +59,7 @@ export class UserDocumentController {
     return await this.documentService.getMasterList(req.user.id);
   }
 
-  @Roles(UserRoleEnum.STUDENT)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('admin/student/:studentId/master-list')
   async getStudentMasterList(@Param('studentId') studentId: string) {
     return await this.documentService.getMasterList(studentId);
@@ -73,7 +73,7 @@ export class UserDocumentController {
     return await this.documentService.getCourseMasterList(userId, courseId);
   }
 
-  @Roles(UserRoleEnum.STUDENT)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('admin/student/:studentId/course/course-list/:courseId')
   async getStudentCourseDocument(
     @Param('studentId') studentId: string,
