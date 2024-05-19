@@ -66,20 +66,20 @@ export class UserDocumentController {
   }
 
   @Roles(UserRoleEnum.STUDENT)
+  @Get('course-list/:courseId')
+  async getCourseDocument(@Req() req, @Param('courseId') courseId: string) {
+    const userId = req.user.id;
+
+    return await this.documentService.getCourseMasterList(userId, courseId);
+  }
+
+  @Roles(UserRoleEnum.STUDENT)
   @Get('admin/student/:studentId/course/course-list/:courseId')
   async getStudentCourseDocument(
     @Param('studentId') studentId: string,
     @Param('courseId') courseId: string,
   ) {
     return await this.documentService.getCourseMasterList(studentId, courseId);
-  }
-
-  @Roles(UserRoleEnum.STUDENT)
-  @Get('admin-course-list/:courseId')
-  async getCourseDocument(@Req() req, @Param('courseId') courseId: string) {
-    const userId = req.user.id;
-
-    return await this.documentService.getCourseMasterList(userId, courseId);
   }
 
   @Roles(UserRoleEnum.STUDENT)
