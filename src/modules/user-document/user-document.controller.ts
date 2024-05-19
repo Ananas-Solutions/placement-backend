@@ -41,13 +41,13 @@ export class UserDocumentController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Post('master-document-list')
+  @Get('master-document-list')
   async fetchMasterList() {
     return await this.documentService.fetchMasterGlobalDocument();
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Post('master-course-document-list/:courseId')
+  @Get('master-course-document-list/:courseId')
   async fetchCourseMasterList(@Param('courseId') courseId: string) {
     return await this.documentService.fetchMasterCourseDocument(courseId);
   }
