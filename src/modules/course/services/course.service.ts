@@ -179,20 +179,24 @@ export class CourseService {
     return allCourses.map((course) => this.transformToDetailResponse(course));
   }
 
-  async findAllCoursesForCoordinatorDepartment(
-    coordinatorId: string,
-  ): Promise<CourseEntity[]> {
+  async findAllCoursesForCoordinatorDepartment(coordinatorId: string) {
     try {
       const coordinatorDepartment =
         await this.coordinatorService.findCoordinatorDepartment(coordinatorId);
 
       const coordinatorDepartmentId = coordinatorDepartment.departmentId;
 
-      return await this.courseRepository.find({
+      const allCoursesForDepartment = await this.courseRepository.find({
         where: { department: { id: coordinatorDepartmentId } },
         loadEagerRelations: false,
-        relations: { semester: true },
+        relations: { semester: true, department: true, coordinator: true },
       });
+
+      const transformedResponse = allCoursesForDepartment.map((course) => {
+        return this.transformToDetailResponse(course);
+      });
+
+      return transformedResponse;
     } catch (err) {
       throw err;
     }
