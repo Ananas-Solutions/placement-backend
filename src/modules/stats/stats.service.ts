@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { UserRoleEnum } from 'commons/enums';
 import { AuthorityEntity } from 'entities/authority.entity';
 import { CollegeDepartmentEntity } from 'entities/college-department.entity';
@@ -9,7 +11,6 @@ import { DepartmentEntity } from 'entities/department.entity';
 import { HospitalEntity } from 'entities/hospital.entity';
 import { StudentCourseEntity } from 'entities/student-course.entity';
 import { UserEntity } from 'entities/user.entity';
-import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class StatsService {
@@ -69,22 +70,23 @@ export class StatsService {
 
   public async getStatsForCoordinator(coordinatorId: string) {
     const allCourses = await this.courseEntity.find({
-      where: { coordinator: { id: coordinatorId } },
+      where: { coordinator: { id: coordinatorId }, deletedAt: null },
     });
 
     const allCoursesIds = allCourses.map((c) => c.id);
 
-    const totalStudents = await this.studentCourseRepository.count({
-      where: {
-        course: {
-          id: In(allCoursesIds),
-        },
-      },
-    });
+    const totalStudents = await this.studentCourseRepository
+      .createQueryBuilder('studentCourse')
+      .leftJoin('studentCourse.student', 'student')
+      .where('studentCourse.courseId IN (:...courseIds)', {
+        courseIds: allCoursesIds,
+      })
+      .select('DISTINCT student.id')
+      .getRawMany();
 
     return {
       totalCourses: allCourses.length,
-      totalStudents: totalStudents,
+      totalStudents: totalStudents.length,
     };
   }
 }
