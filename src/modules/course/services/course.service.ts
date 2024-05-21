@@ -29,6 +29,7 @@ import {
 import { ICourseDetailResponse, ICourseResponse } from '../response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 import { CourseTransferService } from './course-transfer.service';
+import { CoordinatorService } from 'coordinator/coordinator.service';
 
 @Injectable()
 export class CourseService {
@@ -41,6 +42,7 @@ export class CourseService {
     private readonly courseBlocksRepository: Repository<CourseBlockEntity>,
     private readonly userService: UserService,
     private readonly courseTransferService: CourseTransferService,
+    private readonly coordinatorService: CoordinatorService,
   ) {}
 
   async createCourse(
@@ -171,10 +173,29 @@ export class CourseService {
     const allCourses = await this.courseRepository.find({
       where: whereClause,
       loadEagerRelations: false,
-      relations: ['department', 'semester', 'coordinator'],
+      relations: { department: true, semester: true, coordinator: true },
     });
 
     return allCourses.map((course) => this.transformToDetailResponse(course));
+  }
+
+  async findAllCoursesForCoordinatorDepartment(
+    coordinatorId: string,
+  ): Promise<CourseEntity[]> {
+    try {
+      const coordinatorDepartment =
+        await this.coordinatorService.findCoordinatorDepartment(coordinatorId);
+
+      const coordinatorDepartmentId = coordinatorDepartment.departmentId;
+
+      return await this.courseRepository.find({
+        where: { department: { id: coordinatorDepartmentId } },
+        loadEagerRelations: false,
+        relations: { semester: true },
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 
   async findAllCourses(departmentId: string): Promise<CourseEntity[]> {
@@ -182,7 +203,7 @@ export class CourseService {
       return await this.courseRepository.find({
         where: { department: { id: departmentId } },
         loadEagerRelations: false,
-        relations: ['semester', 'coordinator'],
+        relations: { semester: true, coordinator: true },
       });
     } catch (err) {
       throw err;
@@ -193,12 +214,13 @@ export class CourseService {
     const courseBlock = await this.courseBlocksRepository.findOne({
       where: { id },
       loadEagerRelations: false,
-      relations: [
-        'course',
-        'course.department',
-        'course.semester',
-        'course.coordinator',
-      ],
+      relations: {
+        course: {
+          department: true,
+          semester: true,
+          coordinator: true,
+        },
+      },
     });
 
     return courseBlock;

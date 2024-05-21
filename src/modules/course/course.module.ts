@@ -19,6 +19,7 @@ import { CourseTransferService } from './services/course-transfer.service';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 import { CourseBlockController } from './controllers/course-block.controller';
+import { CoordinatorModule } from 'coordinator/coordinator.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CourseBlockController } from './controllers/course-block.controller';
     UserModule,
     TrainingSiteTimeSlotModule,
     PlacementModule,
+    CoordinatorModule,
   ],
   controllers: [CourseController, CourseBlockController],
   providers: [

@@ -114,6 +114,15 @@ export class CourseController {
     return await this.coursesServices.allCourses(id);
   }
 
+  @Roles(UserRoleEnum.CLINICAL_COORDINATOR)
+  @Get('courses-by-department')
+  async getAllCoursesByDepartment(@Req() req) {
+    const { id } = req.user;
+    return await this.coursesServices.findAllCoursesForCoordinatorDepartment(
+      id,
+    );
+  }
+
   @Get('training-site/:trainingSiteId')
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async queryTrainingSite(@Param('trainingSiteId') trainingSiteId: string) {

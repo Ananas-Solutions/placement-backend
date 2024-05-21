@@ -22,5 +22,6 @@ import { CoordinatorService } from './coordinator.service';
   ],
   controllers: [CoordinatorController],
   providers: [CoordinatorService],
+  exports: [CoordinatorService],
 })
 export class CoordinatorModule {}
