@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { groupBy } from 'lodash';
 
 import { TrainingDaysEnum } from 'commons/enums';
@@ -44,6 +44,8 @@ export class PlacementService {
         timeSlotIds,
         blockTimeSlotIds,
         blockTrainingSiteId,
+        isGridPlacement,
+        placementDate,
       } = bodyDto;
 
       if (trainingSiteId && timeSlotIds) {
@@ -68,6 +70,8 @@ export class PlacementService {
                   id: trainingSiteId,
                 } as CourseTrainingSiteEntity,
                 timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
+                isGridPlacement,
+                placementDate,
               });
             });
           }),
@@ -98,6 +102,8 @@ export class PlacementService {
                 blockTimeSlot: {
                   id: timeslotId,
                 } as BlockTrainingTimeSlotEntity,
+                isGridPlacement,
+                placementDate,
               });
             });
           }),
@@ -500,6 +506,27 @@ export class PlacementService {
       );
 
       return allResults;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findPlacedStudentsInGridApproach(courseId: string) {
+    try {
+      // find all students placed inside a given course
+
+      const allPlacedStudents = await this.placementRepository.find({
+        where: {
+          trainingSite: {
+            course: {
+              id: courseId,
+            },
+          },
+          isGridPlacement: Not(IsNull()),
+        },
+      });
+
+      return allPlacedStudents;
     } catch (err) {
       throw err;
     }

@@ -65,6 +65,18 @@ export class PlacementController {
     UserRoleEnum.CLINICAL_COORDINATOR,
     UserRoleEnum.CLINICAL_SUPERVISOR,
   )
+  @Get('placed-students/grid-approach/:courseId')
+  async findPlacedStudents(@Param('courseId') courseId: string) {
+    return await this.placementService.findPlacedStudentsInGridApproach(
+      courseId,
+    );
+  }
+
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
   @Get('block/student-availability')
   async findBlockStudentsAvailability(
     @Query('blockTrainingSiteId') blockTrainingSiteId: string,

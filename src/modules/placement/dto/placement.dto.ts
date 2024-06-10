@@ -29,4 +29,12 @@ export class StudentPlacementDto {
   @IsArray()
   @ArrayMinSize(1)
   studentIds: string[];
+
+  @IsOptional()
+  @IsString()
+  isGridPlacement?: boolean;
+
+  @IsOptional()
+  @IsString()
+  placementDate?: string;
 }
