@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   Req,
   Res,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';

@@ -199,6 +199,7 @@ export class CourseTrainingSiteService {
           totalEvaluations: allTrainingSiteEvaluation.length,
           totalCapacity: totalTimeslotsCapacity,
           availableCapacity: totalTimeslotsCapacity - placement.length,
+          timeslots,
         };
       }),
     );
