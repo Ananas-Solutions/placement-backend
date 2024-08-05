@@ -5,5 +5,6 @@ export interface IStudentTrainingSites {
   department: any;
   startTime: string;
   endTime: string;
-  day: string[];
+  // day: string[];
+  placementDate: string;
 }

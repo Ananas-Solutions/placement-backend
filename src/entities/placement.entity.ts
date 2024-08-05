@@ -14,9 +14,6 @@ export class PlacementEntity extends CustomBaseEntity {
   @Column({ type: 'boolean', default: true })
   isPublished!: boolean;
 
-  @Column({ type: 'boolean', nullable: true })
-  isGridPlacement?: boolean;
-
   @Column({ nullable: true })
   placementDate!: string;
 

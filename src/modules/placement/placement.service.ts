@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { groupBy } from 'lodash';
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  format,
+  getDay,
+  parseISO,
+  startOfMonth,
+} from 'date-fns';
 
 import { TrainingDaysEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
@@ -11,6 +19,9 @@ import {
   TrainingTimeSlotEntity,
   UserEntity,
 } from 'entities/index.entity';
+import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
+import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
+import { CourseBlockEntity } from 'entities/course-block.entity';
 import { StudentCourseService } from 'student-course/student-course.service';
 
 import { StudentPlacementDto } from './dto';
@@ -19,9 +30,6 @@ import {
   IStudentTrainingSites,
   ITrainingSiteStudents,
 } from './interface';
-import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
-import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
-import { CourseBlockEntity } from 'entities/course-block.entity';
 
 @Injectable()
 export class PlacementService {
@@ -34,6 +42,10 @@ export class PlacementService {
     private readonly courseBlockTrainingSite: Repository<CourseBlockTrainingSiteEntity>,
     @InjectRepository(CourseBlockEntity)
     private readonly courseBlock: Repository<CourseBlockEntity>,
+    @InjectRepository(TrainingTimeSlotEntity)
+    private readonly trainingTimeSlotRepository: Repository<TrainingTimeSlotEntity>,
+    @InjectRepository(BlockTrainingTimeSlotEntity)
+    private readonly blockTrainingTimeSlotRepository: Repository<BlockTrainingTimeSlotEntity>,
     private readonly studentCourseService: StudentCourseService,
   ) {}
 
@@ -44,34 +56,65 @@ export class PlacementService {
         timeSlotIds,
         blockTimeSlotIds,
         blockTrainingSiteId,
-        isGridPlacement,
         placementDate,
       } = bodyDto;
 
       if (trainingSiteId && timeSlotIds) {
+        const allTimeSlotIds = timeSlotIds.map((id) => id);
+
+        const allTimeSlots = await this.trainingTimeSlotRepository.find({
+          where: { id: In(allTimeSlotIds) },
+          relations: {
+            trainingSite: {
+              course: {
+                semester: true,
+              },
+            },
+          },
+        });
+
+        const allDays = [
+          ...new Set(allTimeSlots.map((timeSlot) => timeSlot.day)),
+        ];
+
+        const semesterStartTime = startOfMonth(
+          `${allTimeSlots[0].trainingSite.course.semester.startYear}-01`,
+        );
+        const semesterEndTime = endOfMonth(
+          `${allTimeSlots[0].trainingSite.course.semester.endYear}-01`,
+        );
+
+        const matchingDates = this.findMatchingDates({
+          startDate: semesterStartTime,
+          endDate: semesterEndTime,
+          daysArray: allDays,
+        });
+
         await Promise.all(
-          timeSlotIds.map((timeslotId) => {
-            bodyDto.studentIds.map(async (studentId) => {
-              const existingPlacement = await this.placementRepository.findOne({
-                where: {
-                  student: { id: studentId },
-                  trainingSite: { id: trainingSiteId },
-                  timeSlot: { id: timeslotId },
-                },
-              });
+          matchingDates.map(async (date) => {
+            timeSlotIds.map((timeslotId) => {
+              bodyDto.studentIds.map(async (studentId) => {
+                const existingPlacement =
+                  await this.placementRepository.findOne({
+                    where: {
+                      student: { id: studentId },
+                      trainingSite: { id: trainingSiteId },
+                      placementDate: date,
+                    },
+                  });
 
-              if (existingPlacement) {
-                return;
-              }
+                if (existingPlacement) {
+                  return;
+                }
 
-              return await this.placementRepository.save({
-                student: { id: studentId } as UserEntity,
-                trainingSite: {
-                  id: trainingSiteId,
-                } as CourseTrainingSiteEntity,
-                timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
-                isGridPlacement,
-                placementDate,
+                return await this.placementRepository.save({
+                  student: { id: studentId } as UserEntity,
+                  trainingSite: {
+                    id: trainingSiteId,
+                  } as CourseTrainingSiteEntity,
+                  timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
+                  placementDate: placementDate || date,
+                });
               });
             });
           }),
@@ -79,31 +122,67 @@ export class PlacementService {
       }
 
       if (blockTimeSlotIds && blockTrainingSiteId) {
-        await Promise.all(
-          blockTimeSlotIds.map((timeslotId) => {
-            bodyDto.studentIds.map(async (studentId) => {
-              const existingPlacement = await this.placementRepository.findOne({
-                where: {
-                  student: { id: studentId },
-                  blockTrainingSite: { id: blockTrainingSiteId },
-                  blockTimeSlot: { id: timeslotId },
+        const allBlockTimeSlotIds = blockTimeSlotIds.map((id) => id);
+
+        const allBlockTimeSlots =
+          await this.blockTrainingTimeSlotRepository.find({
+            where: { id: In(allBlockTimeSlotIds) },
+            relations: {
+              blockTrainingSite: {
+                block: {
+                  course: {
+                    semester: true,
+                  },
                 },
-              });
+              },
+            },
+          });
 
-              if (existingPlacement) {
-                return;
-              }
+        const allDays = [
+          ...new Set(allBlockTimeSlots.map((timeSlot) => timeSlot.day)),
+        ];
 
-              return await this.placementRepository.save({
-                student: { id: studentId } as UserEntity,
-                blockTrainingSite: {
-                  id: blockTrainingSiteId,
-                } as CourseBlockTrainingSiteEntity,
-                blockTimeSlot: {
-                  id: timeslotId,
-                } as BlockTrainingTimeSlotEntity,
-                isGridPlacement,
-                placementDate,
+        const semesterStartTime = startOfMonth(
+          `${allBlockTimeSlots[0].blockTrainingSite.block.course.semester.startYear}-01`,
+        );
+        const semesterEndTime = endOfMonth(
+          `${allBlockTimeSlots[0].blockTrainingSite.block.course.semester.endYear}-01`,
+        );
+
+        const matchingDates = this.findMatchingDates({
+          startDate: semesterStartTime,
+          endDate: semesterEndTime,
+          daysArray: allDays,
+        });
+
+        await Promise.all(
+          matchingDates.map(async (date) => {
+            blockTimeSlotIds.map((timeslotId) => {
+              bodyDto.studentIds.map(async (studentId) => {
+                const existingPlacement =
+                  await this.placementRepository.findOne({
+                    where: {
+                      student: { id: studentId },
+                      blockTrainingSite: { id: blockTrainingSiteId },
+                      blockTimeSlot: { id: timeslotId },
+                      placementDate: date,
+                    },
+                  });
+
+                if (existingPlacement) {
+                  return;
+                }
+
+                return await this.placementRepository.save({
+                  student: { id: studentId } as UserEntity,
+                  blockTrainingSite: {
+                    id: blockTrainingSiteId,
+                  } as CourseBlockTrainingSiteEntity,
+                  blockTimeSlot: {
+                    id: timeslotId,
+                  } as BlockTrainingTimeSlotEntity,
+                  placementDate: placementDate || date,
+                });
               });
             });
           }),
@@ -293,7 +372,7 @@ export class PlacementService {
         ],
       });
       const mappedResult = studentTrainingSites.map((studentPlacement) => {
-        const { trainingSite, timeSlot } = studentPlacement;
+        const { trainingSite, timeSlot, placementDate } = studentPlacement;
         const { departmentUnit } = trainingSite;
         return {
           name: departmentUnit.name,
@@ -302,7 +381,7 @@ export class PlacementService {
           department: departmentUnit.department.name,
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,
-          day: timeSlot.day,
+          placementDate,
         };
       });
       return mappedResult;
@@ -326,6 +405,21 @@ export class PlacementService {
     }
   }
 
+  async findStudentTrainingForParticularDate(
+    studentId: string,
+    date: string,
+  ): Promise<PlacementEntity[]> {
+    try {
+      return await this.placementRepository.find({
+        where: { student: { id: studentId }, placementDate: date },
+        loadEagerRelations: false,
+        relations: ['trainingSite', 'trainingSite.departmentUnit', 'timeSlot'],
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findTrainingSiteStudents(
     trainingSiteId: string,
     timeSlotId: string,
@@ -341,7 +435,7 @@ export class PlacementService {
 
     const mappedTrainingSiteStudents = studentsPlacement.map(
       (studentPlacement) => {
-        const { id, student, timeSlot } = studentPlacement;
+        const { id, student, timeSlot, placementDate } = studentPlacement;
         return {
           placementId: id,
           student: {
@@ -353,6 +447,7 @@ export class PlacementService {
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,
           day: timeSlot.day,
+          placementDate,
         };
       },
     );
@@ -375,7 +470,7 @@ export class PlacementService {
 
     const mappedTrainingSiteStudents = studentsPlacement.map(
       (studentPlacement) => {
-        const { id, student, blockTimeSlot } = studentPlacement;
+        const { id, student, blockTimeSlot, placementDate } = studentPlacement;
         return {
           placementId: id,
           student: {
@@ -387,6 +482,7 @@ export class PlacementService {
           startTime: blockTimeSlot.startTime,
           endTime: blockTimeSlot.endTime,
           day: blockTimeSlot.day,
+          placementDate,
         };
       },
     );
@@ -522,7 +618,6 @@ export class PlacementService {
               id: courseId,
             },
           },
-          isGridPlacement: Not(IsNull()),
         },
       });
 
@@ -612,4 +707,43 @@ export class PlacementService {
       },
     });
   }
+
+  private findMatchingDates = ({ startDate, endDate, daysArray }) => {
+    // Convert days array to numbers (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    const dayNumbers = daysArray.map((day) => {
+      switch (day.toLowerCase()) {
+        case 'sunday':
+          return 0;
+        case 'monday':
+          return 1;
+        case 'tuesday':
+          return 2;
+        case 'wednesday':
+          return 3;
+        case 'thursday':
+          return 4;
+        case 'friday':
+          return 5;
+        case 'saturday':
+          return 6;
+        default:
+          throw new Error('Invalid day');
+      }
+    });
+
+    // Parse the start and end dates
+    const start = parseISO(startDate);
+    const end = parseISO(endDate);
+
+    // Get all dates in the range
+    const allDates = eachDayOfInterval({ start, end });
+
+    // Filter dates to find matches
+    const matchingDates = allDates.filter((date) =>
+      dayNumbers.includes(getDay(date)),
+    );
+
+    // Format the dates as needed (e.g., 'yyyy-MM-dd')
+    return matchingDates.map((date) => format(date, 'yyyy-MM-dd'));
+  };
 }
