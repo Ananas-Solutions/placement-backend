@@ -626,7 +626,9 @@ export class PlacementService {
         },
       });
 
-      return allPlacedStudents;
+      const groupedStudents = groupBy(allPlacedStudents, 'placementDate');
+
+      return groupedStudents;
     } catch (err) {
       throw err;
     }
