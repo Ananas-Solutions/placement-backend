@@ -68,6 +68,7 @@ export class PlacementService {
             trainingSite: {
               course: {
                 semester: true,
+                student: false,
               },
             },
           },
@@ -75,7 +76,7 @@ export class PlacementService {
 
         const allDays = [
           ...new Set(allTimeSlots.map((timeSlot) => timeSlot.day)),
-        ];
+        ].flat(Infinity);
 
         const semesterStartTime = startOfMonth(
           `${allTimeSlots[0].trainingSite.course.semester.startYear}-01`,
@@ -84,14 +85,8 @@ export class PlacementService {
           `${allTimeSlots[0].trainingSite.course.semester.endYear}-01`,
         );
 
-        const matchingDates = this.findMatchingDates({
-          startDate: semesterStartTime,
-          endDate: semesterEndTime,
-          daysArray: allDays,
-        });
-
-        await Promise.all(
-          matchingDates.map(async (date) => {
+        if (placementDate) {
+          await Promise.all(
             timeSlotIds.map((timeslotId) => {
               bodyDto.studentIds.map(async (studentId) => {
                 const existingPlacement =
@@ -99,7 +94,7 @@ export class PlacementService {
                     where: {
                       student: { id: studentId },
                       trainingSite: { id: trainingSiteId },
-                      placementDate: date,
+                      placementDate: placementDate,
                     },
                   });
 
@@ -113,12 +108,48 @@ export class PlacementService {
                     id: trainingSiteId,
                   } as CourseTrainingSiteEntity,
                   timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
-                  placementDate: placementDate || date,
+                  placementDate: placementDate,
                 });
               });
-            });
-          }),
-        );
+            }),
+          );
+        } else {
+          const matchingDates = this.findMatchingDates({
+            startDate: semesterStartTime,
+            endDate: semesterEndTime,
+            daysArray: allDays,
+          });
+
+          await Promise.all(
+            matchingDates.map(async (date) => {
+              timeSlotIds.map((timeslotId) => {
+                bodyDto.studentIds.map(async (studentId) => {
+                  const existingPlacement =
+                    await this.placementRepository.findOne({
+                      where: {
+                        student: { id: studentId },
+                        trainingSite: { id: trainingSiteId },
+                        placementDate: date,
+                      },
+                    });
+
+                  if (existingPlacement) {
+                    return;
+                  }
+
+                  return await this.placementRepository.save({
+                    student: { id: studentId } as UserEntity,
+                    trainingSite: {
+                      id: trainingSiteId,
+                    } as CourseTrainingSiteEntity,
+                    timeSlot: { id: timeslotId } as TrainingTimeSlotEntity,
+                    placementDate: placementDate || date,
+                  });
+                });
+              });
+            }),
+          );
+        }
       }
 
       if (blockTimeSlotIds && blockTrainingSiteId) {
@@ -737,13 +768,17 @@ export class PlacementService {
           throw new Error('Invalid day');
       }
     });
+    console.log('dayNumbers', dayNumbers);
 
     // Parse the start and end dates
-    const start = parseISO(startDate);
-    const end = parseISO(endDate);
+    // const start = new Date(parseISO(startDate));
+    // const end = new Date(parseISO(endDate));
+
+    // console.log('start', start);
+    // console.log('end', end);
 
     // Get all dates in the range
-    const allDates = eachDayOfInterval({ start, end });
+    const allDates = eachDayOfInterval({ start: startDate, end: endDate });
 
     // Filter dates to find matches
     const matchingDates = allDates.filter((date) =>
