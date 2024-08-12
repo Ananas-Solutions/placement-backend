@@ -619,6 +619,11 @@ export class PlacementService {
             },
           },
         },
+        relations: {
+          student: true,
+          trainingSite: true,
+          timeSlot: true,
+        },
       });
 
       return allPlacedStudents;
