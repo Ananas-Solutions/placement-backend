@@ -22,4 +22,5 @@ export interface IStudentTrainingTimeSlotsResponse {
   startTime: string;
   endTime: string;
   day: string[];
+  placementDate: string;
 }

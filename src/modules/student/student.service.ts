@@ -233,8 +233,14 @@ export class StudentService {
 
   private transformToTimeSlotResponse(placement: PlacementEntity) {
     try {
-      const { id, trainingSite, timeSlot, blockTrainingSite, blockTimeSlot } =
-        placement;
+      const {
+        id,
+        trainingSite,
+        timeSlot,
+        blockTrainingSite,
+        blockTimeSlot,
+        placementDate,
+      } = placement;
 
       let course;
       if (blockTrainingSite) {
@@ -257,6 +263,7 @@ export class StudentService {
 
       return {
         placementId: id,
+        placementDate,
         hospital: {
           id: hospital.id,
           name: hospital.name,
