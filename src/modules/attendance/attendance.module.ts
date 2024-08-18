@@ -10,6 +10,7 @@ import { AttendanceQueryService } from './services/attendance-query.service';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
 import { UserEntity } from 'entities/user.entity';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
+import { AttendanceExportService } from './services/attendance-export.service';
 
 @Module({
   imports: [
@@ -22,6 +23,10 @@ import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.enti
     UserModule,
   ],
   controllers: [AttendanceController],
-  providers: [AttendanceCommandService, AttendanceQueryService],
+  providers: [
+    AttendanceCommandService,
+    AttendanceQueryService,
+    AttendanceExportService,
+  ],
 })
 export class AttendanceModule {}

@@ -10,4 +10,5 @@ export interface ICourseDetailResponse {
   coordinator?: IUserResponse;
   department: ICollegeDepartmentResponse;
   semester: ISemesterResponse;
+  allCoordinators?: IUserResponse[];
 }

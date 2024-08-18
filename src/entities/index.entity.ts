@@ -22,3 +22,4 @@ export * from './training-site-evaluation.entity';
 export * from './training-time-slot.entity';
 export * from './user-document.entity';
 export * from './user.entity';
+export * from './course-coordinator.entity';

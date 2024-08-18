@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -19,7 +26,12 @@ export class CreateCourseDto {
   @IsString()
   semesterId: string;
 
+  // @IsOptional()
+  // @IsString()
+  // coordinatorId: string;
+
   @IsOptional()
-  @IsString()
-  coordinatorId: string;
+  @IsArray()
+  @ArrayMinSize(1)
+  coordinatorIds: string[];
 }

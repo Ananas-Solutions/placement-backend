@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import {
+  CourseCoordinatorEntity,
   CourseEntity,
   CourseTrainingSiteEntity,
   StudentCourseEntity,
@@ -25,6 +26,7 @@ import { CoordinatorModule } from 'coordinator/coordinator.module';
   imports: [
     TypeOrmModule.forFeature([
       CourseEntity,
+      CourseCoordinatorEntity,
       CourseTrainingSiteEntity,
       StudentCourseEntity,
       TrainingSiteEvaluationEntity,

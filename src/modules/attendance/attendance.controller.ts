@@ -1,5 +1,6 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 import { JwtAuthGuard, RolesGuard } from 'auth/guards';
 import { Roles } from 'commons/decorator';
@@ -12,6 +13,7 @@ import {
 } from './dto';
 import { AttendanceCommandService } from './services/attendance-command.service';
 import { AttendanceQueryService } from './services/attendance-query.service';
+import { AttendanceExportService } from './services/attendance-export.service';
 
 @ApiTags('Attendance')
 @Controller('attendance')
@@ -20,6 +22,7 @@ export class AttendanceController {
   constructor(
     private readonly attendanceCommandService: AttendanceCommandService,
     private readonly attendanceQueryService: AttendanceQueryService,
+    private readonly attendanceExportService: AttendanceExportService,
   ) {}
 
   @Post()
@@ -51,5 +54,18 @@ export class AttendanceController {
     @Body() body: QueryTrainingSiteAttendanceDto,
   ) {
     return this.attendanceQueryService.queryTrainingSiteAttendance(body);
+  }
+
+  @Post('export-student-attendace')
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.CLINICAL_SUPERVISOR,
+  )
+  async queryStudentAttendanceReportExport(
+    @Body() body: QueryStudentAttendanceReportDto,
+    @Res() res: Response,
+  ) {
+    return this.attendanceExportService.exportStudentAttendance(body, res);
   }
 }

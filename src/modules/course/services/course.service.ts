@@ -10,6 +10,7 @@ import { UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
 import {
   CollegeDepartmentEntity,
+  CourseCoordinatorEntity,
   CourseEntity,
   SemesterEntity,
   StudentCourseEntity,
@@ -40,6 +41,8 @@ export class CourseService {
     private readonly studentCourseRepository: Repository<StudentCourseEntity>,
     @InjectRepository(CourseBlockEntity)
     private readonly courseBlocksRepository: Repository<CourseBlockEntity>,
+    @InjectRepository(CourseCoordinatorEntity)
+    private readonly courseCoordinatorRepository: Repository<CourseCoordinatorEntity>,
     private readonly userService: UserService,
     private readonly courseTransferService: CourseTransferService,
     private readonly coordinatorService: CoordinatorService,
@@ -50,10 +53,11 @@ export class CourseService {
     bodyDto: CreateCourseDto,
   ): Promise<ICourseResponse> {
     const user = await this.userService.findUserById(userId);
-    if (user.role !== UserRoleEnum.ADMIN && !bodyDto.coordinatorId) {
-      bodyDto.coordinatorId = userId;
+    if (user.role !== UserRoleEnum.ADMIN && !bodyDto.coordinatorIds.length) {
+      bodyDto.coordinatorIds = [userId];
     }
-    const { semesterId, departmentId, coordinatorId, name, creditHours } =
+
+    const { semesterId, departmentId, coordinatorIds, name, creditHours } =
       bodyDto;
 
     let course = {};
@@ -66,13 +70,23 @@ export class CourseService {
       semester: { id: semesterId } as SemesterEntity,
     };
 
-    if (coordinatorId) {
-      course = {
-        ...course,
-        coordinator: { id: coordinatorId } as UserEntity,
-      };
-    }
+    // if (coordinatorIds.length) {
+    //   course = {
+    //     ...course,
+    //     coordinator: { id: coordinatorId } as UserEntity,
+    //   };
+    // }
+
     const newCourse = await this.courseRepository.save(course);
+
+    await Promise.all(
+      coordinatorIds.map(async (coordinatorId) => {
+        await this.courseCoordinatorRepository.save({
+          course: { id: newCourse.id } as CourseEntity,
+          coordinator: { id: coordinatorId } as UserEntity,
+        });
+      }),
+    );
 
     return this.transformToResponse(newCourse);
   }
@@ -173,7 +187,13 @@ export class CourseService {
     const allCourses = await this.courseRepository.find({
       where: whereClause,
       loadEagerRelations: false,
-      relations: { department: true, semester: true, coordinator: true },
+      relations: {
+        department: true,
+        semester: true,
+        courseCoordinator: {
+          coordinator: true,
+        },
+      },
     });
 
     return allCourses.map((course) => this.transformToDetailResponse(course));
@@ -234,7 +254,13 @@ export class CourseService {
     const course = await this.courseRepository.findOne({
       where: { id },
       loadEagerRelations: false,
-      relations: ['department', 'semester', 'coordinator'],
+      relations: {
+        department: true,
+        semester: true,
+        courseCoordinator: {
+          coordinator: true,
+        },
+      },
     });
 
     return this.transformToDetailResponse(course);
@@ -243,7 +269,11 @@ export class CourseService {
   async findCourseStudents(courseId: string): Promise<IUserResponse[]> {
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
-      relations: ['student', 'student.student'],
+      relations: {
+        student: {
+          student: true,
+        },
+      },
       order: {
         student: {
           student: {
@@ -270,7 +300,7 @@ export class CourseService {
     courseId: string,
     bodyDto: CreateCourseDto,
   ): Promise<ICourseDetailResponse> {
-    const { semesterId, departmentId, coordinatorId, ...body } = bodyDto;
+    const { semesterId, departmentId, coordinatorIds, ...body } = bodyDto;
 
     let updateBody = {};
 
@@ -281,12 +311,21 @@ export class CourseService {
       semester: { id: semesterId } as SemesterEntity,
     };
 
-    if (coordinatorId) {
-      updateBody = {
-        ...updateBody,
-        coordinator: { id: coordinatorId } as UserEntity,
-      };
+    if (coordinatorIds.length) {
+      await this.courseCoordinatorRepository.delete({
+        course: { id: courseId },
+      });
+
+      await Promise.all(
+        coordinatorIds.map(async (coordinatorId) => {
+          await this.courseCoordinatorRepository.save({
+            course: { id: courseId } as CourseEntity,
+            coordinator: { id: coordinatorId } as UserEntity,
+          });
+        }),
+      );
     }
+
     await this.courseRepository.update({ id: courseId }, updateBody);
 
     return this.findOneCourse(courseId);
@@ -316,22 +355,26 @@ export class CourseService {
       id,
       name,
       creditHours,
-      coordinator,
+      courseCoordinator,
       department,
       semester,
       blockType,
     } = entity;
 
-    return {
+    const allCoordiantors = courseCoordinator.map((coordinator) => {
+      return {
+        id: coordinator.coordinator.id,
+        name: coordinator.coordinator.name,
+        email: coordinator.coordinator.email,
+      };
+    });
+
+    const response = {
       id,
       name,
       creditHours,
       blockType,
-      coordinator: {
-        id: coordinator?.id,
-        name: coordinator?.name,
-        email: coordinator?.email,
-      },
+      allCoordiantors,
       department: { id: department.id, name: department.name },
       semester: {
         id: semester.id,
@@ -340,6 +383,8 @@ export class CourseService {
         endYear: semester.endYear,
       },
     };
+
+    return response;
   }
 
   public async addBlocks(body: CreateBlockDto) {
