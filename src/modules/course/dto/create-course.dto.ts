@@ -13,7 +13,7 @@ export class CreateCourseDto {
   @IsString()
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   creditHours: number;
 

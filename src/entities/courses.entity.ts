@@ -28,7 +28,7 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({ nullable: true })
   blockType?: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, nullable: true })
   creditHours: number;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
