@@ -187,13 +187,12 @@ export class CourseService {
     const allCourses = await this.courseRepository.find({
       where: whereClause,
       loadEagerRelations: false,
-      relations: {
-        department: true,
-        semester: true,
-        courseCoordinator: {
-          coordinator: true,
-        },
-      },
+      relations: [
+        'department',
+        'semester',
+        'courseCoordinator',
+        'courseCoordinator.coordinator',
+      ],
     });
 
     return allCourses.map((course) => this.transformToDetailResponse(course));
@@ -209,7 +208,7 @@ export class CourseService {
       const allCoursesForDepartment = await this.courseRepository.find({
         where: { department: { id: coordinatorDepartmentId } },
         loadEagerRelations: false,
-        relations: { semester: true, department: true, coordinator: true },
+        relations: ['semester', 'department', 'coordinator'],
       });
 
       const transformedResponse = allCoursesForDepartment.map((course) => {
@@ -227,7 +226,7 @@ export class CourseService {
       return await this.courseRepository.find({
         where: { department: { id: departmentId } },
         loadEagerRelations: false,
-        relations: { semester: true, coordinator: true },
+        relations: ['semester', 'coordinator'],
       });
     } catch (err) {
       throw err;
@@ -238,13 +237,12 @@ export class CourseService {
     const courseBlock = await this.courseBlocksRepository.findOne({
       where: { id },
       loadEagerRelations: false,
-      relations: {
-        course: {
-          department: true,
-          semester: true,
-          coordinator: true,
-        },
-      },
+      relations: [
+        'course',
+        'course.department',
+        'course.semester',
+        'course.coordinator',
+      ],
     });
 
     return courseBlock;
@@ -254,13 +252,12 @@ export class CourseService {
     const course = await this.courseRepository.findOne({
       where: { id },
       loadEagerRelations: false,
-      relations: {
-        department: true,
-        semester: true,
-        courseCoordinator: {
-          coordinator: true,
-        },
-      },
+      relations: [
+        'department',
+        'semester',
+        'courseCoordinator',
+        'courseCoordinator.coordinator',
+      ],
     });
 
     return this.transformToDetailResponse(course);
@@ -269,11 +266,8 @@ export class CourseService {
   async findCourseStudents(courseId: string): Promise<IUserResponse[]> {
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
-      relations: {
-        student: {
-          student: true,
-        },
-      },
+      loadEagerRelations: false,
+      relations: ['student', 'student.student'],
       order: {
         student: {
           student: {

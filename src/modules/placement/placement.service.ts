@@ -60,31 +60,6 @@ export class PlacementService {
       } = bodyDto;
 
       if (trainingSiteId && timeSlotIds) {
-        const allTimeSlotIds = timeSlotIds.map((id) => id);
-
-        const allTimeSlots = await this.trainingTimeSlotRepository.find({
-          where: { id: In(allTimeSlotIds) },
-          relations: {
-            trainingSite: {
-              course: {
-                semester: true,
-                student: false,
-              },
-            },
-          },
-        });
-
-        const allDays = [
-          ...new Set(allTimeSlots.map((timeSlot) => timeSlot.day)),
-        ].flat(Infinity);
-
-        const semesterStartTime = startOfMonth(
-          `${allTimeSlots[0].trainingSite.course.semester.startYear}-01`,
-        );
-        const semesterEndTime = endOfMonth(
-          `${allTimeSlots[0].trainingSite.course.semester.endYear}-01`,
-        );
-
         if (placementDate) {
           await Promise.all(
             timeSlotIds.map((timeslotId) => {
@@ -114,6 +89,32 @@ export class PlacementService {
             }),
           );
         } else {
+          const allTimeSlotIds = timeSlotIds.map((id) => id);
+
+          const allTimeSlots = await this.trainingTimeSlotRepository.find({
+            where: { id: In(allTimeSlotIds) },
+            loadEagerRelations: false,
+            relations: {
+              trainingSite: {
+                course: {
+                  semester: true,
+                  student: false,
+                },
+              },
+            },
+          });
+
+          const allDays = [
+            ...new Set(allTimeSlots.map((timeSlot) => timeSlot.day)),
+          ].flat(Infinity);
+
+          const semesterStartTime = startOfMonth(
+            `${allTimeSlots[0].trainingSite.course.semester.startYear}-01`,
+          );
+          const semesterEndTime = endOfMonth(
+            `${allTimeSlots[0].trainingSite.course.semester.endYear}-01`,
+          );
+
           const matchingDates = this.findMatchingDates({
             startDate: semesterStartTime,
             endDate: semesterEndTime,
@@ -158,6 +159,7 @@ export class PlacementService {
         const allBlockTimeSlots =
           await this.blockTrainingTimeSlotRepository.find({
             where: { id: In(allBlockTimeSlotIds) },
+            loadEagerRelations: false,
             relations: {
               blockTrainingSite: {
                 block: {
@@ -650,6 +652,7 @@ export class PlacementService {
             },
           },
         },
+        loadEagerRelations: false,
         relations: {
           student: true,
           trainingSite: true,

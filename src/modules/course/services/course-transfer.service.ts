@@ -242,6 +242,7 @@ export class CourseTransferService {
               where: {
                 block: { id: sourceCourseBlock.id },
               },
+              loadEagerRelations: false,
               relations: ['student'],
             });
 

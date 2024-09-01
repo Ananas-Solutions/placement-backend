@@ -93,36 +93,28 @@ export class SupervisorService {
     const fetchSupervisorTrainingTimeSlots = this.trainingTimeSlot.find({
       where: { supervisor: { id: supervisorId } },
       loadEagerRelations: false,
-      relations: {
-        placements: true,
-        trainingSite: {
-          course: true,
-          departmentUnit: {
-            department: {
-              hospital: true,
-            },
-          },
-        },
-      },
+      relations: [
+        'placements',
+        'trainingSite',
+        'trainingSite.course',
+        'trainingSite.departmentUnit',
+        'trainingSite.departmentUnit.department',
+        'trainingSite.departmentUnit.department.hospital',
+      ],
     });
 
     const fetchSupervisorBlockTrainingTimeSlots =
       this.blockTrainingTimeSlot.find({
         where: { supervisor: { id: supervisorId } },
         loadEagerRelations: false,
-        relations: {
-          placements: true,
-          blockTrainingSite: {
-            block: {
-              course: true,
-            },
-            departmentUnit: {
-              department: {
-                hospital: true,
-              },
-            },
-          },
-        },
+        relations: [
+          'placements',
+          'blockTrainingSite',
+          'blockTrainingSite.block',
+          'blockTrainingSite.departmentUnit',
+          'blockTrainingSite.departmentUnit.department',
+          'blockTrainingSite.departmentUnit.department.hospital',
+        ],
       });
 
     const [supervisorTrainingTimeSlots, supervisorBlockTrainingTimeSlots] =
@@ -194,17 +186,15 @@ export class SupervisorService {
   async fetchOneTimeSlot(timeSlotId: string) {
     const timeSlot = await this.trainingTimeSlot.findOne({
       where: { id: timeSlotId },
-      relations: {
-        placements: true,
-        trainingSite: {
-          course: true,
-          departmentUnit: {
-            department: {
-              hospital: true,
-            },
-          },
-        },
-      },
+      loadEagerRelations: false,
+      relations: [
+        'placements',
+        'trainingSite',
+        'trainingSite.course',
+        'trainingSite.departmentUnit',
+        'trainingSite.departmentUnit.department',
+        'trainingSite.departmentUnit.department.hospital',
+      ],
     });
 
     if (timeSlot) {
@@ -243,19 +233,15 @@ export class SupervisorService {
 
     const blockTimeSlot = await this.blockTrainingTimeSlot.findOne({
       where: { id: timeSlotId },
-      relations: {
-        placements: true,
-        blockTrainingSite: {
-          block: {
-            course: true,
-          },
-          departmentUnit: {
-            department: {
-              hospital: true,
-            },
-          },
-        },
-      },
+      loadEagerRelations: false,
+      relations: [
+        'placements',
+        'blockTrainingSite',
+        'blockTrainingSite.block',
+        'blockTrainingSite.departmentUnit',
+        'blockTrainingSite.departmentUnit.department',
+        'blockTrainingSite.departmentUnit.department.hospital',
+      ],
     });
 
     const { id, day, startTime, endTime, placements, blockTrainingSite } =

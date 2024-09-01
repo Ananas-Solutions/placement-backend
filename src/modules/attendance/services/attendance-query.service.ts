@@ -65,7 +65,7 @@ export class AttendanceQueryService {
     const trainingSite = await this.courseTrainingSiteRepository.findOne({
       where: { id: trainingSiteId },
       loadEagerRelations: false,
-      relations: { placement: { student: true } },
+      relations: ['placement', 'placement.student'],
     });
 
     const blockTrainingSite =
@@ -74,11 +74,7 @@ export class AttendanceQueryService {
           id: trainingSiteId,
         },
         loadEagerRelations: false,
-        relations: {
-          placement: {
-            student: true,
-          },
-        },
+        relations: ['placement', 'placement.student'],
       });
 
     const actualTrainingSite = trainingSite || blockTrainingSite;

@@ -63,6 +63,7 @@ export class EventService {
     });
     const courseStudent = await this.studentCourseRepository.find({
       where: { course: { id: body.courseId } },
+      loadEagerRelations: false,
       relations: ['student'],
     });
     const audiences = courseStudent.map((cs) => cs.student.id);
