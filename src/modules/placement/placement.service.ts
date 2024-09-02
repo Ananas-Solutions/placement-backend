@@ -701,6 +701,68 @@ export class PlacementService {
   ): Promise<ISuccessMessageResponse> {
     const placement = await this.placementRepository.findOne({
       where: { id: placementId },
+      loadEagerRelations: false,
+      relations: ['student', 'trainingSite'],
+    });
+
+    const studentId = placement.student.id;
+    const trainingSiteId = placement.trainingSite?.id;
+
+    if (trainingSiteId) {
+      await this.placementRepository.update(
+        {
+          student: {
+            id: studentId,
+          },
+          trainingSite: {
+            id: trainingSiteId,
+          },
+        },
+        {
+          deletedAt: new Date(),
+        },
+      );
+    }
+
+    return { message: 'Student removed from placement successfully.' };
+  }
+
+  async removeStudentFromBlockTrainingSite(
+    placementId: string,
+  ): Promise<ISuccessMessageResponse> {
+    const placement = await this.placementRepository.findOne({
+      where: { id: placementId },
+      loadEagerRelations: false,
+      relations: ['student', 'blockTrainingSite'],
+    });
+
+    const studentId = placement.student.id;
+    const blockTrainingSiteId = placement.blockTrainingSite?.id;
+
+    if (blockTrainingSiteId) {
+      await this.placementRepository.update(
+        {
+          student: {
+            id: studentId,
+          },
+          blockTrainingSite: {
+            id: blockTrainingSiteId,
+          },
+        },
+        {
+          deletedAt: new Date(),
+        },
+      );
+    }
+
+    return { message: 'Student removed from placement successfully.' };
+  }
+
+  async removeStudentFromPlacement(
+    placementId: string,
+  ): Promise<ISuccessMessageResponse> {
+    const placement = await this.placementRepository.findOne({
+      where: { id: placementId },
     });
     await this.placementRepository.softRemove(placement);
 

@@ -139,10 +139,26 @@ export class PlacementController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Delete(':placementId')
-  async deletePlacement(@Param('placementId') placementId: string) {
+  @Delete('trainingSite/:placementId')
+  async deleteTrainingSitePlacement(@Param('placementId') placementId: string) {
     return await this.placementService.removeStudentFromTrainingSite(
       placementId,
     );
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Delete('blockTrainingSite/:placementId')
+  async deleteBlockTrainingSitePlacement(
+    @Param('placementId') placementId: string,
+  ) {
+    return await this.placementService.removeStudentFromBlockTrainingSite(
+      placementId,
+    );
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Delete(':placementId')
+  async deletePlacement(@Param('placementId') placementId: string) {
+    return await this.placementService.removeStudentFromPlacement(placementId);
   }
 }
