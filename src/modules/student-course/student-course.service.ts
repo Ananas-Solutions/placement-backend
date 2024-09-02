@@ -122,12 +122,12 @@ export class StudentCourseService {
     const studentCourse = await this.studentCourseRepository.findOne({
       where: { student: { id: studentId }, course: { id: courseId } },
       loadEagerRelations: false,
-      relations: {
-        course: {
-          coordinator: true,
-        },
-        block: true,
-      },
+      relations: [
+        'course',
+        'course.courseCoordinator',
+        'course.courseCoordinator.coordinator',
+        'block',
+      ],
     });
 
     if (!studentCourse) {
@@ -135,20 +135,24 @@ export class StudentCourseService {
     }
 
     const {
-      course: { coordinator },
+      course: { courseCoordinator },
       block,
     } = studentCourse;
 
-    delete studentCourse.course.coordinator;
+    const allCourseCoordinators = courseCoordinator.map((coordinator) => {
+      return {
+        id: coordinator.coordinator.id,
+        name: coordinator.coordinator.name,
+        email: coordinator.coordinator.email,
+      };
+    });
+
+    delete studentCourse.course.courseCoordinator;
 
     const transformedResponse = {
       course: studentCourse.course,
       block,
-      coordinator: {
-        id: coordinator.id,
-        name: coordinator.name,
-        email: coordinator.email,
-      },
+      coordinator: allCourseCoordinators,
     };
 
     return transformedResponse;
