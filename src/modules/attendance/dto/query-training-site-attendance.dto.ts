@@ -7,5 +7,5 @@ export class QueryTrainingSiteAttendanceDto {
 
   @IsNotEmpty()
   @IsString()
-  date!: Date;
+  date!: string;
 }

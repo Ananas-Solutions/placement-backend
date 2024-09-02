@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
-import { orderBy, sortBy } from 'lodash';
+import { orderBy, sortBy, uniqBy } from 'lodash';
 import { endOfDay, startOfDay } from 'date-fns';
 
 import { TrainingSiteAttendanceEntity } from 'entities/training-site-attendance.entity';
@@ -63,7 +63,9 @@ export class AttendanceQueryService {
     const endDate = endOfDay(body.date);
 
     const trainingSite = await this.courseTrainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
+      where: {
+        id: trainingSiteId,
+      },
       loadEagerRelations: false,
       relations: ['placement', 'placement.student'],
     });
@@ -79,10 +81,19 @@ export class AttendanceQueryService {
 
     const actualTrainingSite = trainingSite || blockTrainingSite;
 
-    const allStudents = await Promise.all(
-      actualTrainingSite.placement.map(async (placement) => {
-        const { student } = placement;
+    const allPlacements = actualTrainingSite.placement;
 
+    const allStudentsFromPlacement = uniqBy(
+      await Promise.all(
+        allPlacements
+          .map(async (placement) => placement.student)
+          .flat(Infinity),
+      ),
+      'id',
+    );
+
+    const allStudents = await Promise.all(
+      allStudentsFromPlacement.map(async (student) => {
         const attendance = await this.trainingSiteAttendanceRepository.findOne({
           where: {
             trainingSite: trainingSiteId,

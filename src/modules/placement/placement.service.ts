@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { groupBy } from 'lodash';
+import { groupBy, uniqBy } from 'lodash';
 import {
   eachDayOfInterval,
   endOfMonth,
@@ -480,7 +480,7 @@ export class PlacementService {
       },
     );
 
-    return mappedTrainingSiteStudents;
+    return uniqBy(mappedTrainingSiteStudents, 'student.id');
   }
 
   async findBlockTrainingSiteStudents(

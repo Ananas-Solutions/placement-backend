@@ -224,7 +224,11 @@ export class CourseService {
   async findAllCourses(departmentId: string): Promise<CourseEntity[]> {
     try {
       return await this.courseRepository.find({
-        where: { department: { id: departmentId } },
+        where: {
+          department: {
+            id: departmentId,
+          },
+        },
         loadEagerRelations: false,
         relations: ['semester', 'coordinator'],
       });
@@ -384,6 +388,7 @@ export class CourseService {
   public async addBlocks(body: CreateBlockDto) {
     const course = await this.courseRepository.findOne({
       where: { id: body.courseId },
+      loadEagerRelations: false,
     });
 
     const courseBlockType = course.blockType || 'rotating';
@@ -431,9 +436,11 @@ export class CourseService {
   public async getCourseBlocks(courseId: string) {
     const courseInfo = await this.courseRepository.findOne({
       where: { id: courseId },
+      loadEagerRelations: false,
     });
 
     const allBlocks = await this.courseBlocksRepository.find({
+      loadEagerRelations: false,
       where: { course: { id: courseId } },
       order: {
         name: 'ASC',
