@@ -94,14 +94,11 @@ export class PlacementService {
           const allTimeSlots = await this.trainingTimeSlotRepository.find({
             where: { id: In(allTimeSlotIds) },
             loadEagerRelations: false,
-            relations: {
-              trainingSite: {
-                course: {
-                  semester: true,
-                  student: false,
-                },
-              },
-            },
+            relations: [
+              'trainingSite',
+              'trainingSite.course',
+              'trainingSite.course.semester',
+            ],
           });
 
           const allDays = [
@@ -160,15 +157,12 @@ export class PlacementService {
           await this.blockTrainingTimeSlotRepository.find({
             where: { id: In(allBlockTimeSlotIds) },
             loadEagerRelations: false,
-            relations: {
-              blockTrainingSite: {
-                block: {
-                  course: {
-                    semester: true,
-                  },
-                },
-              },
-            },
+            relations: [
+              'blockTrainingSite',
+              'blockTrainingSite.block',
+              'blockTrainingSite.block.course',
+              'blockTrainingSite.block.course.semester',
+            ],
           });
 
         const allDays = [
@@ -232,6 +226,7 @@ export class PlacementService {
     // find if course has blocks or not
     const courseBlocks = await this.courseBlock.find({
       where: { course: { id: courseId } },
+      loadEagerRelations: false,
     });
 
     const hasCourseBlocks = courseBlocks.length > 0;
@@ -586,6 +581,7 @@ export class PlacementService {
         await this.studentCourseService.findCourseStudents(courseId);
 
       const studentsPlaced = await this.placementRepository.find({
+        loadEagerRelations: false,
         where: [
           { trainingSite: { course: { id: courseId } } },
           // { blockTrainingSite: { block: { course: { id: courseId } } } },
@@ -645,6 +641,7 @@ export class PlacementService {
       // find all students placed inside a given course
 
       const allPlacedStudents = await this.placementRepository.find({
+        loadEagerRelations: false,
         where: {
           trainingSite: {
             course: {
@@ -652,12 +649,7 @@ export class PlacementService {
             },
           },
         },
-        loadEagerRelations: false,
-        relations: {
-          student: true,
-          trainingSite: true,
-          timeSlot: true,
-        },
+        relations: ['student', 'trainingSite', 'timeSlot'],
       });
 
       const groupedStudents = groupBy(allPlacedStudents, 'placementDate');
@@ -746,6 +738,7 @@ export class PlacementService {
       where: {
         student: { id: studentId },
       },
+      loadEagerRelations: false,
     });
   }
 
