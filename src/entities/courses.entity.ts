@@ -31,7 +31,7 @@ export class CourseEntity extends CustomBaseEntity {
   @Column({ default: 0, nullable: true })
   creditHours: number;
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', eager: false })
   @JoinColumn()
   coordinator: UserEntity;
 
@@ -40,6 +40,7 @@ export class CourseEntity extends CustomBaseEntity {
     (department) => department.courses,
     {
       onDelete: 'CASCADE',
+      eager: false,
     },
   )
   @JoinColumn()
@@ -47,31 +48,33 @@ export class CourseEntity extends CustomBaseEntity {
 
   @ManyToOne(() => SemesterEntity, (semester) => semester.course, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   semester: SemesterEntity;
 
   @OneToMany(() => CourseTrainingSiteEntity, (ts) => ts.course, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   trainingSite: CourseTrainingSiteEntity[];
 
   @OneToMany(() => StudentCourseEntity, (students) => students.course, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   student: StudentCourseEntity[];
 
   @OneToMany(() => CourseBlockEntity, (block) => block.course, {
     cascade: true,
+    eager: false,
   })
   blocks: CourseBlockEntity[];
 
   @OneToMany(
     () => CourseCoordinatorEntity,
     (coordinator) => coordinator.course,
-    { cascade: true },
+    { cascade: true, eager: false },
   )
   courseCoordinator: CourseCoordinatorEntity[];
 }

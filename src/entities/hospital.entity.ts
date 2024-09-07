@@ -35,13 +35,14 @@ export class HospitalEntity extends CustomBaseEntity {
 
   @ManyToOne(() => AuthorityEntity, (authority) => authority.hospitals, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   authority: AuthorityEntity;
 
   @OneToMany(() => DepartmentEntity, (department) => department.hospital, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   departments: DepartmentEntity[];
 }

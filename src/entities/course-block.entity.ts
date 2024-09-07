@@ -24,17 +24,20 @@ export class CourseBlockEntity extends CustomBaseEntity {
 
   @ManyToOne(() => CourseEntity, (course) => course.blocks, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   course: CourseEntity;
 
   @OneToMany(() => StudentCourseEntity, (block) => block.course, {
     cascade: true,
+    eager: false,
   })
   students: StudentCourseEntity[];
 
   @OneToMany(() => CourseBlockTrainingSiteEntity, (block) => block.block, {
     cascade: true,
+    eager: false,
   })
   blockTrainingSites: CourseBlockTrainingSiteEntity[];
 }

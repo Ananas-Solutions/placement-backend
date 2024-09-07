@@ -50,7 +50,7 @@ export class StudentProfileEntity extends CustomBaseEntity {
   @Column({ nullable: true })
   identity: string;
 
-  @OneToOne(() => UserEntity, { cascade: ['soft-remove'], eager: true })
+  @OneToOne(() => UserEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   user: UserEntity;
 }

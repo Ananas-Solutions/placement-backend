@@ -7,15 +7,15 @@ export class StudentEvaluationEntity extends CustomBaseEntity {
   @Column({ type: 'jsonb' })
   evaluation: any;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   evaluator: UserEntity;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   evaluatee: UserEntity;
 
-  @ManyToOne(() => CourseEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CourseEntity, { onDelete: 'CASCADE', eager: false })
   @JoinColumn()
   course: CourseEntity;
 }

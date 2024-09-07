@@ -25,6 +25,7 @@ export class DepartmentEntity extends CustomBaseEntity {
 
   @ManyToOne(() => HospitalEntity, (hospital) => hospital.departments, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   hospital: HospitalEntity;
@@ -34,7 +35,7 @@ export class DepartmentEntity extends CustomBaseEntity {
     (departmentUnit) => departmentUnit.department,
     {
       cascade: ['update', 'soft-remove'],
-      eager: true,
+      eager: false,
     },
   )
   departmentUnits: DepartmentUnitEntity[];
@@ -44,7 +45,7 @@ export class DepartmentEntity extends CustomBaseEntity {
     (departmentCoordinator) => departmentCoordinator.department,
     {
       cascade: ['update', 'soft-remove'],
-      eager: true,
+      eager: false,
     },
   )
   departmentCoordinators: CoordinatorCollegeDepartmentEntity[];

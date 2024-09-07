@@ -12,6 +12,7 @@ import {
 export class CourseTrainingSiteEntity extends CustomBaseEntity {
   @ManyToOne(() => CourseEntity, (course) => course.trainingSite, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   public course: CourseEntity;
@@ -21,6 +22,7 @@ export class CourseTrainingSiteEntity extends CustomBaseEntity {
     (departmentUnit) => departmentUnit.trainingSites,
     {
       onDelete: 'CASCADE',
+      eager: false,
     },
   )
   @JoinColumn()
@@ -29,13 +31,13 @@ export class CourseTrainingSiteEntity extends CustomBaseEntity {
   @OneToMany(
     () => TrainingTimeSlotEntity,
     (timeslots) => timeslots.trainingSite,
-    { cascade: ['update', 'soft-remove'], eager: true },
+    { cascade: ['update', 'soft-remove'], eager: false },
   )
   timeslots: TrainingTimeSlotEntity[];
 
   @OneToMany(() => PlacementEntity, (placement) => placement.trainingSite, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   placement: PlacementEntity[];
 

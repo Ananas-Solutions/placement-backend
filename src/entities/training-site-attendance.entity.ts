@@ -14,6 +14,7 @@ export class TrainingSiteAttendanceEntity extends CustomBaseEntity {
 
   @ManyToOne(() => UserEntity, (student) => student.attendance, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   student: UserEntity;

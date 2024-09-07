@@ -12,6 +12,7 @@ import { BlockTrainingTimeSlotEntity } from './block-training-time-slot.entity';
 export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
   @ManyToOne(() => CourseBlockEntity, (block) => block.blockTrainingSites, {
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   public block: CourseBlockEntity;
@@ -21,6 +22,7 @@ export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
     (departmentUnit) => departmentUnit.blockTrainingSites,
     {
       onDelete: 'CASCADE',
+      eager: false,
     },
   )
   @JoinColumn()
@@ -38,7 +40,7 @@ export class CourseBlockTrainingSiteEntity extends CustomBaseEntity {
     (placement) => placement.blockTrainingSite,
     {
       cascade: ['update', 'soft-remove'],
-      eager: true,
+      eager: false,
     },
   )
   placement: PlacementEntity[];

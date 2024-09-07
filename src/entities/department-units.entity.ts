@@ -33,21 +33,21 @@ export class DepartmentUnitEntity extends CustomBaseEntity {
 
   @OneToMany(() => SupervisorDepartmentUnitEntity, (ds) => ds.departmentUnit, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   departmentSupervisor: SupervisorDepartmentUnitEntity[];
 
   @OneToMany(
     () => CourseTrainingSiteEntity,
     (course) => course.departmentUnit,
-    { cascade: ['update', 'soft-remove'], eager: true },
+    { cascade: ['update', 'soft-remove'], eager: false },
   )
   trainingSites: CourseTrainingSiteEntity[];
 
   @OneToMany(
     () => CourseBlockTrainingSiteEntity,
     (blockTrainingSites) => blockTrainingSites.departmentUnit,
-    { cascade: ['update', 'soft-remove'], eager: true },
+    { cascade: ['update', 'soft-remove'], eager: false },
   )
   blockTrainingSites: CourseBlockTrainingSiteEntity[];
 }

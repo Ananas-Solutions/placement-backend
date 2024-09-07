@@ -12,19 +12,22 @@ export class SupervisorEvaluationEntity extends CustomBaseEntity {
   @Column({ type: 'jsonb' })
   evaluation: any;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   evaluator: UserEntity;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   evaluatee: UserEntity;
 
-  @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => CourseEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   course: CourseEntity;
 
-  @ManyToOne(() => TrainingTimeSlotEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => TrainingTimeSlotEntity, {
+    cascade: ['soft-remove'],
+    eager: false,
+  })
   @JoinColumn()
   timeslot: TrainingTimeSlotEntity;
 }

@@ -17,7 +17,7 @@ export class MasterUserDocumentEntity extends CustomBaseEntity {
   @Column()
   comment: string;
 
-  @ManyToOne(() => CourseEntity)
+  @ManyToOne(() => CourseEntity, { eager: false })
   @JoinColumn()
   course: CourseEntity;
 }

@@ -22,18 +22,19 @@ export class BlockTrainingTimeSlotEntity extends CustomBaseEntity {
     (blockTrainingSite) => blockTrainingSite.blockTimeslots,
     {
       onDelete: 'CASCADE',
+      eager: false,
     },
   )
   @JoinColumn()
   blockTrainingSite: CourseBlockTrainingSiteEntity;
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', eager: false })
   @JoinColumn()
   supervisor: UserEntity;
 
   @OneToMany(() => PlacementEntity, (placement) => placement.blockTimeSlot, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   placements: PlacementEntity[];
 }

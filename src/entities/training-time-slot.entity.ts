@@ -26,6 +26,7 @@ export class TrainingTimeSlotEntity extends CustomBaseEntity {
     (trainingSite) => trainingSite.timeslots,
     {
       onDelete: 'CASCADE',
+      eager: false,
     },
   )
   @JoinColumn()
@@ -33,11 +34,11 @@ export class TrainingTimeSlotEntity extends CustomBaseEntity {
 
   @OneToMany(() => PlacementEntity, (placement) => placement.timeSlot, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   placements: PlacementEntity[];
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', eager: false })
   @JoinColumn()
   supervisor: UserEntity;
 }

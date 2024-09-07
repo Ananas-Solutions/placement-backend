@@ -30,11 +30,12 @@ export class UserDocumentEntity extends CustomBaseEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.documents, {
     cascade: ['soft-remove'],
+    eager: false,
   })
   @JoinColumn()
   user: UserEntity;
 
-  @ManyToOne(() => CourseEntity)
+  @ManyToOne(() => CourseEntity, { eager: false })
   @JoinColumn()
   course: CourseEntity;
 }

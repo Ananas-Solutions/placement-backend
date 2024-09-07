@@ -48,7 +48,7 @@ export class UserEntity extends CustomBaseEntity {
 
   @OneToMany(() => UserDocumentEntity, (userDocument) => userDocument.user, {
     cascade: ['update', 'soft-remove'],
-    eager: true,
+    eager: false,
   })
   documents: UserDocumentEntity[];
 
@@ -57,6 +57,7 @@ export class UserEntity extends CustomBaseEntity {
     (studentProfile) => studentProfile.user,
     {
       cascade: ['update', 'soft-remove'],
+      eager: false,
     },
   )
   studentProfile: StudentProfileEntity;
@@ -64,7 +65,7 @@ export class UserEntity extends CustomBaseEntity {
   @OneToMany(
     () => TrainingSiteAttendanceEntity,
     (attendance) => attendance.student,
-    { cascade: true },
+    { cascade: true, eager: false },
   )
   attendance: TrainingSiteAttendanceEntity[];
 }

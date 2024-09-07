@@ -17,7 +17,7 @@ export class PlacementEntity extends CustomBaseEntity {
   @Column({ nullable: true })
   placementDate!: string;
 
-  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'] })
+  @ManyToOne(() => UserEntity, { cascade: ['soft-remove'], eager: false })
   @JoinColumn()
   student: UserEntity;
 
@@ -27,6 +27,7 @@ export class PlacementEntity extends CustomBaseEntity {
     {
       onDelete: 'CASCADE',
       nullable: true,
+      eager: false,
     },
   )
   @JoinColumn()
@@ -38,6 +39,7 @@ export class PlacementEntity extends CustomBaseEntity {
     {
       onDelete: 'CASCADE',
       nullable: true,
+      eager: false,
     },
   )
   @JoinColumn()
@@ -49,6 +51,7 @@ export class PlacementEntity extends CustomBaseEntity {
     {
       onDelete: 'CASCADE',
       nullable: true,
+      eager: false,
     },
   )
   @JoinColumn()
@@ -60,6 +63,7 @@ export class PlacementEntity extends CustomBaseEntity {
     {
       onDelete: 'CASCADE',
       nullable: true,
+      eager: false,
     },
   )
   @JoinColumn()

@@ -8,14 +8,14 @@ import {
 
 @Entity()
 export class CoordinatorCollegeDepartmentEntity extends CustomBaseEntity {
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', eager: false })
   @JoinColumn()
   coordinator: UserEntity;
 
   @ManyToOne(
     () => CollegeDepartmentEntity,
     (department) => department.coordinators,
-    { onDelete: 'CASCADE' },
+    { onDelete: 'CASCADE', eager: false },
   )
   @JoinColumn()
   department: CollegeDepartmentEntity;
