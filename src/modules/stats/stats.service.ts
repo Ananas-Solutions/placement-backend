@@ -70,7 +70,10 @@ export class StatsService {
 
   public async getStatsForCoordinator(coordinatorId: string) {
     const allCourses = await this.courseEntity.find({
-      where: { coordinator: { id: coordinatorId }, deletedAt: null },
+      where: {
+        courseCoordinator: { coordinator: { id: coordinatorId } },
+        deletedAt: null,
+      },
     });
 
     const allCoursesIds = allCourses.map((c) => c.id);

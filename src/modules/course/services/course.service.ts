@@ -179,8 +179,10 @@ export class CourseService {
     if (user.role === UserRoleEnum.CLINICAL_COORDINATOR) {
       whereClause = {
         ...whereClause,
-        coordinator: {
-          id: userId,
+        courseCoordinator: {
+          coordinator: {
+            id: userId,
+          },
         },
       };
     }
