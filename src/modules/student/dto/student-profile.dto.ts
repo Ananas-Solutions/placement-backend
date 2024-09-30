@@ -26,6 +26,9 @@ export class StudentProfileDto {
   @IsString()
   alternatePhone: string;
 
+  @IsOptional()
+  address: any;
+
   @IsNotEmpty()
   @IsString()
   address1: string;

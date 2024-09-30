@@ -97,12 +97,10 @@ export class StudentService {
     const studentProfile = await this.studentProfileRepository.findOne({
       where: { user: { id } },
       loadEagerRelations: false,
-      relations: ['user'],
+      relations: {
+        user: true,
+      },
     });
-
-    // if (!studentProfile) {
-    //   return;
-    // }
 
     return this.transformToResponse(student, studentProfile);
   }
@@ -177,14 +175,15 @@ export class StudentService {
         alternatePhone: null,
         gender: null,
         dob: null,
-        address: {
-          address1: null,
-          address2: null,
-          city: null,
-          state: null,
-          country: null,
-          postalCode: null,
-        },
+        address: null,
+        // address: {
+        //   address1: null,
+        //   address2: null,
+        //   city: null,
+        //   state: null,
+        //   country: null,
+        //   postalCode: null,
+        // },
         kin: null,
         imageUrl: profile?.imageUrl
           ? await this.fileUploadService.getUploadedFile(profile?.imageUrl)
@@ -201,6 +200,7 @@ export class StudentService {
       postalCode,
       state,
       country,
+      address,
       kin,
       user,
       alternateEmail,
@@ -218,14 +218,15 @@ export class StudentService {
       alternatePhone,
       gender,
       dob,
-      address: {
-        address1,
-        address2,
-        city,
-        state,
-        country,
-        postalCode,
-      },
+      address,
+      // address: {
+      //   address1,
+      //   address2,
+      //   city,
+      //   state,
+      //   country,
+      //   postalCode,
+      // },
       kin,
       imageUrl: await this.fileUploadService.getUploadedFile(profile.imageUrl),
     };

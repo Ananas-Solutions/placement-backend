@@ -8,14 +8,15 @@ export interface IStudentProfileResponse {
   alternatePhone: string;
   gender: string;
   dob: Date;
-  address: {
-    address1: string;
-    address2: string;
-    city: string;
-    country: string;
-    state: string;
-    postalCode: string;
-  };
+  address: any;
+  // address: {
+  //   address1: string;
+  //   address2: string;
+  //   city: string;
+  //   country: string;
+  //   state: string;
+  //   postalCode: string;
+  // };
   kin: object;
   imageUrl: string;
 }
