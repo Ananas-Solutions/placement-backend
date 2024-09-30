@@ -23,7 +23,7 @@ export class StudentProfileEntity extends CustomBaseEntity {
   @Column({ nullable: true })
   alternatePhone: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   address: any;
 
   @Column()
