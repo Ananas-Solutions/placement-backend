@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -72,5 +73,11 @@ export class SupervisorController {
   @Roles(UserRoleEnum.CLINICAL_SUPERVISOR)
   async getOneTimeSlot(@Param('timeSlotId') timeSlotId: string) {
     return this.supervisorService.fetchOneTimeSlot(timeSlotId);
+  }
+
+  @Delete(':id')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async deleteSupervisor(@Param('id') id: string) {
+    return this.supervisorService.deleteSupervisor(id);
   }
 }

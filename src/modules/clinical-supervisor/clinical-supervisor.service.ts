@@ -277,4 +277,9 @@ export class SupervisorService {
       students: mappedStudents,
     };
   }
+
+  async deleteSupervisor(id: string): Promise<ISuccessMessageResponse> {
+    await this.userService.deleteUser(id);
+    return { message: 'Supervisor account deleted successfully.' };
+  }
 }
