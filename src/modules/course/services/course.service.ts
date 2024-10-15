@@ -384,7 +384,7 @@ export class CourseService {
         startYear: semester.startYear,
         endYear: semester.endYear,
       },
-      totalBlocks: blocks.length,
+      totalBlocks: blocks.length || 0,
     };
 
     return response;
