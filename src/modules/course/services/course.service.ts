@@ -371,6 +371,8 @@ export class CourseService {
       };
     });
 
+    console.log('blocks', blocks);
+
     const response = {
       id,
       name,
@@ -384,7 +386,7 @@ export class CourseService {
         startYear: semester.startYear,
         endYear: semester.endYear,
       },
-      totalBlocks: blocks.length || 0,
+      totalBlocks: blocks?.length || 0,
     };
 
     return response;
