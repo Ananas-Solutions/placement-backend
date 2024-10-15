@@ -259,6 +259,7 @@ export class CourseService {
       where: { id },
       loadEagerRelations: false,
       relations: [
+        'blocks',
         'department',
         'semester',
         'courseCoordinator',
@@ -359,6 +360,7 @@ export class CourseService {
       department,
       semester,
       blockType,
+      blocks,
     } = entity;
 
     const allCoordiantors = courseCoordinator.map((coordinator) => {
@@ -382,6 +384,7 @@ export class CourseService {
         startYear: semester.startYear,
         endYear: semester.endYear,
       },
+      totalBlocks: blocks.length,
     };
 
     return response;
