@@ -52,9 +52,9 @@ export class DepartmentUnitsService {
       },
     });
 
-    return allDepartmentUnits.map((departmentUnit) =>
-      this.transformToDetailResponse(departmentUnit),
-    );
+    return allDepartmentUnits
+      .map((departmentUnit) => this.transformToDetailResponse(departmentUnit))
+      .filter(Boolean);
   }
 
   async findOne(id: string): Promise<IDepartmentUnitDetailResponse> {
@@ -128,7 +128,15 @@ export class DepartmentUnitsService {
   ): IDepartmentUnitDetailResponse {
     const { id, name, department, contactEmail } = departmentUnit;
     const { hospital } = department;
+    if (!hospital) {
+      return null;
+    }
+
     const { authority } = hospital;
+
+    if (!authority) {
+      return null;
+    }
 
     return {
       id,

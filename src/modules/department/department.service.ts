@@ -46,15 +46,19 @@ export class DepartmentService {
   async findAllHospitals(): Promise<IDepartmentDetailResponse[]> {
     const allDepartments = await this.departmentRepository.find({
       loadEagerRelations: false,
-      relations: ['hospital'],
+      relations: {
+        hospital: true,
+      },
       order: {
         name: 'asc',
       },
     });
 
-    return allDepartments.map((department) =>
-      this.transformToDetailResponse(department),
-    );
+    console.log('all department', allDepartments);
+
+    return allDepartments
+      .map((department) => this.transformToDetailResponse(department))
+      .filter(Boolean);
   }
 
   async findHospitalDepartments(
@@ -141,6 +145,10 @@ export class DepartmentService {
     entity: DepartmentEntity,
   ): IDepartmentDetailResponse {
     const { id, name, hospital, contactEmail } = entity;
+
+    if (!hospital) {
+      return null;
+    }
 
     return {
       id,
