@@ -179,9 +179,27 @@ export class CourseTrainingSiteService {
             where: { trainingSite: { id: trainingSite.id } },
           });
 
+        if (!trainingSite) {
+          return null;
+        }
+
         const { departmentUnit } = trainingSite;
+
+        if (!departmentUnit) {
+          return null;
+        }
+
         const { department } = departmentUnit;
+
+        if (!department) {
+          return null;
+        }
+
         const { hospital } = department;
+
+        if (!hospital) {
+          return null;
+        }
 
         const { timeslots } = trainingSite;
 
@@ -204,7 +222,7 @@ export class CourseTrainingSiteService {
       }),
     );
 
-    return mappedResult;
+    return mappedResult.filter(Boolean);
   }
 
   async getAllBlockTrainingSite(
