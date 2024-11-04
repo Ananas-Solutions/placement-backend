@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { groupBy, uniqBy } from 'lodash';
@@ -7,7 +11,6 @@ import {
   endOfMonth,
   format,
   getDay,
-  parseISO,
   startOfMonth,
 } from 'date-fns';
 
@@ -23,8 +26,9 @@ import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.enti
 import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 import { StudentCourseService } from 'student-course/student-course.service';
+import { UserService } from 'user/user.service';
 
-import { StudentPlacementDto } from './dto';
+import { AutoImportPlacementDto, StudentPlacementDto } from './dto';
 import {
   IStudentAvailabilityInterface,
   IStudentTrainingSites,
@@ -47,6 +51,7 @@ export class PlacementService {
     @InjectRepository(BlockTrainingTimeSlotEntity)
     private readonly blockTrainingTimeSlotRepository: Repository<BlockTrainingTimeSlotEntity>,
     private readonly studentCourseService: StudentCourseService,
+    private readonly userService: UserService,
   ) {}
 
   async assignPlacment(bodyDto: StudentPlacementDto): Promise<any> {
@@ -381,6 +386,59 @@ export class PlacementService {
     }
 
     return { message: 'Placement has been done automatically.' };
+  }
+
+  async autoImportGridPlacement(body: AutoImportPlacementDto[]) {
+    try {
+      console.time('autoImportGridPlacement');
+      await Promise.all(
+        body.map(async (b) => {
+          const { date, placement } = b;
+
+          await Promise.all(
+            placement.map(async (p) => {
+              const { timeslotId, studentEmails } = p;
+
+              const timeslot = await this.trainingTimeSlotRepository.findOne({
+                where: { id: timeslotId },
+                relations: ['trainingSite'],
+              });
+
+              const studentIds: string[] = [];
+
+              await Promise.all(
+                studentEmails.map(async (studentEmail) => {
+                  const student = await this.userService.findUserByEmail(
+                    studentEmail,
+                  );
+
+                  if (!student) {
+                    throw new NotFoundException('Student not found.');
+                  }
+
+                  studentIds.push(student.id);
+                }),
+              );
+
+              await this.assignPlacment({
+                placementDate: date,
+                studentIds,
+                trainingSiteId: timeslot.trainingSite.id,
+                timeSlotIds: [timeslotId],
+              });
+            }),
+          );
+        }),
+      );
+
+      console.timeEnd('autoImportGridPlacement');
+
+      return { message: 'Placement has been imported successfully.' };
+    } catch (error) {
+      console.log('error', error);
+
+      throw new BadRequestException(error);
+    }
   }
 
   async findStudentTrainingSite(
@@ -826,14 +884,10 @@ export class PlacementService {
           throw new Error('Invalid day');
       }
     });
-    console.log('dayNumbers', dayNumbers);
 
     // Parse the start and end dates
     // const start = new Date(parseISO(startDate));
     // const end = new Date(parseISO(endDate));
-
-    // console.log('start', start);
-    // console.log('end', end);
 
     // Get all dates in the range
     const allDates = eachDayOfInterval({ start: startDate, end: endDate });

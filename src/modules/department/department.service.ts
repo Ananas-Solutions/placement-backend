@@ -54,8 +54,6 @@ export class DepartmentService {
       },
     });
 
-    console.log('all department', allDepartments);
-
     return allDepartments
       .map((department) => this.transformToDetailResponse(department))
       .filter(Boolean);

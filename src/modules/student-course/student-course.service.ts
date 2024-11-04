@@ -208,8 +208,6 @@ export class StudentCourseService {
       relations: ['student'],
     });
 
-    console.log('available students', availableStudents);
-
     const blockStudents = await this.studentCourseRepository.count({
       where: {
         block: {

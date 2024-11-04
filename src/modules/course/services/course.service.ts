@@ -371,8 +371,6 @@ export class CourseService {
       };
     });
 
-    console.log('blocks', blocks);
-
     const response = {
       id,
       name,

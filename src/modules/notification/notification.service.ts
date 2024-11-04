@@ -33,7 +33,6 @@ export class NotificationService {
     userId: string,
     query,
   ): Promise<INotificationResponse[]> {
-    console.log('query', query);
     let whereClause = {};
 
     if (query.status === 'read') {

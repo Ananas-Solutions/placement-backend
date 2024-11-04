@@ -18,6 +18,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { StudentPlacementDto } from './dto/placement.dto';
 import { PlacementService } from './placement.service';
+import { AutoImportPlacementDto } from './dto';
 
 @ApiTags('placement')
 @Controller('placement')
@@ -36,6 +37,12 @@ export class PlacementController {
   @Post('auto-assign')
   async autoAssignPlacement(@Body() body: { courseId: string }): Promise<any> {
     return await this.placementService.autoAssignPlacement(body.courseId);
+  }
+
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Post('auto-import-grid-placement')
+  async findTimeSlotStudents(@Body() body: AutoImportPlacementDto[]) {
+    return await this.placementService.autoImportGridPlacement(body);
   }
 
   @Roles(
