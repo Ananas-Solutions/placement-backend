@@ -197,7 +197,7 @@ export class StudentCourseService {
       where: {
         id: blockId,
       },
-      relations: ['course'],
+      relations: { course: true },
     });
 
     const availableStudents = await this.studentCourseRepository.find({
@@ -205,7 +205,7 @@ export class StudentCourseService {
         course: { id: blockInfo.course.id },
         block: IsNull(),
       },
-      relations: ['student'],
+      relations: { student: true },
     });
 
     const blockStudents = await this.studentCourseRepository.count({
@@ -214,11 +214,13 @@ export class StudentCourseService {
           id: blockId,
         },
       },
-      relations: ['student'],
+      relations: { student: true },
     });
 
-    const getAvailableStudentsForBlock = availableStudents.map((student) =>
-      this.transformToCourseStudent(student),
+    const getAvailableStudentsForBlock = await Promise.all(
+      availableStudents.map((student) =>
+        this.transformToCourseStudent(student),
+      ),
     );
 
     return {
