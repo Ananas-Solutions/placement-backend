@@ -546,10 +546,23 @@ export class CourseService {
   public async saveCourseGridView(body: { courseId: string; layout: any }) {
     const { courseId, layout } = body;
 
-    await this.courseGridViewRepository.save({
-      course: { id: courseId } as CourseEntity,
-      layout,
+    const courseGridView = await this.courseGridViewRepository.findOne({
+      where: { course: { id: courseId } },
     });
+
+    if (courseGridView) {
+      await this.courseGridViewRepository.update(
+        { course: { id: courseId } },
+        { layout },
+      );
+    } else {
+      await this.courseGridViewRepository.save({
+        course: { id: courseId } as CourseEntity,
+        layout,
+      });
+    }
+
+    return { message: 'Course grid view saved successfully.' };
   }
 
   public async getCourseGridView(
