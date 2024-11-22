@@ -31,6 +31,7 @@ import { ICourseDetailResponse, ICourseResponse } from '../response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 import { CourseTransferService } from './course-transfer.service';
 import { CoordinatorService } from 'coordinator/coordinator.service';
+import { CourseGridViewEntity } from 'entities/course-grid-view.entity';
 
 @Injectable()
 export class CourseService {
@@ -43,6 +44,8 @@ export class CourseService {
     private readonly courseBlocksRepository: Repository<CourseBlockEntity>,
     @InjectRepository(CourseCoordinatorEntity)
     private readonly courseCoordinatorRepository: Repository<CourseCoordinatorEntity>,
+    @InjectRepository(CourseGridViewEntity)
+    private readonly courseGridViewRepository: Repository<CourseGridViewEntity>,
     private readonly userService: UserService,
     private readonly courseTransferService: CourseTransferService,
     private readonly coordinatorService: CoordinatorService,
@@ -538,5 +541,22 @@ export class CourseService {
       console.log('err here', err);
       throw new BadRequestException('bad request');
     }
+  }
+
+  public async saveCourseGridView(body: { courseId: string; layout: any }) {
+    const { courseId, layout } = body;
+
+    await this.courseGridViewRepository.save({
+      course: { id: courseId } as CourseEntity,
+      layout,
+    });
+  }
+
+  public async getCourseGridView(
+    courseId: string,
+  ): Promise<CourseGridViewEntity> {
+    return await this.courseGridViewRepository.findOne({
+      where: { course: { id: courseId } },
+    });
   }
 }

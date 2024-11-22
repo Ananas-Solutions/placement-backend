@@ -21,6 +21,7 @@ import { CourseBlockEntity } from 'entities/course-block.entity';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 import { CourseBlockController } from './controllers/course-block.controller';
 import { CoordinatorModule } from 'coordinator/coordinator.module';
+import { CourseGridViewEntity } from 'entities/course-grid-view.entity';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CoordinatorModule } from 'coordinator/coordinator.module';
       TrainingSiteEvaluationEntity,
       CourseBlockEntity,
       CourseBlockTrainingSiteEntity,
+      CourseGridViewEntity,
     ]),
     UserModule,
     TrainingSiteTimeSlotModule,

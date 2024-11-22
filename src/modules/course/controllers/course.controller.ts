@@ -26,6 +26,7 @@ import {
   CreateCourseDto,
   DefineCourseBlockDto,
   ExportCourseDataDto,
+  SaveCourseGridViewDto,
   TransferAndShuffleCourseSettingDto,
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
@@ -51,6 +52,18 @@ export class CourseController {
   async saveCourse(@Req() req, @Body() body: CreateCourseDto) {
     const userId = req.user.id;
     return await this.coursesServices.createCourse(userId, body);
+  }
+
+  @Post('save-grid-view')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async saveCourseGridView(@Body() body: SaveCourseGridViewDto) {
+    return await this.coursesServices.saveCourseGridView(body);
+  }
+
+  @Get('get-grid-view/:courseId')
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  async getCourseGridView(@Param('courseId') courseId: string) {
+    return await this.coursesServices.getCourseGridView(courseId);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)

@@ -40,7 +40,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
       useFactory: async () =>
         Object.assign(await getConnectionOptions(), {
           autoLoadEntities: true,
-          synchronize: false,
+          synchronize: true,
         }),
     }),
 
