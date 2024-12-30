@@ -108,7 +108,7 @@ export class PlacementService {
 
           const allDays = [
             ...new Set(allTimeSlots.map((timeSlot) => timeSlot.day)),
-          ].flat(Infinity);
+          ].flat(10);
 
           const semesterStartTime = startOfMonth(
             `${allTimeSlots[0].trainingSite.course.semester.startYear}-01`,
@@ -172,7 +172,7 @@ export class PlacementService {
 
         const allDays = [
           ...new Set(allBlockTimeSlots.map((timeSlot) => timeSlot.day)),
-        ];
+        ].flat(10);
 
         const semesterStartTime = startOfMonth(
           `${allBlockTimeSlots[0].blockTrainingSite.block.course.semester.startYear}-01`,
@@ -573,7 +573,7 @@ export class PlacementService {
       },
     );
 
-    return mappedTrainingSiteStudents;
+    return uniqBy(mappedTrainingSiteStudents, 'student.id');
   }
 
   async groupTrainingSiteStudentsByDay(trainingSiteId: string): Promise<any> {
