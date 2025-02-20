@@ -132,7 +132,13 @@ export class StudentService {
               hospital: true,
             },
           },
-          course: true,
+          course: {
+            courseCoordinator: {
+              coordinator: true,
+            },
+            department: true,
+            semester: true,
+          },
         },
         timeSlot: {
           supervisor: true,
@@ -144,7 +150,11 @@ export class StudentService {
             },
           },
           block: {
-            course: true,
+            course: {
+              courseCoordinator: {
+                coordinator: true,
+              },
+            },
           },
         },
         blockTimeSlot: {
@@ -264,6 +274,18 @@ export class StudentService {
       const { department } = departmentUnit;
       const { hospital } = department;
 
+      const courseCoordinators = course.courseCoordinator.map(
+        (courseCoordinator) => {
+          const { coordinator } = courseCoordinator;
+
+          return {
+            id: coordinator.id,
+            name: coordinator.name,
+            email: coordinator.email,
+          };
+        },
+      );
+
       return {
         placementId: id,
         placementDate,
@@ -282,6 +304,13 @@ export class StudentService {
         course: {
           name: course?.name,
           id: course?.id,
+          coordinators: courseCoordinators,
+          department: course?.department?.name,
+          semester: {
+            startYear: course?.semester?.startYear,
+            endYear: course?.semester?.endYear,
+            semester: course?.semester?.semester,
+          },
         },
         trainingSite: {
           id: (blockTrainingSite || trainingSite)?.id,

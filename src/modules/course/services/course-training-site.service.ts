@@ -16,6 +16,7 @@ import {
 } from 'entities/index.entity';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
 import { CourseBlockEntity } from 'entities/course-block.entity';
+import { CourseGridViewEntity } from 'entities/course-grid-view.entity';
 
 @Injectable()
 export class CourseTrainingSiteService {
@@ -26,6 +27,8 @@ export class CourseTrainingSiteService {
     private readonly blockTrainingSiteRepository: Repository<CourseBlockTrainingSiteEntity>,
     @InjectRepository(TrainingSiteEvaluationEntity)
     private readonly trainingSiteEvaluationRepository: Repository<TrainingSiteEvaluationEntity>,
+    @InjectRepository(CourseGridViewEntity)
+    private readonly courseGridViewRepository: Repository<CourseGridViewEntity>,
   ) {}
 
   async addTrainingSite(
@@ -46,6 +49,11 @@ export class CourseTrainingSiteService {
       course: { id: courseId } as CourseEntity,
       departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
     });
+
+    await this.courseGridViewRepository.update(
+      { course: { id: courseId } },
+      { layout: null },
+    );
 
     return {
       trainingSiteId: newTrainingSite.id,
@@ -99,6 +107,11 @@ export class CourseTrainingSiteService {
       course: { id: courseId } as CourseEntity,
       departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
     });
+
+    await this.courseGridViewRepository.update(
+      { course: { id: courseId } },
+      { layout: null },
+    );
 
     return {
       trainingSiteId: newTrainingSite.id,
@@ -291,10 +304,10 @@ export class CourseTrainingSiteService {
       },
     );
 
-    await this.trainingSiteRepository.findOne({
-      where: { id: trainingSiteId },
-      loadEagerRelations: false,
-    });
+    await this.courseGridViewRepository.update(
+      { course: { id: courseId } },
+      { layout: null },
+    );
 
     return { message: 'Training site updated successfully.' };
   }
@@ -335,8 +348,15 @@ export class CourseTrainingSiteService {
   ): Promise<ISuccessMessageResponse> {
     const trainingSite = await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
+      relations: { course: true },
     });
+
     await this.trainingSiteRepository.softRemove(trainingSite);
+
+    await this.courseGridViewRepository.update(
+      { course: { id: trainingSite.course.id } },
+      { layout: null },
+    );
 
     return { message: 'Training site removed successfully.' };
   }

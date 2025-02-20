@@ -16,6 +16,7 @@ import {
 } from './dto';
 import { BlockTrainingTimeSlotEntity } from 'entities/block-training-time-slot.entity';
 import { CourseBlockTrainingSiteEntity } from 'entities/block-training-site.entity';
+import { CourseGridViewEntity } from 'entities/course-grid-view.entity';
 
 @Injectable()
 export class TrainingSiteTimeSlotService {
@@ -24,11 +25,23 @@ export class TrainingSiteTimeSlotService {
     private readonly timeslotRepository: Repository<TrainingTimeSlotEntity>,
     @InjectRepository(BlockTrainingTimeSlotEntity)
     private readonly blockTimeslotRepository: Repository<BlockTrainingTimeSlotEntity>,
+    @InjectRepository(CourseGridViewEntity)
+    private readonly courseGridViewRepository: Repository<CourseGridViewEntity>,
+    @InjectRepository(CourseTrainingSiteEntity)
+    private readonly courseTrainingSiteRepository: Repository<CourseTrainingSiteEntity>,
     private readonly placementService: PlacementService,
   ) {}
 
   async save(bodyDto: TrainingSiteTimeSlotDto): Promise<any> {
     const { trainingSiteId, ...body } = bodyDto;
+
+    const trainingSite = await this.courseTrainingSiteRepository.findOne({
+      where: {
+        id: trainingSiteId,
+      },
+      relations: { course: true },
+    });
+
     const newTimeSlots = await Promise.all(
       body.timeslots.map(async (timeslot) => {
         let entityData = {};
@@ -49,6 +62,12 @@ export class TrainingSiteTimeSlotService {
         return await this.timeslotRepository.save(entityData);
       }),
     );
+
+    await this.courseGridViewRepository.update(
+      { course: { id: trainingSite.course.id } },
+      { layout: null },
+    );
+
     return { message: 'Time slots added successfully', newTimeSlots };
   }
 
@@ -180,11 +199,18 @@ export class TrainingSiteTimeSlotService {
     body: UpdateTimeSlotDto,
   ): Promise<ISuccessMessageResponse> {
     const { trainingSiteId, supervisor, ...rest } = body;
+
+    const trainingSite = await this.courseTrainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+      relations: { course: true },
+    });
+
     let entityData = {};
     entityData = {
       ...rest,
       trainingSite: { id: trainingSiteId } as CourseTrainingSiteEntity,
     };
+
     if (supervisor) {
       entityData = {
         ...entityData,
@@ -197,6 +223,11 @@ export class TrainingSiteTimeSlotService {
       {
         ...entityData,
       },
+    );
+
+    await this.courseGridViewRepository.update(
+      { course: { id: trainingSite.course.id } },
+      { layout: null },
     );
 
     return { message: 'Time slot updated successfully.' };
@@ -242,8 +273,15 @@ export class TrainingSiteTimeSlotService {
   async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {
     const timeslot = await this.timeslotRepository.findOne({
       where: { id: timeslotId },
+      relations: { trainingSite: { course: true } },
     });
+
     await this.timeslotRepository.softRemove(timeslot);
+
+    await this.courseGridViewRepository.update(
+      { course: { id: timeslot.trainingSite.course.id } },
+      { layout: null },
+    );
 
     return { message: 'Time slot removed successfully.' };
   }

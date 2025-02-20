@@ -286,6 +286,7 @@ export class StudentCourseService {
     // find whether that student is placed inside that course or not
     let studentPlacementOnCourseLevel;
     let studentOnBlock;
+
     if (courseId) {
       studentPlacementOnCourseLevel = await this.placementRepository.find({
         where: [
