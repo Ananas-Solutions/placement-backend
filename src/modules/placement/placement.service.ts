@@ -388,41 +388,52 @@ export class PlacementService {
     return { message: 'Placement has been done automatically.' };
   }
 
-  async autoImportGridPlacement(body: AutoImportPlacementDto[]) {
+  async autoImportGridPlacement(body: AutoImportPlacementDto) {
     try {
       console.time('autoImportGridPlacement');
+      const { placement, studentNameMap } = body;
+
+      // createa a new user object for the student
+      const studentMap = new Map<number, UserEntity>();
+
       await Promise.all(
-        body.map(async (b) => {
+        studentNameMap.map(async (s) => {
+          const { sno, email } = s;
+
+          const student = await this.userService.findUserByEmail(email);
+
+          studentMap.set(sno, student);
+        }),
+      );
+
+      await Promise.all(
+        placement.map(async (b) => {
           const { date, placement } = b;
 
           await Promise.all(
             placement.map(async (p) => {
-              const { timeslotId, studentEmails } = p;
+              const { timeslotId, studentIds } = p;
 
               const timeslot = await this.trainingTimeSlotRepository.findOne({
                 where: { id: timeslotId },
                 relations: ['trainingSite'],
               });
 
-              const studentIds: string[] = [];
+              const studentIdsToPush: string[] = [];
 
-              await Promise.all(
-                studentEmails.map(async (studentEmail) => {
-                  const student = await this.userService.findUserByEmail(
-                    studentEmail,
-                  );
+              for (const studentId of studentIds) {
+                const student = studentMap.get(parseInt(studentId));
 
-                  if (!student) {
-                    throw new NotFoundException('Student not found.');
-                  }
+                if (!student) {
+                  throw new NotFoundException('Student not found.');
+                }
 
-                  studentIds.push(student.id);
-                }),
-              );
+                studentIdsToPush.push(student.id);
+              }
 
               await this.assignPlacment({
                 placementDate: date,
-                studentIds,
+                studentIds: studentIdsToPush,
                 trainingSiteId: timeslot.trainingSite.id,
                 timeSlotIds: [timeslotId],
               });

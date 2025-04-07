@@ -41,7 +41,7 @@ export class PlacementController {
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Post('auto-import-grid-placement')
-  async findTimeSlotStudents(@Body() body: AutoImportPlacementDto[]) {
+  async findTimeSlotStudents(@Body() body: AutoImportPlacementDto) {
     return await this.placementService.autoImportGridPlacement(body);
   }
 

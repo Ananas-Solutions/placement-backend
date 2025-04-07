@@ -1,5 +1,18 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
+export class PlacementStudentNameMapDto {
+  @IsNotEmpty()
+  sno: number;
+
+  @IsNotEmpty()
+  @IsString()
+  studentId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+}
+
 export class AutoImportPlacementDateDto {
   @IsNotEmpty()
   @IsString()
@@ -8,10 +21,10 @@ export class AutoImportPlacementDateDto {
   @IsNotEmpty()
   @IsArray()
   @ArrayMinSize(1)
-  studentEmails: string[];
+  studentIds: string[];
 }
 
-export class AutoImportPlacementDto {
+export class PlacementStudentDto {
   @IsNotEmpty()
   @IsString()
   date: string;
@@ -20,4 +33,16 @@ export class AutoImportPlacementDto {
   @IsArray()
   @ArrayMinSize(1)
   placement: AutoImportPlacementDateDto[];
+}
+
+export class AutoImportPlacementDto {
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayMinSize(1)
+  placement: PlacementStudentDto[];
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayMinSize(1)
+  studentNameMap: PlacementStudentNameMapDto[];
 }
