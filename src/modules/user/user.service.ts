@@ -27,7 +27,7 @@ export class UserService {
 
   async saveUser(body: UserDto): Promise<IUserResponse> {
     const existingUser = await this.userRepository.findOne({
-      where: { email: body.email },
+      where: { email: body.email.trim().toLowerCase() },
     });
     if (existingUser) throw new ConflictException('Email already used');
 
@@ -52,10 +52,10 @@ export class UserService {
       // send email to student with their email and randomly generated password
 
       await this.emailService.sendLoginDetails({
-        to: body.email,
+        to: body.email.trim().toLowerCase(),
         emailData: {
           name: body.name,
-          email: body.email,
+          email: body.email.trim().toLowerCase(),
           password: updatedPassword,
           role: UserRoleEnum.STUDENT.toLowerCase(),
         },
@@ -88,14 +88,14 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
-      where: { email },
+      where: { email: email.trim().toLowerCase() },
       loadEagerRelations: false,
     });
   }
 
   async findUserByStudentId(studentId: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
-      where: { studentId, deletedAt: null },
+      where: { studentId: studentId.trim().toLowerCase(), deletedAt: null },
       loadEagerRelations: false,
     });
   }
@@ -126,9 +126,12 @@ export class UserService {
   ): Promise<IUserResponse> {
     const student = await this.userRepository.findOne({ where: { id } });
 
-    if (student.studentId !== body.studentId) {
+    if (
+      student.studentId.trim().toLowerCase() !==
+      body.studentId.trim().toLowerCase()
+    ) {
       const existingStudentByStudentId = await this.userRepository.findOne({
-        where: { studentId: body.studentId },
+        where: { studentId: body.studentId.trim().toLowerCase() },
       });
 
       if (existingStudentByStudentId) {
@@ -138,9 +141,11 @@ export class UserService {
       }
     }
 
-    if (student.email !== body.email) {
+    if (
+      student.email.trim().toLowerCase() !== body.email.trim().toLowerCase()
+    ) {
       const existingUserByEmail = await this.userRepository.findOne({
-        where: { email: body.email },
+        where: { email: body.email.trim().toLowerCase() },
       });
 
       if (existingUserByEmail) {
@@ -201,7 +206,7 @@ export class UserService {
       name,
       email,
       role,
-      studentId,
+      studentId: studentId.trim().toLowerCase(),
     };
   }
 

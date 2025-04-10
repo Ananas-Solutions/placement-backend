@@ -36,11 +36,11 @@ export class StudentService {
 
   async saveStudent(body: CreateStudentDto) {
     const studentUser = await this.userService.saveUser({
-      email: body.email,
+      email: body.email.trim().toLowerCase(),
       name: body.name,
       role: UserRoleEnum.STUDENT,
       password: 'student',
-      studentId: body.studentId,
+      studentId: body.studentId.trim().toLowerCase(),
     });
 
     return studentUser;
@@ -56,9 +56,9 @@ export class StudentService {
           return foundStudent;
         }
         const studentUser = await this.saveStudent({
-          email: student.email,
+          email: student.email.trim().toLowerCase(),
           name: student.name,
-          studentId: student.studentId,
+          studentId: student.studentId.trim().toLowerCase(),
         });
 
         return studentUser;
@@ -123,7 +123,10 @@ export class StudentService {
     studentId: string,
   ): Promise<IStudentTrainingTimeSlotsResponse[]> {
     const studentPlacement = await this.placementRepository.find({
-      where: { student: { id: studentId }, deletedAt: IsNull() },
+      where: {
+        student: { id: studentId },
+        deletedAt: IsNull(),
+      },
       loadEagerRelations: false,
       relations: {
         trainingSite: {
@@ -178,8 +181,8 @@ export class StudentService {
       return {
         userId: student.id,
         name: student.name,
-        email: student.email,
-        studentId: student.studentId,
+        email: student.email.trim().toLowerCase(),
+        studentId: student.studentId.trim().toLowerCase(),
         alternateEmail: null,
         phone: null,
         alternatePhone: null,
@@ -221,8 +224,8 @@ export class StudentService {
     return {
       userId: user.id,
       name: user.name,
-      email: user.email,
-      studentId: user.studentId,
+      email: user.email.trim().toLowerCase(),
+      studentId: user.studentId.trim().toLowerCase(),
       alternateEmail,
       phone,
       alternatePhone,
@@ -281,7 +284,7 @@ export class StudentService {
           return {
             id: coordinator.id,
             name: coordinator.name,
-            email: coordinator.email,
+            email: coordinator.email?.trim().toLowerCase(),
           };
         },
       );
@@ -298,7 +301,7 @@ export class StudentService {
         departmentUnit: departmentUnit.name,
         supervisor: {
           name: supervisor?.name,
-          email: supervisor?.email,
+          email: supervisor?.email?.trim().toLowerCase(),
           id: supervisor?.id,
         },
         course: {

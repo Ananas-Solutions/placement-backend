@@ -251,7 +251,7 @@ export class ExportService {
                         for (let p = 0; p < placement.length; p++) {
                           const { student } = placement[p];
                           ws.cell(studentRow, studentIdCol).string(
-                            student?.studentId ?? '-',
+                            student?.studentId.trim().toLowerCase() ?? '-',
                           );
 
                           ws.cell(studentRow, studentNameCol).string(
@@ -259,7 +259,7 @@ export class ExportService {
                           );
 
                           ws.cell(studentRow, studentEmailCol).string(
-                            student?.email ?? '-',
+                            student?.email.trim().toLowerCase() ?? '-',
                           );
 
                           studentRow += 1;

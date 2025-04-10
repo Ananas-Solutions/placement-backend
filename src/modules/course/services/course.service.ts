@@ -127,10 +127,10 @@ export class CourseService {
     if (!studentFromEmail && !studentFromStudentId) {
       newStudent = await this.userService.saveUser({
         name: bodyDto.name,
-        email: bodyDto.email,
+        email: bodyDto.email.trim().toLowerCase(),
         password: 'student',
         role: UserRoleEnum.STUDENT,
-        studentId: bodyDto.studentId,
+        studentId: bodyDto.studentId.trim().toLowerCase(),
       });
     } else {
       newStudent = studentFromEmail;
@@ -291,9 +291,9 @@ export class CourseService {
       const { id, name, email, studentId } = student.student;
       return {
         id,
-        email,
+        email: email.trim().toLowerCase(),
         name,
-        studentId,
+        studentId: studentId.trim().toLowerCase(),
       };
     });
 
@@ -370,7 +370,7 @@ export class CourseService {
       return {
         id: coordinator.coordinator.id,
         name: coordinator.coordinator.name,
-        email: coordinator.coordinator.email,
+        email: coordinator.coordinator.email?.trim().toLowerCase(),
       };
     });
 

@@ -109,7 +109,7 @@ export class AttendanceQueryService {
 
         return {
           id: student.id,
-          studentId: student.studentId,
+          studentId: student.studentId.trim().toLowerCase(),
           studentName: student.name,
           attendance: attendance
             ? this.transformToAttendanceResponse(attendance)

@@ -210,7 +210,7 @@ export class SupervisorService {
         return {
           studentId: student.id,
           name: student.name,
-          email: student.email,
+          email: student.email?.trim().toLowerCase(),
         };
       });
       return {
@@ -257,7 +257,7 @@ export class SupervisorService {
       return {
         studentId: student.id,
         name: student.name,
-        email: student.email,
+        email: student.email?.trim().toLowerCase(),
       };
     });
     return {

@@ -164,9 +164,13 @@ export class CourseExportService {
                   student: { studentId, name, email },
                 } = p;
 
-                ws.cell(studentRow, studentIdCol).string(studentId ?? '-');
+                ws.cell(studentRow, studentIdCol).string(
+                  studentId.trim().towLo() ?? '-',
+                );
                 ws.cell(studentRow, studentNameCol).string(name ?? '-');
-                ws.cell(studentRow, studentEmailCol).string(email ?? '-');
+                ws.cell(studentRow, studentEmailCol).string(
+                  email.trim().toLowerCase() ?? '-',
+                );
 
                 studentRow += 1;
               });

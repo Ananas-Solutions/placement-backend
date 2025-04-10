@@ -400,7 +400,9 @@ export class PlacementService {
         studentNameMap.map(async (s) => {
           const { sno, email } = s;
 
-          const student = await this.userService.findUserByEmail(email);
+          const student = await this.userService.findUserByEmail(
+            email.trim().toLowerCase(),
+          );
 
           studentMap.set(sno, student);
         }),
@@ -537,9 +539,9 @@ export class PlacementService {
           placementId: id,
           student: {
             id: student.id,
-            studentId: student.studentId,
+            studentId: student.studentId.trim().toLowerCase(),
             name: student.name,
-            email: student.email,
+            email: student.email.trim().toLowerCase(),
           },
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,
@@ -572,9 +574,9 @@ export class PlacementService {
           placementId: id,
           student: {
             id: student.id,
-            studentId: student.studentId,
+            studentId: student.studentId.trim().toLowerCase(),
             name: student.name,
-            email: student.email,
+            email: student.email.trim().toLowerCase(),
           },
           startTime: blockTimeSlot.startTime,
           endTime: blockTimeSlot.endTime,
@@ -691,7 +693,7 @@ export class PlacementService {
 
           return {
             id: student.id,
-            email: student.email,
+            email: student.email?.trim().toLowerCase(),
             name: student.name,
             isStudentPlaced:
               studentTrainingSitePlacement.length > 0 ? true : false,
@@ -751,7 +753,7 @@ export class PlacementService {
 
           return {
             id: student.id,
-            email: student.email,
+            email: student.email?.trim().toLowerCase(),
             name: student.name,
             isStudentPlaced:
               studentTrainingSitePlacement.length > 0 ? true : false,

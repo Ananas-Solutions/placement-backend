@@ -149,7 +149,7 @@ export class StudentCourseService {
       return {
         id: coordinator.coordinator.id,
         name: coordinator.coordinator.name,
-        email: coordinator.coordinator.email,
+        email: coordinator.coordinator.email.trim().toLowerCase(),
       };
     });
 
@@ -338,7 +338,7 @@ export class StudentCourseService {
     return {
       id: student.id,
       name: student.name,
-      email: student.email,
+      email: student.email.trim().toLowerCase(),
       placement: {
         coursePlacementCount: studentPlacementOnCourseLevel?.length,
         blockPlacementCount: studentPlacementOnBlockLevel?.length,
