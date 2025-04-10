@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class QueryStudentAttendanceReportDto {
   @IsNotEmpty()
   @IsString()
   public studentId!: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  public trainingSiteId!: string;
+  public trainingSiteId?: string;
 
   @IsNotEmpty()
   @IsString()

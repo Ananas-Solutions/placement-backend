@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { orderBy, sortBy, uniqBy } from 'lodash';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -30,12 +30,17 @@ export class AttendanceQueryService {
     const startDate = startOfDay(body.startDate);
     const endDate = endOfDay(body.endDate);
 
+    const where: FindOptionsWhere<TrainingSiteAttendanceEntity> = {
+      student: { id: studentId },
+      createdAt: Between(startDate, endDate),
+    };
+
+    if (trainingSiteId) {
+      where.trainingSite = trainingSiteId;
+    }
+
     const attendance = await this.trainingSiteAttendanceRepository.find({
-      where: {
-        student: { id: studentId },
-        trainingSite: trainingSiteId,
-        createdAt: Between(startDate, endDate),
-      },
+      where,
     });
 
     const transformedAttendance = attendance?.map((item) =>
@@ -49,7 +54,7 @@ export class AttendanceQueryService {
 
     return {
       studentId,
-      trainingSiteId,
+      trainingSiteId: trainingSiteId || null,
       attendance: sortedAttendance,
     };
   }
