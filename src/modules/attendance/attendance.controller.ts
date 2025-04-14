@@ -26,7 +26,7 @@ export class AttendanceController {
   ) {}
 
   @Post()
-  @Roles(UserRoleEnum.CLINICAL_SUPERVISOR)
+  @Roles(UserRoleEnum.CLINICAL_SUPERVISOR, UserRoleEnum.CLINICAL_COORDINATOR)
   async recordStudentAttendance(@Body() body: RecordStudentAttendanceDto) {
     return this.attendanceCommandService.recordStudentAttendance(body);
   }
