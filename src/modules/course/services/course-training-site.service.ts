@@ -351,14 +351,25 @@ export class CourseTrainingSiteService {
       relations: { course: true },
     });
 
-    await this.trainingSiteRepository.softRemove(trainingSite);
+    if (trainingSite) {
+      await this.trainingSiteRepository.softRemove(trainingSite);
 
-    await this.courseGridViewRepository.update(
-      { course: { id: trainingSite.course.id } },
-      { layout: null },
-    );
+      await this.courseGridViewRepository.update(
+        { course: { id: trainingSite.course.id } },
+        { layout: null },
+      );
 
-    return { message: 'Training site removed successfully.' };
+      return { message: 'Training site removed successfully.' };
+    }
+
+    const blockTrainingSite = await this.blockTrainingSiteRepository.findOne({
+      where: { id: trainingSiteId },
+      relations: { block: true },
+    });
+
+    if (blockTrainingSite) {
+      await this.deleteBlockTrainingSite(trainingSiteId);
+    }
   }
 
   public async deleteBlockTrainingSite(
@@ -366,6 +377,7 @@ export class CourseTrainingSiteService {
   ): Promise<ISuccessMessageResponse> {
     const trainingSite = await this.blockTrainingSiteRepository.findOne({
       where: { id: trainingSiteId },
+      relations: { block: true },
     });
     await this.blockTrainingSiteRepository.softRemove(trainingSite);
 
