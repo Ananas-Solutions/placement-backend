@@ -38,7 +38,7 @@ export class SupervisorService {
     const { name, email, departmentUnitId } = body;
     const newUser = await this.userService.saveUser({
       name,
-      email,
+      email: email.trim().toLowerCase(),
       password: 'password',
       role: UserRoleEnum.CLINICAL_SUPERVISOR,
       studentId: '',

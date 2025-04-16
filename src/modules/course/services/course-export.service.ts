@@ -341,7 +341,9 @@ export class CourseExportService {
                         studentId ?? '-',
                       );
                       ws.cell(studentRow, studentNameCol).string(name ?? '-');
-                      ws.cell(studentRow, studentEmailCol).string(email ?? '-');
+                      ws.cell(studentRow, studentEmailCol).string(
+                        email?.trim().toLowerCase() ?? '-',
+                      );
 
                       studentRow += 1;
                     });

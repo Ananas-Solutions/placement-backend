@@ -36,7 +36,7 @@ export class CoordinatorService {
 
     const coordinatorUser = await this.userService.saveUser({
       name,
-      email,
+      email: email.trim().toLowerCase(),
       role: UserRoleEnum.CLINICAL_COORDINATOR,
       password: `uos@${email}`,
     });
@@ -66,7 +66,7 @@ export class CoordinatorService {
         return {
           id,
           name,
-          email,
+          email: email.trim().toLowerCase(),
           department: {
             id: coordinatorDepartment?.department?.id,
             name: coordinatorDepartment?.department?.name,

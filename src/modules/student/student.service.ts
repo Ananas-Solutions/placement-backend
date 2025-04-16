@@ -50,7 +50,7 @@ export class StudentService {
     const allStudents = await Promise.all(
       body.students.map(async (student: CreateStudentDto) => {
         const foundStudent = await this.userService.findUserByEmail(
-          student.email,
+          student.email.trim().toLowerCase(),
         );
         if (foundStudent) {
           return foundStudent;

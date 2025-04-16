@@ -25,7 +25,7 @@ import { CreateEventDto } from './dto';
 export class EventController {
   constructor(private readonly eventsService: EventService) {}
 
-  @Post('')
+  @Post()
   @Roles(UserRoleEnum.ADMIN)
   async createEvent(@Body() body: CreateEventDto) {
     return this.eventsService.createEvent(body);
@@ -47,5 +47,11 @@ export class EventController {
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   async getAllCourseEvents(@Param('courseId') courseId: string) {
     return this.eventsService.getAllCourseEvents(courseId);
+  }
+
+  @Get(':id')
+  @Roles(UserRoleEnum.ADMIN)
+  async getEventById(@Param('id') id: string) {
+    return this.eventsService.getEventById(id);
   }
 }

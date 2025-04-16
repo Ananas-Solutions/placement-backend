@@ -35,9 +35,7 @@ export class UserService {
 
     // generating a random password if user role is student
     if (body.role === UserRoleEnum.STUDENT) {
-      updatedPassword = this.generateRandomString(
-        Math.floor(Math.random() * 3) + 10,
-      );
+      updatedPassword = 'student';
     }
 
     const user = this.userRepository.create({
@@ -204,7 +202,7 @@ export class UserService {
     return {
       id,
       name,
-      email,
+      email: email?.trim().toLowerCase(),
       role,
       studentId: studentId.trim().toLowerCase(),
     };
@@ -215,7 +213,7 @@ export class UserService {
     return {
       id,
       name,
-      email,
+      email: email?.trim().toLowerCase(),
       role,
     };
   }

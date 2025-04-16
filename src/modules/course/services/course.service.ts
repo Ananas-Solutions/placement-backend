@@ -107,10 +107,10 @@ export class CourseService {
 
   async addStudent(bodyDto: AddStudentDto): Promise<ISuccessMessageResponse> {
     const studentFromEmail = await this.userService.findUserByEmail(
-      bodyDto.email,
+      bodyDto.email.trim().toLowerCase(),
     );
     const studentFromStudentId = await this.userService.findUserByStudentId(
-      bodyDto.studentId,
+      bodyDto.studentId.trim().toLowerCase(),
     );
     let newStudent;
 

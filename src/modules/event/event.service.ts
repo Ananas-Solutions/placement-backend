@@ -93,7 +93,7 @@ export class EventService {
     );
   }
 
-  public async findOneEvent(id: string) {
+  public async getEventById(id: string) {
     const event = await this.eventsRepository.findOne({ where: { id } });
 
     return this.transformToCourseEventResponse(event);
@@ -103,7 +103,7 @@ export class EventService {
     const jobData = job.data;
     jobData.audiences.forEach(async (audience) => {
       const user = await this.userService.findUserById(audience);
-      const userEmail = user.email;
+      const userEmail = user.email?.trim().toLowerCase();
 
       const emailData = {
         username: user.name,
