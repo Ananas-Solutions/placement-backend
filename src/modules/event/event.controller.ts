@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -38,9 +39,9 @@ export class EventController {
   }
 
   @Get()
-  @Roles(UserRoleEnum.ADMIN)
-  async getAllEvents() {
-    return this.eventsService.getAllEvents();
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.STUDENT)
+  async getAllEvents(@Req() req) {
+    return this.eventsService.getAllEvents(req.user.id);
   }
 
   @Get('course/:courseId')

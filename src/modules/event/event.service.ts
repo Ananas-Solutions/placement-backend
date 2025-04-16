@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job, Worker } from 'bullmq';
 import IORedis from 'ioredis';
@@ -14,6 +14,7 @@ import { CreateCourseEventDto } from './dto/create-course-event.dto';
 import { CreateEventDto, ExecuteEventDto } from './dto';
 import { ISuccessMessageResponse } from 'commons/response';
 import { IEventResponse } from './response/event.response';
+import { UserRoleEnum } from 'commons/enums';
 
 @Injectable()
 export class EventService {
@@ -77,7 +78,25 @@ export class EventService {
     return { message: 'Course event added successfully.' };
   }
 
-  public async getAllEvents() {
+  public async getAllEvents(userId: string) {
+    const user = await this.userService.findUserById(userId);
+
+    if (user.role === UserRoleEnum.STUDENT) {
+      const studentCourse = await this.studentCourseRepository.findOne({
+        where: { student: { id: userId } },
+      });
+
+      if (!studentCourse) {
+        throw new BadRequestException('Student is not enrolled in any course.');
+      }
+
+      const allEvents = await this.eventsRepository.find({
+        where: { courseId: studentCourse.course.id },
+      });
+
+      return allEvents.map((event) => this.transformToResponse(event));
+    }
+
     const allEvents = await this.eventsRepository.find();
 
     return allEvents.map((event) => this.transformToResponse(event));
