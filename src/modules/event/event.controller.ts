@@ -50,7 +50,6 @@ export class EventController {
   }
 
   @Get(':id')
-  @Roles(UserRoleEnum.ADMIN)
   async getEventById(@Param('id') id: string) {
     return this.eventsService.getEventById(id);
   }
