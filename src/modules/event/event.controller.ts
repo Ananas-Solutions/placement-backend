@@ -45,7 +45,11 @@ export class EventController {
   }
 
   @Get('course/:courseId')
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
+  @Roles(
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.CLINICAL_COORDINATOR,
+    UserRoleEnum.STUDENT,
+  )
   async getAllCourseEvents(@Param('courseId') courseId: string) {
     return this.eventsService.getAllCourseEvents(courseId);
   }
