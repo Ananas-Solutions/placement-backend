@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job, Worker } from 'bullmq';
 import IORedis from 'ioredis';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { QueuesService } from 'src/queues/queues.service';
 import { UserService } from 'user/user.service';
@@ -82,16 +82,19 @@ export class EventService {
     const user = await this.userService.findUserById(userId);
 
     if (user.role === UserRoleEnum.STUDENT) {
-      const studentCourse = await this.studentCourseRepository.findOne({
+      const studentCourse = await this.studentCourseRepository.find({
         where: { student: { id: userId } },
+        relations: { course: true },
       });
 
       if (!studentCourse) {
         throw new BadRequestException('Student is not enrolled in any course.');
       }
 
+      const courseIds = studentCourse.map((sc) => sc.course.id);
+
       const allEvents = await this.eventsRepository.find({
-        where: { courseId: studentCourse.course.id },
+        where: { courseId: In(courseIds) },
       });
 
       return allEvents.map((event) => this.transformToResponse(event));
