@@ -189,14 +189,12 @@ export class StudentService {
         gender: null,
         dob: null,
         address: null,
-        // address: {
-        //   address1: null,
-        //   address2: null,
-        //   city: null,
-        //   state: null,
-        //   country: null,
-        //   postalCode: null,
-        // },
+        address1: null,
+        address2: null,
+        city: null,
+        state: null,
+        country: null,
+        postalCode: null,
         kin: null,
         imageUrl: profile?.imageUrl
           ? await this.fileUploadService.getUploadedFile(profile?.imageUrl)
@@ -232,14 +230,13 @@ export class StudentService {
       gender,
       dob,
       address,
-      // address: {
-      //   address1,
-      //   address2,
-      //   city,
-      //   state,
-      //   country,
-      //   postalCode,
-      // },
+      address1,
+      address2,
+      city,
+      state,
+      country,
+      postalCode,
+
       kin,
       imageUrl: profile?.imageUrl
         ? await this.fileUploadService.getUploadedFile(profile.imageUrl)
