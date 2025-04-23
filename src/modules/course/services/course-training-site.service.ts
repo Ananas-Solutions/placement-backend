@@ -90,6 +90,7 @@ export class CourseTrainingSiteService {
 
   async createTrainingSite(
     body: CourseTrainingSiteDto,
+    skipUpdateGridView = false,
   ): Promise<IAddTrainingSiteResponse> {
     const { courseId, departmentUnitId } = body;
     const existingTrainingSite = await this.findExistingTrainingSite(
@@ -108,10 +109,12 @@ export class CourseTrainingSiteService {
       departmentUnit: { id: departmentUnitId } as DepartmentUnitEntity,
     });
 
-    await this.courseGridViewRepository.update(
-      { course: { id: courseId } },
-      { layout: null },
-    );
+    if (!skipUpdateGridView) {
+      await this.courseGridViewRepository.update(
+        { course: { id: courseId } },
+        { layout: null },
+      );
+    }
 
     return {
       trainingSiteId: newTrainingSite.id,

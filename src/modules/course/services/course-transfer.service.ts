@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import {
   CourseEntity,
@@ -61,97 +61,143 @@ export class CourseTransferService {
   }
 
   public async transferCourseSetting(body: TransferCourseSettingDto) {
+    const { sourceCourseId, destinationCourseId, transferProperties } = body;
+
+    // Dynamically build relations array based on required properties
+    const relations = [];
+    if (transferProperties.includes('trainingSites')) {
+      relations.push('trainingSite', 'trainingSite.departmentUnit');
+
+      if (transferProperties.includes('timeslots')) {
+        relations.push('trainingSite.timeslots');
+
+        if (transferProperties.includes('placement')) {
+          relations.push(
+            'trainingSite.timeslots.placements',
+            'trainingSite.timeslots.placements.student',
+          );
+        }
+      }
+    }
+
+    if (transferProperties.includes('students')) {
+      relations.push('student', 'student.student');
+    }
+
     try {
-      const { sourceCourseId, destinationCourseId, transferProperties } = body;
-      const course = await this.courseRepository.findOne({
-        where: { id: sourceCourseId },
-        loadEagerRelations: false,
-        relations: [
-          'trainingSite',
-          'trainingSite.departmentUnit',
-          'trainingSite.timeslots',
-          'trainingSite.timeslots.placements',
-          'trainingSite.timeslots.placements.student',
-          'student',
-          'student.student',
-        ],
-      });
+      // Use transaction for atomicity
+      return await this.courseRepository.manager.transaction(
+        async (transactionManager) => {
+          // Fetch course with optimized relations
+          const course = await transactionManager.findOne(CourseEntity, {
+            where: { id: sourceCourseId },
+            loadEagerRelations: false,
+            relations,
+          });
 
-      if (body.transferProperties.includes('trainingSites')) {
-        const trainingSites = course.trainingSite;
-        await Promise.all(
-          trainingSites.map(async (site) => {
-            const departmentUnitId = site.departmentUnit.id;
-            const { trainingSiteId } =
-              await this.courseTrainingSiteService.createTrainingSite({
-                courseId: destinationCourseId,
-                departmentUnitId,
-              });
+          // Handle training sites transfer
+          if (transferProperties.includes('trainingSites')) {
+            await this.transferTrainingSites(
+              transactionManager,
+              course.trainingSite,
+              destinationCourseId,
+              transferProperties,
+            );
+          }
 
-            if (body.transferProperties.includes('timeslots')) {
-              const timeslots = site.timeslots;
+          // Handle students transfer
+          if (transferProperties.includes('students')) {
+            await this.transferStudents(
+              transactionManager,
+              course.student,
+              destinationCourseId,
+            );
+          }
 
-              await Promise.all(
-                timeslots.map(async (slot) => {
-                  const { startTime, endTime, capacity, day } = slot;
-                  const { newTimeSlots } = await this.timeslotService.save({
-                    timeslots: [{ startTime, endTime, capacity, day }],
-                    trainingSiteId,
-                  });
-
-                  if (transferProperties.includes('placement')) {
-                    const slotStudents = slot.placements;
-
-                    const mappedSlotStudents = slotStudents.map(
-                      ({ student }) => student.id,
-                    );
-
-                    const timeslot = newTimeSlots[0];
-                    const timeslotId = timeslot.id;
-
-                    await this.placementService.assignPlacment({
-                      timeSlotIds: [timeslotId],
-                      trainingSiteId: trainingSiteId,
-                      studentIds: mappedSlotStudents,
-                    });
-                  }
-                }),
-              );
-            }
-          }),
-        );
-      }
-
-      if (body.transferProperties.includes('students')) {
-        const students = course.student;
-
-        await Promise.all(
-          students.map(async ({ student }) => {
-            const existingStudent = await this.studentCourseRepository.findOne({
-              where: {
-                course: { id: destinationCourseId },
-                student: { id: student.id },
-              },
-            });
-
-            if (existingStudent) {
-              return;
-            }
-
-            await this.studentCourseRepository.save({
-              course: { id: destinationCourseId } as CourseEntity,
-              student: { id: student.id } as UserEntity,
-            });
-          }),
-        );
-      }
-
-      return { message: 'Course setting transfer is completed successfully.' };
+          return {
+            message: 'Course setting transfer is completed successfully.',
+          };
+        },
+      );
     } catch (err) {
-      console.log('err here', err);
-      throw new BadRequestException('bad request');
+      if (err instanceof BadRequestException) {
+        throw err;
+      }
+      console.error('Transfer course settings error:', err);
+      throw new BadRequestException('Failed to transfer course settings');
     }
   }
+
+  // if (body.transferProperties.includes('trainingSites')) {
+  //   const trainingSites = course.trainingSite;
+  //   await Promise.all(
+  //     trainingSites.map(async (site) => {
+  //       const departmentUnitId = site.departmentUnit.id;
+  //       const { trainingSiteId } =
+  //         await this.courseTrainingSiteService.createTrainingSite({
+  //           courseId: destinationCourseId,
+  //           departmentUnitId,
+  //         });
+
+  //       if (body.transferProperties.includes('timeslots')) {
+  //         const timeslots = site.timeslots;
+
+  //         await Promise.all(
+  //           timeslots.map(async (slot) => {
+  //             const { startTime, endTime, capacity, day } = slot;
+  //             const { newTimeSlots } = await this.timeslotService.save({
+  //               timeslots: [{ startTime, endTime, capacity, day }],
+  //               trainingSiteId,
+  //             });
+
+  //             if (transferProperties.includes('placement')) {
+  //               const slotStudents = slot.placements;
+
+  //               const mappedSlotStudents = slotStudents.map(
+  //                 ({ student }) => student.id,
+  //               );
+
+  //               const timeslot = newTimeSlots[0];
+  //               const timeslotId = timeslot.id;
+
+  //               await this.placementService.assignPlacment({
+  //                 timeSlotIds: [timeslotId],
+  //                 trainingSiteId: trainingSiteId,
+  //                 studentIds: mappedSlotStudents,
+  //               });
+  //             }
+  //           }),
+  //         );
+  //       }
+  //     }),
+  //   );
+  // }
+
+  // if (body.transferProperties.includes('students')) {
+  //   const students = course.student;
+
+  //   await Promise.all(
+  //     students.map(async ({ student }) => {
+  //       const existingStudent = await this.studentCourseRepository.findOne({
+  //         where: {
+  //           course: { id: destinationCourseId },
+  //           student: { id: student.id },
+  //         },
+  //       });
+
+  //       if (existingStudent) {
+  //         return;
+  //       }
+
+  //       await this.studentCourseRepository.save({
+  //         course: { id: destinationCourseId } as CourseEntity,
+  //         student: { id: student.id } as UserEntity,
+  //       });
+  //     }),
+  //   );
+  // }
+
+  // return { message: 'Course setting transfer is completed successfully.' };
 
   public async transferAndShuffleCourseSettings(
     body: TransferAndShuffleCourseSettingDto,
@@ -318,6 +364,134 @@ export class CourseTransferService {
     } catch (err) {
       console.log('err here', err);
       throw new BadRequestException('bad request');
+    }
+  }
+
+  private async transferTrainingSites(
+    transactionManager,
+    trainingSites,
+    destinationCourseId: string,
+    transferProperties: string[],
+  ) {
+    // Process sites in parallel
+    const sitePromises = trainingSites.map(async (site) => {
+      const departmentUnitId = site.departmentUnit.id;
+      const { trainingSiteId } =
+        await this.courseTrainingSiteService.createTrainingSite(
+          {
+            courseId: destinationCourseId,
+            departmentUnitId,
+          },
+          true,
+        );
+
+      // Handle timeslots if requested
+      if (transferProperties.includes('timeslots') && site.timeslots?.length) {
+        await this.transferTimeslots(
+          site.timeslots,
+          trainingSiteId,
+          transferProperties.includes('placement'),
+        );
+      }
+    });
+
+    await Promise.all(sitePromises);
+  }
+
+  private async transferTimeslots(
+    timeslots,
+    trainingSiteId: string,
+    includePlacements: boolean,
+  ) {
+    // Prepare timeslot data for bulk processing
+    const timeslotData = timeslots.map((slot) => ({
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      capacity: slot.capacity,
+      day: slot.day,
+      placements: includePlacements ? slot.placements : undefined,
+    }));
+
+    // Process in batches of 30 to avoid overloading
+    const batchSize = 30;
+    for (let i = 0; i < timeslotData.length; i += batchSize) {
+      const batch = timeslotData.slice(i, i + batchSize);
+
+      await Promise.all(
+        batch.map(async (data) => {
+          const { newTimeSlots } = await this.timeslotService.save({
+            timeslots: [
+              {
+                startTime: data.startTime,
+                endTime: data.endTime,
+                capacity: data.capacity,
+                day: data.day,
+              },
+            ],
+            trainingSiteId,
+          });
+
+          // Handle placements if needed
+          if (includePlacements && data.placements?.length) {
+            const mappedSlotStudents = data.placements.map(
+              ({ student }) => student.id,
+            );
+            const timeslot = newTimeSlots[0];
+
+            if (mappedSlotStudents.length > 0) {
+              await this.placementService.assignPlacment({
+                timeSlotIds: [timeslot.id],
+                trainingSiteId,
+                studentIds: mappedSlotStudents,
+              });
+            }
+          }
+        }),
+      );
+    }
+  }
+
+  private async transferStudents(
+    transactionManager,
+    students,
+    destinationCourseId: string,
+  ) {
+    if (!students?.length) return;
+
+    // Identify which students already exist in destination
+    const studentIds = students.map(({ student }) => student.id);
+
+    const existingStudents = await transactionManager.find(
+      StudentCourseEntity,
+      {
+        where: {
+          course: { id: destinationCourseId },
+          student: { id: In(studentIds) },
+        },
+        select: ['student'],
+      },
+    );
+
+    const existingStudentIds = new Set(
+      existingStudents.map((record) => record.student.id),
+    );
+
+    // Filter out students that already exist
+    const newStudentIds = studentIds.filter(
+      (id) => !existingStudentIds.has(id),
+    );
+
+    // Use bulk insert for better performance
+    if (newStudentIds.length > 0) {
+      const studentEntitiesToInsert = newStudentIds.map((studentId) => ({
+        course: { id: destinationCourseId } as CourseEntity,
+        student: { id: studentId } as UserEntity,
+      }));
+
+      await transactionManager.insert(
+        StudentCourseEntity,
+        studentEntitiesToInsert,
+      );
     }
   }
 }
