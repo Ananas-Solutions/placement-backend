@@ -286,6 +286,12 @@ export class TrainingSiteTimeSlotService {
     return { message: 'Time slot removed successfully.' };
   }
 
+  async findBySiteId(siteId: string) {
+    return this.timeslotRepository.find({
+      where: { trainingSite: { id: siteId } },
+    });
+  }
+
   // async findDaysTimeSlots(
   //   courseId: string,
   //   day: TrainingDaysEnum,

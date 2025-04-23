@@ -61,143 +61,31 @@ export class CourseTransferService {
   }
 
   public async transferCourseSetting(body: TransferCourseSettingDto) {
-    const { sourceCourseId, destinationCourseId, transferProperties } = body;
-
-    // Dynamically build relations array based on required properties
-    const relations = [];
-    if (transferProperties.includes('trainingSites')) {
-      relations.push('trainingSite', 'trainingSite.departmentUnit');
-
-      if (transferProperties.includes('timeslots')) {
-        relations.push('trainingSite.timeslots');
-
-        if (transferProperties.includes('placement')) {
-          relations.push(
-            'trainingSite.timeslots.placements',
-            'trainingSite.timeslots.placements.student',
-          );
-        }
-      }
-    }
-
-    if (transferProperties.includes('students')) {
-      relations.push('student', 'student.student');
-    }
-
     try {
-      // Use transaction for atomicity
-      return await this.courseRepository.manager.transaction(
-        async (transactionManager) => {
-          // Fetch course with optimized relations
-          const course = await transactionManager.findOne(CourseEntity, {
-            where: { id: sourceCourseId },
-            loadEagerRelations: false,
-            relations,
-          });
+      const { sourceCourseId, destinationCourseId, transferProperties } = body;
 
-          // Handle training sites transfer
-          if (transferProperties.includes('trainingSites')) {
-            await this.transferTrainingSites(
-              transactionManager,
-              course.trainingSite,
-              destinationCourseId,
-              transferProperties,
-            );
-          }
-
-          // Handle students transfer
-          if (transferProperties.includes('students')) {
-            await this.transferStudents(
-              transactionManager,
-              course.student,
-              destinationCourseId,
-            );
-          }
-
-          return {
-            message: 'Course setting transfer is completed successfully.',
-          };
-        },
-      );
-    } catch (err) {
-      if (err instanceof BadRequestException) {
-        throw err;
+      // Process one feature at a time instead of a single transaction to reduce memory usage
+      if (transferProperties.includes('trainingSites')) {
+        await this.transferTrainingSitesStreamlined(
+          sourceCourseId,
+          destinationCourseId,
+          transferProperties,
+        );
       }
+
+      if (transferProperties.includes('students')) {
+        await this.transferStudentsStreamlined(
+          sourceCourseId,
+          destinationCourseId,
+        );
+      }
+
+      return { message: 'Course setting transfer is completed successfully.' };
+    } catch (err) {
       console.error('Transfer course settings error:', err);
       throw new BadRequestException('Failed to transfer course settings');
     }
   }
-
-  // if (body.transferProperties.includes('trainingSites')) {
-  //   const trainingSites = course.trainingSite;
-  //   await Promise.all(
-  //     trainingSites.map(async (site) => {
-  //       const departmentUnitId = site.departmentUnit.id;
-  //       const { trainingSiteId } =
-  //         await this.courseTrainingSiteService.createTrainingSite({
-  //           courseId: destinationCourseId,
-  //           departmentUnitId,
-  //         });
-
-  //       if (body.transferProperties.includes('timeslots')) {
-  //         const timeslots = site.timeslots;
-
-  //         await Promise.all(
-  //           timeslots.map(async (slot) => {
-  //             const { startTime, endTime, capacity, day } = slot;
-  //             const { newTimeSlots } = await this.timeslotService.save({
-  //               timeslots: [{ startTime, endTime, capacity, day }],
-  //               trainingSiteId,
-  //             });
-
-  //             if (transferProperties.includes('placement')) {
-  //               const slotStudents = slot.placements;
-
-  //               const mappedSlotStudents = slotStudents.map(
-  //                 ({ student }) => student.id,
-  //               );
-
-  //               const timeslot = newTimeSlots[0];
-  //               const timeslotId = timeslot.id;
-
-  //               await this.placementService.assignPlacment({
-  //                 timeSlotIds: [timeslotId],
-  //                 trainingSiteId: trainingSiteId,
-  //                 studentIds: mappedSlotStudents,
-  //               });
-  //             }
-  //           }),
-  //         );
-  //       }
-  //     }),
-  //   );
-  // }
-
-  // if (body.transferProperties.includes('students')) {
-  //   const students = course.student;
-
-  //   await Promise.all(
-  //     students.map(async ({ student }) => {
-  //       const existingStudent = await this.studentCourseRepository.findOne({
-  //         where: {
-  //           course: { id: destinationCourseId },
-  //           student: { id: student.id },
-  //         },
-  //       });
-
-  //       if (existingStudent) {
-  //         return;
-  //       }
-
-  //       await this.studentCourseRepository.save({
-  //         course: { id: destinationCourseId } as CourseEntity,
-  //         student: { id: student.id } as UserEntity,
-  //       });
-  //     }),
-  //   );
-  // }
-
-  // return { message: 'Course setting transfer is completed successfully.' };
 
   public async transferAndShuffleCourseSettings(
     body: TransferAndShuffleCourseSettingDto,
@@ -367,15 +255,24 @@ export class CourseTransferService {
     }
   }
 
-  private async transferTrainingSites(
-    transactionManager,
-    trainingSites,
+  private async transferTrainingSitesStreamlined(
+    sourceCourseId: string,
     destinationCourseId: string,
     transferProperties: string[],
   ) {
-    // Process sites in parallel
-    const sitePromises = trainingSites.map(async (site) => {
+    // Fetch only training sites first to reduce memory load
+    const course = await this.courseRepository.findOne({
+      where: { id: sourceCourseId },
+      relations: ['trainingSite', 'trainingSite.departmentUnit'],
+      loadEagerRelations: false,
+    });
+
+    if (!course?.trainingSite?.length) return;
+
+    // Process training sites one at a time
+    for (const site of course.trainingSite) {
       const departmentUnitId = site.departmentUnit.id;
+
       const { trainingSiteId } =
         await this.courseTrainingSiteService.createTrainingSite(
           {
@@ -385,113 +282,131 @@ export class CourseTransferService {
           true,
         );
 
-      // Handle timeslots if requested
-      if (transferProperties.includes('timeslots') && site.timeslots?.length) {
-        await this.transferTimeslots(
-          site.timeslots,
+      // Only proceed with timeslots if needed
+      if (transferProperties.includes('timeslots')) {
+        await this.processTimeslotsForSite(
+          sourceCourseId,
+          site.id,
           trainingSiteId,
           transferProperties.includes('placement'),
         );
       }
-    });
-
-    await Promise.all(sitePromises);
-  }
-
-  private async transferTimeslots(
-    timeslots,
-    trainingSiteId: string,
-    includePlacements: boolean,
-  ) {
-    // Prepare timeslot data for bulk processing
-    const timeslotData = timeslots.map((slot) => ({
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      capacity: slot.capacity,
-      day: slot.day,
-      placements: includePlacements ? slot.placements : undefined,
-    }));
-
-    // Process in batches of 30 to avoid overloading
-    const batchSize = 30;
-    for (let i = 0; i < timeslotData.length; i += batchSize) {
-      const batch = timeslotData.slice(i, i + batchSize);
-
-      await Promise.all(
-        batch.map(async (data) => {
-          const { newTimeSlots } = await this.timeslotService.save({
-            timeslots: [
-              {
-                startTime: data.startTime,
-                endTime: data.endTime,
-                capacity: data.capacity,
-                day: data.day,
-              },
-            ],
-            trainingSiteId,
-          });
-
-          // Handle placements if needed
-          if (includePlacements && data.placements?.length) {
-            const mappedSlotStudents = data.placements.map(
-              ({ student }) => student.id,
-            );
-            const timeslot = newTimeSlots[0];
-
-            if (mappedSlotStudents.length > 0) {
-              await this.placementService.assignPlacment({
-                timeSlotIds: [timeslot.id],
-                trainingSiteId,
-                studentIds: mappedSlotStudents,
-              });
-            }
-          }
-        }),
-      );
     }
   }
 
-  private async transferStudents(
-    transactionManager,
-    students,
+  private async processTimeslotsForSite(
+    sourceCourseId: string,
+    siteId: string,
+    destTrainingSiteId: string,
+    includePlacements: boolean,
+  ) {
+    // Fetch timeslots for this specific site only
+    const timeslots = await this.timeslotService.findBySiteId(siteId);
+    if (!timeslots?.length) return;
+
+    // Process in smaller batches (5 at a time)
+    const batchSize = 5;
+    for (let i = 0; i < timeslots.length; i += batchSize) {
+      const batch = timeslots.slice(i, i + batchSize);
+
+      for (const slot of batch) {
+        const { startTime, endTime, capacity, day } = slot;
+
+        const { newTimeSlots } = await this.timeslotService.save({
+          timeslots: [{ startTime, endTime, capacity, day }],
+          trainingSiteId: destTrainingSiteId,
+        });
+
+        // Handle placements if needed - process in series to reduce memory pressure
+        if (includePlacements) {
+          await this.processPlacementsForTimeslot(
+            slot.id,
+            newTimeSlots[0].id,
+            destTrainingSiteId,
+          );
+        }
+      }
+    }
+  }
+
+  private async processPlacementsForTimeslot(
+    sourceTimeslotId: string,
+    destTimeslotId: string,
+    trainingSiteId: string,
+  ) {
+    // Fetch placements in batches
+    const placements = await this.placementService.findByTimeslotId(
+      sourceTimeslotId,
+    );
+    if (!placements?.length) return;
+
+    const studentIds = placements.map((p) => p.student.id);
+
+    // Process in even smaller chunks to minimize memory impact
+    const chunkSize = 20;
+    for (let i = 0; i < studentIds.length; i += chunkSize) {
+      const chunk = studentIds.slice(i, i + chunkSize);
+
+      await this.placementService.assignPlacment({
+        timeSlotIds: [destTimeslotId],
+        trainingSiteId,
+        studentIds: chunk,
+      });
+    }
+  }
+
+  private async transferStudentsStreamlined(
+    sourceCourseId: string,
     destinationCourseId: string,
   ) {
-    if (!students?.length) return;
+    // Fetch students in chunks instead of all at once
+    const pageSize = 100;
+    let hasMore = true;
+    let page = 0;
 
-    // Identify which students already exist in destination
-    const studentIds = students.map(({ student }) => student.id);
+    while (hasMore) {
+      const students = await this.studentCourseRepository.find({
+        where: { course: { id: sourceCourseId } },
+        relations: ['student'],
+        take: pageSize,
+        skip: page * pageSize,
+      });
 
-    const existingStudents = await transactionManager.find(
-      StudentCourseEntity,
-      {
+      if (students.length === 0) {
+        hasMore = false;
+        continue;
+      }
+
+      const studentIds = students.map((s) => s.student.id);
+
+      // Find existing students in chunks
+      const existingStudents = await this.studentCourseRepository.find({
         where: {
           course: { id: destinationCourseId },
           student: { id: In(studentIds) },
         },
         select: ['student'],
-      },
-    );
+      });
 
-    const existingStudentIds = new Set(
-      existingStudents.map((record) => record.student.id),
-    );
+      const existingIds = new Set(existingStudents.map((e) => e.student.id));
+      const newStudentIds = studentIds.filter((id) => !existingIds.has(id));
 
-    // Filter out students that already exist
-    const newStudentIds = studentIds.filter(
-      (id) => !existingStudentIds.has(id),
-    );
+      // Insert in smaller batches to reduce memory usage
+      if (newStudentIds.length > 0) {
+        const insertBatchSize = 50;
+        for (let i = 0; i < newStudentIds.length; i += insertBatchSize) {
+          const batch = newStudentIds.slice(i, i + insertBatchSize);
 
-    // Use bulk insert for better performance
-    if (newStudentIds.length > 0) {
-      const studentEntitiesToInsert = newStudentIds.map((studentId) => ({
-        course: { id: destinationCourseId } as CourseEntity,
-        student: { id: studentId } as UserEntity,
-      }));
+          const entities = batch.map((id) => ({
+            course: { id: destinationCourseId } as CourseEntity,
+            student: { id } as UserEntity,
+          }));
 
-      await transactionManager.insert(
-        StudentCourseEntity,
-        studentEntitiesToInsert,
-      );
+          await this.studentCourseRepository.insert(entities);
+        }
+      }
+
+      page++;
     }
   }
 }

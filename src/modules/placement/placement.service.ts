@@ -913,4 +913,11 @@ export class PlacementService {
     // Format the dates as needed (e.g., 'yyyy-MM-dd')
     return matchingDates.map((date) => format(date, 'yyyy-MM-dd'));
   };
+
+  async findByTimeslotId(timeslotId: string) {
+    return this.placementRepository.find({
+      where: { timeSlot: { id: timeslotId } },
+      relations: ['student'],
+    });
+  }
 }
