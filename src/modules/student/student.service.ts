@@ -1,8 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import {
+  Equal,
+  FindOptionsWhere,
+  IsNull,
+  LessThan,
+  MoreThan,
+  Repository,
+} from 'typeorm';
 
-import { UserRoleEnum } from 'commons/enums';
+import { TrainingSiteQueryDateType, UserRoleEnum } from 'commons/enums';
 import { ISuccessMessageResponse } from 'commons/response';
 import { PlacementEntity } from 'entities/placement.entity';
 import { StudentProfileEntity } from 'entities/student-profile.entity';
@@ -13,6 +20,7 @@ import { UserService } from 'user/user.service';
 import {
   CreateBulkStudentDto,
   CreateStudentDto,
+  QueryTrainingSitesDto,
   StudentProfileDto,
 } from './dto/';
 import {
@@ -21,6 +29,8 @@ import {
 } from './response';
 import { IUserResponse } from 'user/response';
 import { FileUploadService } from 'helper/file-uploader.service';
+import { format } from 'date-fns';
+import { StudentCourseEntity } from 'entities/student-course.entity';
 
 @Injectable()
 export class StudentService {
@@ -29,6 +39,8 @@ export class StudentService {
     private readonly studentProfileRepository: Repository<StudentProfileEntity>,
     @InjectRepository(PlacementEntity)
     private readonly placementRepository: Repository<PlacementEntity>,
+    @InjectRepository(StudentCourseEntity)
+    private readonly studentCourseRepository: Repository<StudentCourseEntity>,
     private readonly userService: UserService,
     private readonly studentCourseService: StudentCourseService,
     private readonly fileUploadService: FileUploadService,
@@ -121,12 +133,31 @@ export class StudentService {
 
   async getStudentTimeSlots(
     studentId: string,
+    query: QueryTrainingSitesDto,
   ): Promise<IStudentTrainingTimeSlotsResponse[]> {
+    const { dateType, page, limit } = query;
+
+    const whereClause: FindOptionsWhere<PlacementEntity> = {
+      student: { id: studentId },
+      deletedAt: IsNull(),
+    };
+
+    if (dateType === TrainingSiteQueryDateType.TODAY) {
+      whereClause.placementDate = format(new Date(), 'yyyy-MM-dd');
+    }
+
+    if (dateType === TrainingSiteQueryDateType.PAST) {
+      whereClause.placementDate = LessThan(format(new Date(), 'yyyy-MM-dd'));
+    }
+
+    if (dateType === TrainingSiteQueryDateType.FUTURE) {
+      whereClause.placementDate = MoreThan(format(new Date(), 'yyyy-MM-dd'));
+    }
+
     const studentPlacement = await this.placementRepository.find({
-      where: {
-        student: { id: studentId },
-        deletedAt: IsNull(),
-      },
+      where: whereClause,
+      skip: (page - 1) * limit,
+      take: limit,
       loadEagerRelations: false,
       relations: {
         trainingSite: {
@@ -323,5 +354,48 @@ export class StudentService {
     } catch (error) {
       console.log('error', error);
     }
+  }
+
+  async getStudentAssignedCourses(studentId: string) {
+    const courses = await this.studentCourseRepository.find({
+      where: {
+        student: { id: studentId },
+      },
+      loadEagerRelations: false,
+      relations: {
+        course: {
+          courseCoordinator: {
+            coordinator: true,
+          },
+          department: true,
+          semester: true,
+        },
+        block: true,
+      },
+    });
+
+    const transformedCourses = courses.map((course) => {
+      const { id, name, department, semester, courseCoordinator } =
+        course.course;
+
+      const courseCoordinators = courseCoordinator.map((coordinator) => {
+        const { coordinator: coordinatorData } = coordinator;
+        return {
+          id: coordinatorData.id,
+          name: coordinatorData.name,
+          email: coordinatorData.email?.trim().toLowerCase(),
+        };
+      });
+
+      return {
+        id,
+        name,
+        department: department.name,
+        semester: semester.semester,
+        coordinators: courseCoordinators,
+      };
+    });
+
+    return transformedCourses;
   }
 }

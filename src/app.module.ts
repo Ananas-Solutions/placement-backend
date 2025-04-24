@@ -30,6 +30,7 @@ import { WebsocketModule } from './websocket/websocket.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { ExportModule } from './modules/export/export.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
+import { PrometheusModule } from './modules/prometheus/prometheus.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
     StatsModule,
     ExportModule,
     AttendanceModule,
+    PrometheusModule,
   ],
 
   controllers: [AppController],

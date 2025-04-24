@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -23,6 +24,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 import {
   CreateBulkStudentDto,
   CreateStudentDto,
+  QueryTrainingSitesDto,
   StudentProfileDto,
 } from './dto';
 import { StudentService } from './student.service';
@@ -53,8 +55,13 @@ export class StudentController {
   }
 
   @Get('assigned-training-sites')
-  async getStudentTimeSlots(@Req() req) {
-    return this.studentService.getStudentTimeSlots(req.user.id);
+  async getStudentTimeSlots(@Req() req, @Query() query: QueryTrainingSitesDto) {
+    return this.studentService.getStudentTimeSlots(req.user.id, query);
+  }
+
+  @Get('assigned-courses')
+  async getStudentAssignedCourses(@Req() req) {
+    return this.studentService.getStudentAssignedCourses(req.user.id);
   }
 
   @Get('profile')
