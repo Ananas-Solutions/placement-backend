@@ -3,7 +3,7 @@ import { TrainingSiteQueryDateType } from 'commons/enums';
 
 export class QueryTrainingSitesDto {
   @IsEnum(TrainingSiteQueryDateType)
-  @IsNotEmpty()
+  @IsOptional()
   dateType: TrainingSiteQueryDateType;
 
   @IsOptional()
