@@ -135,7 +135,7 @@ export class StudentService {
     studentId: string,
     query: QueryTrainingSitesDto,
   ): Promise<IStudentTrainingTimeSlotsResponse[]> {
-    const { dateType, page, limit } = query;
+    const { dateType, page = 1, limit = 1000 } = query;
 
     const whereClause: FindOptionsWhere<PlacementEntity> = {
       student: { id: studentId },
