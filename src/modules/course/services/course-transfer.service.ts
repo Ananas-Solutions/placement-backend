@@ -279,57 +279,45 @@ export class CourseTransferService {
     const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
     console.log(`Memory usage at start: ${startMemory.toFixed(2)} MB`);
 
-    // Use pagination for training sites instead of loading all at once
-    let page = 0;
-    const pageSize = 5;
-    let hasMore = true;
+    // Get training sites in batches
+    const sites = await this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.trainingSite', 'trainingSite')
+      .leftJoinAndSelect('trainingSite.departmentUnit', 'departmentUnit')
+      .where('course.id = :id', { id: sourceCourseId })
+      .getOne()
+      .then((result) => result?.trainingSite || []);
 
-    while (hasMore) {
-      // Get training sites in batches
-      const sites = await this.courseRepository
-        .createQueryBuilder('course')
-        .leftJoinAndSelect('course.trainingSite', 'trainingSite')
-        .leftJoinAndSelect('trainingSite.departmentUnit', 'departmentUnit')
-        .where('course.id = :id', { id: sourceCourseId })
-        .skip(page * pageSize)
-        .take(pageSize)
-        .getOne()
-        .then((result) => result?.trainingSite || []);
+    if (!sites.length) {
+      return;
+    }
 
-      if (!sites.length) {
-        hasMore = false;
-        continue;
+    // Process each site individually
+    for (const site of sites) {
+      // Existing logic...
+      const departmentUnitId = site.departmentUnit.id;
+      const { trainingSiteId } =
+        await this.courseTrainingSiteService.createTrainingSite(
+          { courseId: destinationCourseId, departmentUnitId },
+          true,
+        );
+
+      if (transferProperties.includes('timeslots')) {
+        await this.processTimeslotsForSite(
+          sourceCourseId,
+          site.id,
+          trainingSiteId,
+          transferProperties.includes('placement'),
+        );
       }
 
-      // Process each site individually
-      for (const site of sites) {
-        // Existing logic...
-        const departmentUnitId = site.departmentUnit.id;
-        const { trainingSiteId } =
-          await this.courseTrainingSiteService.createTrainingSite(
-            { courseId: destinationCourseId, departmentUnitId },
-            true,
-          );
+      // Clear references to help GC
+      site.departmentUnit = null;
+    }
 
-        if (transferProperties.includes('timeslots')) {
-          await this.processTimeslotsForSite(
-            sourceCourseId,
-            site.id,
-            trainingSiteId,
-            transferProperties.includes('placement'),
-          );
-        }
-
-        // Clear references to help GC
-        site.departmentUnit = null;
-      }
-
-      page++;
-
-      // Force GC every few batches
-      if (page % 3 === 0 && global.gc) {
-        global.gc();
-      }
+    // Force GC every few batches
+    if (global.gc) {
+      global.gc();
     }
   }
 
