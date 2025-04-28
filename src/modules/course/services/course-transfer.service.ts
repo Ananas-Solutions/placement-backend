@@ -61,24 +61,39 @@ export class CourseTransferService {
   }
 
   public async transferCourseSetting(body: TransferCourseSettingDto) {
+    const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+    console.log(`Memory usage at start: ${startMemory.toFixed(2)} MB`);
+
     try {
       const { sourceCourseId, destinationCourseId, transferProperties } = body;
 
       // Process one feature at a time instead of a single transaction to reduce memory usage
-      if (transferProperties.includes('trainingSites')) {
-        await this.transferTrainingSitesStreamlined(
-          sourceCourseId,
-          destinationCourseId,
-          transferProperties,
-        );
+      for (const property of transferProperties) {
+        if (property === 'trainingSites') {
+          await this.transferTrainingSitesStreamlined(
+            sourceCourseId,
+            destinationCourseId,
+            transferProperties,
+          );
+        }
+
+        if (property === 'students') {
+          await this.transferStudentsStreamlined(
+            sourceCourseId,
+            destinationCourseId,
+          );
+        }
       }
 
-      if (transferProperties.includes('students')) {
-        await this.transferStudentsStreamlined(
-          sourceCourseId,
-          destinationCourseId,
-        );
+      if (global.gc) {
+        global.gc();
       }
+
+      const endMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+      console.log(`Memory usage at end: ${endMemory.toFixed(2)} MB`);
+      console.log(
+        `Memory difference: ${(endMemory - startMemory).toFixed(2)} MB`,
+      );
 
       return { message: 'Course setting transfer is completed successfully.' };
     } catch (err) {
@@ -260,36 +275,60 @@ export class CourseTransferService {
     destinationCourseId: string,
     transferProperties: string[],
   ) {
-    // Fetch only training sites first to reduce memory load
-    const course = await this.courseRepository.findOne({
-      where: { id: sourceCourseId },
-      relations: ['trainingSite', 'trainingSite.departmentUnit'],
-      loadEagerRelations: false,
-    });
+    // Add memory tracking here too
+    const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+    console.log(`Memory usage at start: ${startMemory.toFixed(2)} MB`);
 
-    if (!course?.trainingSite?.length) return;
+    // Use pagination for training sites instead of loading all at once
+    let page = 0;
+    const pageSize = 5;
+    let hasMore = true;
 
-    // Process training sites one at a time
-    for (const site of course.trainingSite) {
-      const departmentUnitId = site.departmentUnit.id;
+    while (hasMore) {
+      // Get training sites in batches
+      const sites = await this.courseRepository
+        .createQueryBuilder('course')
+        .leftJoinAndSelect('course.trainingSite', 'trainingSite')
+        .leftJoinAndSelect('trainingSite.departmentUnit', 'departmentUnit')
+        .where('course.id = :id', { id: sourceCourseId })
+        .skip(page * pageSize)
+        .take(pageSize)
+        .getOne()
+        .then((result) => result?.trainingSite || []);
 
-      const { trainingSiteId } =
-        await this.courseTrainingSiteService.createTrainingSite(
-          {
-            courseId: destinationCourseId,
-            departmentUnitId,
-          },
-          true,
-        );
+      if (!sites.length) {
+        hasMore = false;
+        continue;
+      }
 
-      // Only proceed with timeslots if needed
-      if (transferProperties.includes('timeslots')) {
-        await this.processTimeslotsForSite(
-          sourceCourseId,
-          site.id,
-          trainingSiteId,
-          transferProperties.includes('placement'),
-        );
+      // Process each site individually
+      for (const site of sites) {
+        // Existing logic...
+        const departmentUnitId = site.departmentUnit.id;
+        const { trainingSiteId } =
+          await this.courseTrainingSiteService.createTrainingSite(
+            { courseId: destinationCourseId, departmentUnitId },
+            true,
+          );
+
+        if (transferProperties.includes('timeslots')) {
+          await this.processTimeslotsForSite(
+            sourceCourseId,
+            site.id,
+            trainingSiteId,
+            transferProperties.includes('placement'),
+          );
+        }
+
+        // Clear references to help GC
+        site.departmentUnit = null;
+      }
+
+      page++;
+
+      // Force GC every few batches
+      if (page % 3 === 0 && global.gc) {
+        global.gc();
       }
     }
   }
