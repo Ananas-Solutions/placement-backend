@@ -386,54 +386,58 @@ export class CourseTransferService {
     sourceCourseId: string,
     destinationCourseId: string,
   ) {
-    // Fetch students in chunks instead of all at once
-    const pageSize = 100;
-    let hasMore = true;
-    let page = 0;
+    try {
+      // Fetch students in chunks instead of all at once
+      const pageSize = 100;
+      let hasMore = true;
+      let page = 0;
 
-    while (hasMore) {
-      const students = await this.studentCourseRepository.find({
-        where: { course: { id: sourceCourseId } },
-        relations: ['student'],
-        take: pageSize,
-        skip: page * pageSize,
-      });
+      while (hasMore) {
+        const students = await this.studentCourseRepository.find({
+          where: { course: { id: sourceCourseId } },
+          relations: ['student'],
+          take: pageSize,
+          skip: page * pageSize,
+        });
 
-      if (students.length === 0) {
-        hasMore = false;
-        continue;
-      }
-
-      const studentIds = students.map((s) => s.student.id);
-
-      // Find existing students in chunks
-      const existingStudents = await this.studentCourseRepository.find({
-        where: {
-          course: { id: destinationCourseId },
-          student: { id: In(studentIds) },
-        },
-        select: ['student'],
-      });
-
-      const existingIds = new Set(existingStudents.map((e) => e.student.id));
-      const newStudentIds = studentIds.filter((id) => !existingIds.has(id));
-
-      // Insert in smaller batches to reduce memory usage
-      if (newStudentIds.length > 0) {
-        const insertBatchSize = 50;
-        for (let i = 0; i < newStudentIds.length; i += insertBatchSize) {
-          const batch = newStudentIds.slice(i, i + insertBatchSize);
-
-          const entities = batch.map((id) => ({
-            course: { id: destinationCourseId } as CourseEntity,
-            student: { id } as UserEntity,
-          }));
-
-          await this.studentCourseRepository.insert(entities);
+        if (students.length === 0) {
+          hasMore = false;
+          continue;
         }
-      }
 
-      page++;
+        const studentIds = students.map((s) => s.student.id);
+
+        // Find existing students in chunks
+        const existingStudents = await this.studentCourseRepository.find({
+          where: {
+            course: { id: destinationCourseId },
+            student: { id: In(studentIds) },
+          },
+          select: ['student'],
+        });
+
+        const existingIds = new Set(existingStudents.map((e) => e.student.id));
+        const newStudentIds = studentIds.filter((id) => !existingIds.has(id));
+
+        // Insert in smaller batches to reduce memory usage
+        if (newStudentIds.length > 0) {
+          const insertBatchSize = 50;
+          for (let i = 0; i < newStudentIds.length; i += insertBatchSize) {
+            const batch = newStudentIds.slice(i, i + insertBatchSize);
+
+            const entities = batch.map((id) => ({
+              course: { id: destinationCourseId } as CourseEntity,
+              student: { id } as UserEntity,
+            }));
+
+            await this.studentCourseRepository.insert(entities);
+          }
+        }
+
+        page++;
+      }
+    } catch (error) {
+      console.log('error in transfer students streamlined', error);
     }
   }
 }
