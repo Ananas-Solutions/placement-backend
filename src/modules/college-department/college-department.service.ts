@@ -1,12 +1,13 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { CollegeDepartmentEntity } from 'entities/college-department.entity';
 
 import { CollegeDepartmentDto } from './dto';
 import { ICollegeDepartmentResponse } from './response';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class CollegeDepartmentService {
@@ -36,12 +37,24 @@ export class CollegeDepartmentService {
     return this.transformToResponse(collegeDepartment);
   }
 
-  async findAll(): Promise<ICollegeDepartmentResponse[]> {
+  async findAll(query: SearchQueryDto): Promise<ICollegeDepartmentResponse[]> {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<CollegeDepartmentEntity> = {};
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
     const allCollegeDepartments = await this.collegeDepartmentRepository.find({
+      where,
       loadEagerRelations: false,
       order: {
         name: 'asc',
       },
+      skip,
+      take: limit,
     });
 
     return allCollegeDepartments.map((department) =>

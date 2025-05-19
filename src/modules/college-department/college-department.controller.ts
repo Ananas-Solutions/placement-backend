@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, RolesGuard } from 'auth/guards';
 import { Roles } from 'commons/decorator';
 import { UserRoleEnum } from 'commons/enums';
+import { SearchQueryDto } from 'commons/dto';
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { CollegeDepartmentService } from './college-department.service';
@@ -35,8 +37,8 @@ export class CollegeDepartmentController {
   }
 
   @Get()
-  async findAllDepartment() {
-    return this.collegeDepartmentService.findAll();
+  async findAllDepartment(@Query() query: SearchQueryDto) {
+    return this.collegeDepartmentService.findAll(query);
   }
 
   @Get(':id')

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { SemesterDto } from './dto';
 import { SemesterService } from './semester.service';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('semester')
 @UseInterceptors(ErrorInterceptor)
@@ -40,8 +42,8 @@ export class SemesterController {
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get()
-  async getAllSemester() {
-    return await this.semesterService.findAll();
+  async getAllSemester(@Query() query: SearchQueryDto) {
+    return await this.semesterService.findAll(query);
   }
 
   @Roles(UserRoleEnum.ADMIN)

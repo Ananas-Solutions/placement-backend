@@ -17,8 +17,9 @@ import { Roles } from 'commons/decorator';
 import { UserRoleEnum } from 'commons/enums';
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
-import { HospitalDto } from './dto';
+import { HospitalDto, QueryAuthorityHospitalDto } from './dto';
 import { HospitalService } from './hospital.service';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('hospital')
 @UseInterceptors(ErrorInterceptor)
@@ -34,14 +35,13 @@ export class HospitalController {
   }
 
   @Get()
-  async findAllHospital() {
-    return await this.hospitalService.getAllHospital();
+  async findAllHospital(@Query() query: SearchQueryDto) {
+    return await this.hospitalService.getAllHospital(query);
   }
 
   @Get('authority')
-  async queryAllHospital(@Query() query) {
-    const authorityIds = query.authorityIds.split(' ');
-    return await this.hospitalService.findAllHospital(authorityIds);
+  async queryAllHospital(@Query() query: QueryAuthorityHospitalDto) {
+    return await this.hospitalService.findAllHospital(query);
   }
 
   @Get(':id')

@@ -1,16 +1,17 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { IDepartmentResponse } from 'department/response';
 import { DepartmentUnitEntity, DepartmentEntity } from 'entities/index.entity';
 
-import { DepartmentUnitsDto } from './dto';
+import { DepartmentUnitsDto, QueryDepartmentUnitsDto } from './dto';
 import {
   IDepartmentUnitDetailResponse,
   IDepartmentUnitResponse,
 } from './response';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class DepartmentUnitsService {
@@ -39,8 +40,20 @@ export class DepartmentUnitsService {
     return this.transformToResponse(newDepartmentUnit);
   }
 
-  async findAll(): Promise<IDepartmentUnitDetailResponse[]> {
+  async findAll(
+    query: SearchQueryDto,
+  ): Promise<IDepartmentUnitDetailResponse[]> {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<DepartmentUnitEntity> = {};
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
     const allDepartmentUnits = await this.departmentUnitsRepository.find({
+      where,
       loadEagerRelations: false,
       relations: [
         'department',
@@ -50,6 +63,8 @@ export class DepartmentUnitsService {
       order: {
         name: 'asc',
       },
+      skip,
+      take: limit,
     });
 
     return allDepartmentUnits
@@ -70,10 +85,28 @@ export class DepartmentUnitsService {
     return this.transformToDetailResponse(departmentUnit);
   }
 
-  async find(departmentIds: string[]): Promise<IDepartmentResponse[]> {
+  async find(query: QueryDepartmentUnitsDto): Promise<IDepartmentResponse[]> {
+    const { departmentIds, page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<DepartmentUnitEntity> = {};
+
+    if (departmentIds.length > 0) {
+      where.department = { id: In(departmentIds) };
+    }
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
     const allDepartmentUnits = await this.departmentUnitsRepository.find({
-      where: { department: { id: In(departmentIds) } },
+      where,
       loadEagerRelations: false,
+      order: {
+        name: 'asc',
+      },
+      skip,
+      take: limit,
     });
 
     return allDepartmentUnits.map((departmentUnit) =>

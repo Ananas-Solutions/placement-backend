@@ -18,7 +18,8 @@ import { UserRoleEnum } from 'commons/enums';
 import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { DepartmentUnitsService } from './department-unit.service';
-import { DepartmentUnitsDto } from './dto';
+import { DepartmentUnitsDto, QueryDepartmentUnitsDto } from './dto';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('Hospital Department Units')
 @UseInterceptors(ErrorInterceptor)
@@ -37,15 +38,14 @@ export class DepartmentUnitsController {
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get()
-  async getAllUnits() {
-    return await this.departmentUnitsService.findAll();
+  async getAllUnits(@Query() query: SearchQueryDto) {
+    return await this.departmentUnitsService.findAll(query);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('department')
-  async findAllUnit(@Query() query) {
-    const departmentIds = query.departmentIds.split(' ');
-    return this.departmentUnitsService.find(departmentIds);
+  async findAllUnit(@Query() query: QueryDepartmentUnitsDto) {
+    return this.departmentUnitsService.find(query);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)

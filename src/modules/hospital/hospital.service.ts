@@ -1,13 +1,14 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { HospitalEntity } from 'entities/hospital.entity';
 import { AuthorityEntity } from 'entities/authority.entity';
 
-import { HospitalDto } from './dto/';
+import { HospitalDto, QueryAuthorityHospitalDto } from './dto/';
 import { IHospitalDetailResponse, IHospitalResponse } from './response';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class HospitalService {
@@ -39,26 +40,59 @@ export class HospitalService {
     return this.transformToResponse(hospital);
   }
 
-  async getAllHospital(): Promise<IHospitalDetailResponse[]> {
+  async getAllHospital(
+    query: SearchQueryDto,
+  ): Promise<IHospitalDetailResponse[]> {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<HospitalEntity> = {};
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
     const allHospitals = await this.hospitalRepository.find({
+      where,
       relations: ['authority'],
       loadEagerRelations: false,
       order: {
         name: 'asc',
       },
+      skip,
+      take: limit,
     });
+
     return allHospitals.map((hospital) =>
       this.transformToDetailResponse(hospital),
     );
   }
 
-  async findAllHospital(authorityIds: string[]): Promise<IHospitalResponse[]> {
+  async findAllHospital(
+    query: QueryAuthorityHospitalDto,
+  ): Promise<IHospitalResponse[]> {
+    const { page, limit, search, authorityIds } = query;
+    const authorityIdsArray = authorityIds.split(' ');
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<HospitalEntity> = {};
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
+    if (authorityIdsArray.length > 0) {
+      where.authority = { id: In(authorityIdsArray) };
+    }
+
     const authorityAllHospitals = await this.hospitalRepository.find({
-      where: { authority: { id: In(authorityIds) } },
+      where,
       loadEagerRelations: false,
       order: {
         name: 'asc',
       },
+      skip,
+      take: limit,
     });
     return authorityAllHospitals.map((hospital) =>
       this.transformToResponse(hospital),

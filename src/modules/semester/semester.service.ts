@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { SearchQueryDto } from 'commons/dto';
 import { ISuccessMessageResponse } from 'commons/response';
 import { SemesterEntity } from 'entities/semester.entity';
 
@@ -28,10 +29,16 @@ export class SemesterService {
     return this.transformToResponse(semester);
   }
 
-  async findAll(): Promise<ISemesterResponse[]> {
+  async findAll(query: SearchQueryDto): Promise<ISemesterResponse[]> {
+    const { page, limit } = query;
+    const skip = (page - 1) * limit;
+
     const allSemesters = await this.semesterRepository.find({
       loadEagerRelations: false,
+      skip,
+      take: limit,
     });
+
     return allSemesters.map((semester) => this.transformToResponse(semester));
   }
 

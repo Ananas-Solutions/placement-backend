@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { AuthorityEntity } from 'entities/authority.entity';
@@ -8,6 +8,7 @@ import { AuthorityEntity } from 'entities/authority.entity';
 import { AuthorityDto } from './dto';
 import { IAuthorityResponse } from './response/authority.response';
 import { ISingleAuthorityResponse } from './response/single-authority.response';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class AuthorityService {
@@ -30,12 +31,24 @@ export class AuthorityService {
     return this.transformToResponse(newAuthority);
   }
 
-  async findAllAuthority(): Promise<IAuthorityResponse[]> {
+  async findAllAuthority(query: SearchQueryDto): Promise<IAuthorityResponse[]> {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<AuthorityEntity> = {};
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
     const allAuthorities = await this.authorityRepository.find({
+      where,
       loadEagerRelations: false,
       order: {
         name: 'asc',
       },
+      skip,
+      take: limit,
     });
     return allAuthorities.map((authority) =>
       this.transformToResponse(authority),

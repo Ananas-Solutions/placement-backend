@@ -1,18 +1,19 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
 import { ISuccessMessageResponse } from 'commons/response';
 import { DepartmentEntity } from 'entities/department.entity';
 import { HospitalEntity } from 'entities/hospital.entity';
 
-import { DepartmentDto } from './dto';
+import { DepartmentDto, QueryHospitalDepartmentDto } from './dto';
 import {
   IDepartmentCoordinatorResponse,
   IDepartmentDetailResponse,
   IDepartmentResponse,
 } from './response';
 import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class DepartmentService {
@@ -43,8 +44,20 @@ export class DepartmentService {
     return this.transformToResponse(newDepartment);
   }
 
-  async findAllHospitals(): Promise<IDepartmentDetailResponse[]> {
+  async findAllDepartments(
+    query: SearchQueryDto,
+  ): Promise<IDepartmentDetailResponse[]> {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<DepartmentEntity> = {};
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
     const allDepartments = await this.departmentRepository.find({
+      where,
       loadEagerRelations: false,
       relations: {
         hospital: true,
@@ -52,6 +65,8 @@ export class DepartmentService {
       order: {
         name: 'asc',
       },
+      skip,
+      take: limit,
     });
 
     return allDepartments
@@ -60,11 +75,29 @@ export class DepartmentService {
   }
 
   async findHospitalDepartments(
-    hospitalIds: string[],
+    query: QueryHospitalDepartmentDto,
   ): Promise<IDepartmentResponse[]> {
+    const { hospitalIds, page, limit, search } = query;
+    const where: FindOptionsWhere<DepartmentEntity> = {};
+
+    if (hospitalIds.length > 0) {
+      where.hospital = { id: In(hospitalIds) };
+    }
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
+    }
+
+    const skip = (page - 1) * limit;
+
     const allDepartmentsOfHospital = await this.departmentRepository.find({
-      where: { hospital: { id: In(hospitalIds) } },
+      where,
       loadEagerRelations: false,
+      order: {
+        name: 'asc',
+      },
+      skip,
+      take: limit,
     });
 
     return allDepartmentsOfHospital.map((department) =>

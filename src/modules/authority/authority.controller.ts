@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { ErrorInterceptor } from 'interceptor/index';
 
 import { AuthorityService } from './authority.service';
 import { AuthorityDto } from './dto';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('authority')
 @UseInterceptors(ErrorInterceptor)
@@ -33,8 +35,8 @@ export class AuthorityController {
   }
 
   @Get()
-  async queryAllAuthority() {
-    return this.authorityService.findAllAuthority();
+  async queryAllAuthority(@Query() query: SearchQueryDto) {
+    return this.authorityService.findAllAuthority(query);
   }
 
   @Get(':id')
