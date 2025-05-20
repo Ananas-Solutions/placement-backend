@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SearchQueryDto {
@@ -7,9 +8,11 @@ export class SearchQueryDto {
 
   @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10) || 1)
   page?: number = 1;
 
   @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10) || 10)
   limit?: number = 10;
 }
