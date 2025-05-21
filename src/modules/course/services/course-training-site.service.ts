@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { CourseBlockTrainingSiteDto, CourseTrainingSiteDto } from 'course/dto';
 import {
   CourseTrainingSiteResponse,
@@ -348,7 +348,7 @@ export class CourseTrainingSiteService {
 
   public async deleteTrainingSite(
     trainingSiteId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const trainingSite = await this.trainingSiteRepository.findOne({
       where: { id: trainingSiteId },
       relations: { course: true },
@@ -377,7 +377,7 @@ export class CourseTrainingSiteService {
 
   public async deleteBlockTrainingSite(
     trainingSiteId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const trainingSite = await this.blockTrainingSiteRepository.findOne({
       where: { id: trainingSiteId },
       relations: { block: true },

@@ -13,7 +13,7 @@ import {
   TransferCourseSettingDto,
   TransferStudentToCourseDto,
 } from 'course/dto';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { CourseTrainingSiteService } from './course-training-site.service';
 import { TrainingSiteTimeSlotService } from 'training-time-slot/training-time-slot.service';
 import { PlacementService } from 'placement/placement.service';
@@ -35,7 +35,7 @@ export class CourseTransferService {
 
   async transferStudentsToCourse(
     body: TransferStudentToCourseDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     await Promise.all(
       body.studentIds.map(async (studentId) => {
         const existingStudentInCourse =

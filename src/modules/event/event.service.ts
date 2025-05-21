@@ -12,7 +12,7 @@ import { StudentCourseEntity } from 'entities/student-course.entity';
 
 import { CreateCourseEventDto } from './dto/create-course-event.dto';
 import { CreateEventDto, ExecuteEventDto } from './dto';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { IEventResponse } from './response/event.response';
 import { UserRoleEnum } from 'commons/enums';
 
@@ -40,7 +40,7 @@ export class EventService {
 
   public async createEvent(
     body: CreateEventDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { name, message, date, ...rest } = body;
 
     await this.eventsRepository.save({
@@ -57,7 +57,7 @@ export class EventService {
 
   public async createCourseEvent(
     body: CreateCourseEventDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { ...rest } = body;
     await this.eventsRepository.save({
       ...rest,

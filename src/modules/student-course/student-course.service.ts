@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { CourseEntity } from 'entities/courses.entity';
 import { StudentCourseEntity } from 'entities/student-course.entity';
 import { UserEntity } from 'entities/user.entity';
@@ -31,7 +31,7 @@ export class StudentCourseService {
 
   async assignStudents(
     body: AssignStudentsToCourseDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { courseId, studentsId, blockId } = body;
     await Promise.all(
       studentsId.map(async (studentId: any) => {
@@ -56,7 +56,7 @@ export class StudentCourseService {
 
   async assignCourses(
     body: AssignCoursesToStudentDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     await Promise.all(
       body.coursesId.map(async (courseId: string) => {
         await this.studentCourseRepository.save({
@@ -246,7 +246,7 @@ export class StudentCourseService {
   async deleteBlockStudent(
     blockId: string,
     studentId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const existingStudent = await this.studentCourseRepository.findOne({
       where: { student: { id: studentId }, block: { id: blockId } },
     });
@@ -265,7 +265,7 @@ export class StudentCourseService {
   async deleteCourseStudent(
     courseId: string,
     studentId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const existingStudent = await this.studentCourseRepository.findOne({
       where: { student: { id: studentId }, course: { id: courseId } },
     });

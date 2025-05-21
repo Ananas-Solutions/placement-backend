@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 import { TrainingSiteQueryDateType, UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { PlacementEntity } from 'entities/placement.entity';
 import { StudentProfileEntity } from 'entities/student-profile.entity';
 import { UserEntity } from 'entities/user.entity';
@@ -90,7 +90,7 @@ export class StudentService {
   async updateProfile(
     id: string,
     body: StudentProfileDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { name, ...profileData } = body;
     await this.studentProfileRepository.upsert(
       {
@@ -120,7 +120,7 @@ export class StudentService {
   async updateProfileAvatar(
     userId: string,
     avatarUrl: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     await this.studentProfileRepository.update(
       { user: { id: userId } },
       {

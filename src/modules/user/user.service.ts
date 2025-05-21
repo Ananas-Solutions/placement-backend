@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
 import { StudentProfileEntity } from 'entities/student-profile.entity';
 import { UserEntity } from 'entities/user.entity';
 import { EmailService } from 'helper/send-email.service';
@@ -14,6 +13,7 @@ import { UserDto } from './dto/user.dto';
 import { IUserResponse } from './response';
 
 import { UpdateStudentUserDto } from './dto';
+import { SuccessMessageResponse } from 'commons/response';
 
 @Injectable()
 export class UserService {
@@ -162,7 +162,7 @@ export class UserService {
     return this.transformToResponse(updatedUser);
   }
 
-  async deleteUser(userId: string): Promise<ISuccessMessageResponse> {
+  async deleteUser(userId: string): Promise<SuccessMessageResponse> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });

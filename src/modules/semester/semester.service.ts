@@ -3,11 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { SearchQueryDto } from 'commons/dto';
-import { ISuccessMessageResponse } from 'commons/response';
 import { SemesterEntity } from 'entities/semester.entity';
 
 import { SemesterDto } from './dto';
-import { ISemesterResponse } from './response';
 
 @Injectable()
 export class SemesterService {
@@ -16,20 +14,25 @@ export class SemesterService {
     private readonly semesterRepository: Repository<SemesterEntity>,
   ) {}
 
-  async save(body: SemesterDto): Promise<ISemesterResponse> {
+  async save(body: SemesterDto) {
     const newSemester = await this.semesterRepository.save(body);
-    return this.transformToResponse(newSemester);
+    return {
+      message: 'Semester created successfully',
+      data: newSemester,
+    };
   }
 
-  async findOne(semesterId: string): Promise<ISemesterResponse> {
+  async findOne(semesterId: string) {
     const semester = await this.semesterRepository.findOne({
       where: { id: semesterId },
       loadEagerRelations: false,
     });
-    return this.transformToResponse(semester);
+    return {
+      data: semester,
+    };
   }
 
-  async findAll(query: SearchQueryDto): Promise<ISemesterResponse[]> {
+  async findAll(query: SearchQueryDto) {
     const { page, limit } = query;
     const skip = (page - 1) * limit;
 
@@ -39,13 +42,12 @@ export class SemesterService {
       take: limit,
     });
 
-    return allSemesters.map((semester) => this.transformToResponse(semester));
+    return {
+      data: allSemesters,
+    };
   }
 
-  async update(
-    semesterId: string,
-    bodyDto: SemesterDto,
-  ): Promise<ISemesterResponse> {
+  async update(semesterId: string, bodyDto: SemesterDto) {
     const { startYear, endYear, semester } = bodyDto;
     await this.semesterRepository.update(
       { id: semesterId },
@@ -57,26 +59,18 @@ export class SemesterService {
       loadEagerRelations: false,
     });
 
-    return this.transformToResponse(updatedSemester);
+    return {
+      message: 'Semester updated successfully',
+      data: updatedSemester,
+    };
   }
 
-  async delete(semesterId: string): Promise<ISuccessMessageResponse> {
+  async delete(semesterId: string) {
     const semester = await this.semesterRepository.findOne({
       where: { id: semesterId },
     });
     await this.semesterRepository.softRemove(semester);
 
     return { message: 'Semester deleted successfully' };
-  }
-
-  private transformToResponse(entity: SemesterEntity): ISemesterResponse {
-    const { id, semester, startYear, endYear } = entity;
-
-    return {
-      id,
-      semester,
-      startYear,
-      endYear,
-    };
   }
 }

@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { AuthorityEntity } from 'entities/authority.entity';
 
 import { AuthorityDto } from './dto';
@@ -78,7 +78,7 @@ export class AuthorityService {
     return this.transformToResponse(authority);
   }
 
-  async deleteOneAuthority(id: string): Promise<ISuccessMessageResponse> {
+  async deleteOneAuthority(id: string): Promise<SuccessMessageResponse> {
     const authority = await this.authorityRepository.findOne({
       where: { id },
     });

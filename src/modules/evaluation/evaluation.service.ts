@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { StudentEvaluationEntity } from 'entities/student-evaluation.entity';
 import { SupervisorEvaluationEntity } from 'entities/supervisor-evaluation.entity';
 import { TrainingSiteEvaluationEntity } from 'entities/training-site-evaluation.entity';
@@ -31,7 +31,7 @@ export class EvaluationService {
   public async evaluateStudent(
     evaluatorId: string,
     body: StudentEvaluationDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { studentId, evaluation, courseId } = body;
     await this.studentEvaluationRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,
@@ -46,7 +46,7 @@ export class EvaluationService {
   public async evaluateSupervisor(
     evaluatorId: string,
     body: SupervisorEvaluationDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { supervisorId, courseId, timeslotId, evaluation } = body;
     await this.supervisorEvaluationRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,
@@ -62,7 +62,7 @@ export class EvaluationService {
   public async evaluateTrainingSite(
     evaluatorId: string,
     body: TrainingSiteEvaluationDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { trainingSiteId, courseId, evaluation, timeslotId } = body;
     await this.trainingSiteRepository.save({
       evaluator: { id: evaluatorId } as UserEntity,

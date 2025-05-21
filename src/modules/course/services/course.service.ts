@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import {
   CollegeDepartmentEntity,
   CourseCoordinatorEntity,
@@ -105,7 +105,7 @@ export class CourseService {
     return { message: 'Course block defined successfully.', blockType };
   }
 
-  async addStudent(bodyDto: AddStudentDto): Promise<ISuccessMessageResponse> {
+  async addStudent(bodyDto: AddStudentDto): Promise<SuccessMessageResponse> {
     const studentFromEmail = await this.userService.findUserByEmail(
       bodyDto.email.trim().toLowerCase(),
     );
@@ -335,7 +335,7 @@ export class CourseService {
     return this.findOneCourse(courseId);
   }
 
-  async deleteCourse(id: string): Promise<ISuccessMessageResponse> {
+  async deleteCourse(id: string): Promise<SuccessMessageResponse> {
     const course = await this.courseRepository.findOne({ where: { id } });
 
     await this.courseRepository.softRemove(course);

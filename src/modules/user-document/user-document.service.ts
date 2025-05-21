@@ -4,7 +4,7 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { UserDocumentEntity } from 'entities/user-document.entity';
 import { UserEntity } from 'entities/user.entity';
 import { UserService } from 'user/user.service';
@@ -250,7 +250,7 @@ export class UserDocumentService {
   async verifyDocument(
     documentId: string,
     body: DocumentVerifyDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     await this.documentRepository.update(
       { id: documentId },
       {

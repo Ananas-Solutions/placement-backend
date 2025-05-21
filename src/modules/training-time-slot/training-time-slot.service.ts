@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { CourseTrainingSiteEntity } from 'entities/course-training-site.entity';
 import { TrainingTimeSlotEntity } from 'entities/training-time-slot.entity';
 import { UserEntity } from 'entities/user.entity';
@@ -197,7 +197,7 @@ export class TrainingSiteTimeSlotService {
   async updateTimeSlot(
     timeSlotId: string,
     body: UpdateTimeSlotDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { trainingSiteId, supervisor, ...rest } = body;
 
     const trainingSite = await this.courseTrainingSiteRepository.findOne({
@@ -236,7 +236,7 @@ export class TrainingSiteTimeSlotService {
   async updateBlockTimeSlot(
     timeSlotId: string,
     body: UpdateBlockTimeSlotDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { supervisor, ...rest } = body;
     let entityData = {};
     entityData = {
@@ -261,7 +261,7 @@ export class TrainingSiteTimeSlotService {
 
   async deleteBlockTimeSlot(
     timeslotId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const timeslot = await this.blockTimeslotRepository.findOne({
       where: { id: timeslotId },
     });
@@ -270,7 +270,7 @@ export class TrainingSiteTimeSlotService {
     return { message: 'Time slot removed successfully.' };
   }
 
-  async deleteTimeSlot(timeslotId: string): Promise<ISuccessMessageResponse> {
+  async deleteTimeSlot(timeslotId: string): Promise<SuccessMessageResponse> {
     const timeslot = await this.timeslotRepository.findOne({
       where: { id: timeslotId },
       relations: { trainingSite: { course: true } },

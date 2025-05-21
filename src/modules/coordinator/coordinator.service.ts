@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
 import { UserEntity } from 'entities/user.entity';
 import { CollegeDepartmentEntity } from 'entities/college-department.entity';
@@ -31,7 +31,7 @@ export class CoordinatorService {
 
   async saveCoordinator(
     body: CreateCoordinatorDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { name, email, departmentId } = body;
 
     const coordinatorUser = await this.userService.saveUser({
@@ -114,7 +114,7 @@ export class CoordinatorService {
   async updateCoordinator(
     coordinatorId: string,
     body: UpdateCoordinatorDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { departmentId, ...rest } = body;
 
     if (departmentId) {
@@ -150,7 +150,7 @@ export class CoordinatorService {
 
   async deleteCoordinator(
     coordinatorId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     await this.userService.deleteUser(coordinatorId);
 
     const coordinatorDepartment = await this.coordinatorDepartment.findOne({

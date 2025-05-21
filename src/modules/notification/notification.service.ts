@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { NotificationEntity } from 'entities/notification.entity';
 import { UserEntity } from 'entities/user.entity';
 import { Repository } from 'typeorm';
@@ -18,7 +18,7 @@ export class NotificationService {
 
   async saveNotification(
     body: CreateNotificationDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { message, contentUrl, userId } = body;
     await this.notificationRepository.save({
       message,
@@ -59,7 +59,7 @@ export class NotificationService {
 
   async readNotification(
     notificationId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     await this.notificationRepository.update(notificationId, {
       isRead: true,
       readAt: new Date(),
@@ -70,7 +70,7 @@ export class NotificationService {
 
   async deleteNotification(
     notificationId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const notification = await this.notificationRepository.findOne({
       where: { id: notificationId },
     });

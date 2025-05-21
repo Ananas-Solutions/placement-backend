@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { DepartmentEntity } from 'entities/department.entity';
 import { HospitalEntity } from 'entities/hospital.entity';
 
@@ -152,7 +152,7 @@ export class DepartmentService {
     return this.transformToResponse(updatedDepartment);
   }
 
-  async deleteOneDepartment(id: string): Promise<ISuccessMessageResponse> {
+  async deleteOneDepartment(id: string): Promise<SuccessMessageResponse> {
     const department = await this.departmentRepository.findOne({
       where: { id },
     });

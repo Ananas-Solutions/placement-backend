@@ -15,7 +15,7 @@ import {
 } from 'date-fns';
 
 import { TrainingDaysEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import {
   CourseTrainingSiteEntity,
   PlacementEntity,
@@ -769,7 +769,7 @@ export class PlacementService {
 
   async removeStudentFromTrainingSite(
     placementId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const placement = await this.placementRepository.findOne({
       where: { id: placementId },
       loadEagerRelations: false,
@@ -800,7 +800,7 @@ export class PlacementService {
 
   async removeStudentFromBlockTrainingSite(
     placementId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const placement = await this.placementRepository.findOne({
       where: { id: placementId },
       loadEagerRelations: false,
@@ -831,7 +831,7 @@ export class PlacementService {
 
   async removeStudentFromPlacement(
     placementId: string,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const placement = await this.placementRepository.findOne({
       where: { id: placementId },
     });

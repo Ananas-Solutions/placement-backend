@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
-import { ISuccessMessageResponse } from 'commons/response';
+import { SuccessMessageResponse } from 'commons/response';
 import { DepartmentService } from 'department/department.service';
 import { SupervisorDepartmentUnitEntity } from 'entities/clinical-supervisor-department-unit.entity';
 import { SupervisorProfileEntity } from 'entities/clinical-supervisor-profile.entity';
@@ -34,7 +34,7 @@ export class SupervisorService {
 
   async createSupervisor(
     body: CreateSupervisorDto,
-  ): Promise<ISuccessMessageResponse> {
+  ): Promise<SuccessMessageResponse> {
     const { name, email, departmentUnitId } = body;
     const newUser = await this.userService.saveUser({
       name,
@@ -278,7 +278,7 @@ export class SupervisorService {
     };
   }
 
-  async deleteSupervisor(id: string): Promise<ISuccessMessageResponse> {
+  async deleteSupervisor(id: string): Promise<SuccessMessageResponse> {
     await this.userService.deleteUser(id);
     return { message: 'Supervisor account deleted successfully.' };
   }
