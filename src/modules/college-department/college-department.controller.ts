@@ -22,6 +22,7 @@ import { TransformResponseInterceptor } from 'interceptor/transform-response.int
 import { CollegeDepartmentService } from './college-department.service';
 import { CollegeDepartmentDto } from './dto';
 import { SuccessMessageResponse } from 'commons/response';
+import { CollegeDepartmentResponse } from './response';
 
 @ApiTags('college department')
 @UseInterceptors(ErrorInterceptor)
@@ -40,7 +41,7 @@ export class CollegeDepartmentController {
     description: 'The college department has been successfully created.',
     type: CollegeDepartmentDto,
   })
-  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentDto))
+  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentResponse))
   async createDepartment(@Body() body: CollegeDepartmentDto) {
     return this.collegeDepartmentService.save(body);
   }
@@ -52,7 +53,7 @@ export class CollegeDepartmentController {
     description: 'The college departments have been successfully fetched.',
     type: [CollegeDepartmentDto],
   })
-  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentDto))
+  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentResponse))
   async findAllDepartment(@Query() query: SearchQueryDto) {
     return this.collegeDepartmentService.findAll(query);
   }
@@ -64,7 +65,7 @@ export class CollegeDepartmentController {
     description: 'The college department has been successfully fetched.',
     type: CollegeDepartmentDto,
   })
-  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentDto))
+  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentResponse))
   async findOneDepartment(@Param('id') id: string) {
     return this.collegeDepartmentService.findOne(id);
   }
@@ -77,7 +78,7 @@ export class CollegeDepartmentController {
     description: 'The college department has been successfully updated.',
     type: CollegeDepartmentDto,
   })
-  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentDto))
+  @UseInterceptors(new TransformResponseInterceptor(CollegeDepartmentResponse))
   async updateDepartment(
     @Param('id') id: string,
     @Body() body: CollegeDepartmentDto,
