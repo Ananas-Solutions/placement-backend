@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { SearchQueryDto } from 'commons/dto';
 import { SemesterEntity } from 'entities/semester.entity';
+import { DataResponse } from 'commons/response';
 
 import { SemesterDto } from './dto';
 
@@ -14,7 +15,7 @@ export class SemesterService {
     private readonly semesterRepository: Repository<SemesterEntity>,
   ) {}
 
-  async save(body: SemesterDto) {
+  async save(body: SemesterDto): Promise<DataResponse<SemesterEntity>> {
     const newSemester = await this.semesterRepository.save(body);
     return {
       message: 'Semester created successfully',
@@ -22,7 +23,7 @@ export class SemesterService {
     };
   }
 
-  async findOne(semesterId: string) {
+  async findOne(semesterId: string): Promise<DataResponse<SemesterEntity>> {
     const semester = await this.semesterRepository.findOne({
       where: { id: semesterId },
       loadEagerRelations: false,
@@ -32,22 +33,33 @@ export class SemesterService {
     };
   }
 
-  async findAll(query: SearchQueryDto) {
+  async findAll(
+    query: SearchQueryDto,
+  ): Promise<DataResponse<SemesterEntity[]>> {
     const { page, limit } = query;
     const skip = (page - 1) * limit;
 
-    const allSemesters = await this.semesterRepository.find({
-      loadEagerRelations: false,
-      skip,
-      take: limit,
-    });
+    const [allSemesters, totalItems] =
+      await this.semesterRepository.findAndCount({
+        loadEagerRelations: false,
+        skip,
+        take: limit,
+      });
 
     return {
       data: allSemesters,
+      metadata: {
+        totalItems,
+        page,
+        limit,
+      },
     };
   }
 
-  async update(semesterId: string, bodyDto: SemesterDto) {
+  async update(
+    semesterId: string,
+    bodyDto: SemesterDto,
+  ): Promise<DataResponse<SemesterEntity>> {
     const { startYear, endYear, semester } = bodyDto;
     await this.semesterRepository.update(
       { id: semesterId },
@@ -65,7 +77,7 @@ export class SemesterService {
     };
   }
 
-  async delete(semesterId: string) {
+  async delete(semesterId: string): Promise<DataResponse<SemesterEntity>> {
     const semester = await this.semesterRepository.findOne({
       where: { id: semesterId },
     });
