@@ -2,11 +2,10 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 
-import { SuccessMessageResponse } from 'commons/response';
+import { DataResponse, SuccessMessageResponse } from 'commons/response';
 import { CollegeDepartmentEntity } from 'entities/college-department.entity';
 
 import { CollegeDepartmentDto } from './dto';
-import { ICollegeDepartmentResponse } from './response';
 import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
@@ -16,7 +15,9 @@ export class CollegeDepartmentService {
     private readonly collegeDepartmentRepository: Repository<CollegeDepartmentEntity>,
   ) {}
 
-  async save(body: CollegeDepartmentDto): Promise<ICollegeDepartmentResponse> {
+  async save(
+    body: CollegeDepartmentDto,
+  ): Promise<DataResponse<CollegeDepartmentEntity>> {
     const department = await this.collegeDepartmentRepository.findOne({
       where: { name: body.name },
     });
@@ -25,19 +26,24 @@ export class CollegeDepartmentService {
     }
 
     const newDepartment = await this.collegeDepartmentRepository.save(body);
-    return this.transformToResponse(newDepartment);
+    return {
+      message: 'Department created successfully',
+      data: newDepartment,
+    };
   }
 
-  async findOne(id: string): Promise<ICollegeDepartmentResponse> {
+  async findOne(id: string): Promise<DataResponse<CollegeDepartmentEntity>> {
     const collegeDepartment = await this.collegeDepartmentRepository.findOne({
       where: { id },
       loadEagerRelations: false,
     });
 
-    return this.transformToResponse(collegeDepartment);
+    return { data: collegeDepartment };
   }
 
-  async findAll(query: SearchQueryDto): Promise<ICollegeDepartmentResponse[]> {
+  async findAll(
+    query: SearchQueryDto,
+  ): Promise<DataResponse<CollegeDepartmentEntity[]>> {
     const { page, limit, search } = query;
     const skip = (page - 1) * limit;
 
@@ -47,25 +53,30 @@ export class CollegeDepartmentService {
       where.name = ILike(`%${search}%`);
     }
 
-    const allCollegeDepartments = await this.collegeDepartmentRepository.find({
-      where,
-      loadEagerRelations: false,
-      order: {
-        name: 'asc',
-      },
-      skip,
-      take: limit,
-    });
+    const [allCollegeDepartments, totalItems] =
+      await this.collegeDepartmentRepository.findAndCount({
+        where,
+        loadEagerRelations: false,
+        order: {
+          name: 'asc',
+        },
+        skip,
+        take: limit,
+      });
 
-    return allCollegeDepartments.map((department) =>
-      this.transformToResponse(department),
-    );
+    return {
+      data: allCollegeDepartments,
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async update(
     departmentId: string,
     bodyDto: CollegeDepartmentDto,
-  ): Promise<ICollegeDepartmentResponse> {
+  ): Promise<DataResponse<CollegeDepartmentEntity>> {
     const { name, contactEmail } = bodyDto;
     await this.collegeDepartmentRepository.update(
       { id: departmentId },
@@ -81,7 +92,10 @@ export class CollegeDepartmentService {
         loadEagerRelations: false,
       });
 
-    return this.transformToResponse(updatedCollegeDepartment);
+    return {
+      message: 'Department updated successfully',
+      data: updatedCollegeDepartment,
+    };
   }
 
   async delete(id: string): Promise<SuccessMessageResponse> {
@@ -91,15 +105,5 @@ export class CollegeDepartmentService {
     await this.collegeDepartmentRepository.softRemove(collegeDepartment);
 
     return { message: 'College department deleted successfully' };
-  }
-
-  private transformToResponse(entity: CollegeDepartmentEntity) {
-    const { id, name, contactEmail } = entity;
-
-    return {
-      id,
-      name,
-      contactEmail,
-    };
   }
 }

@@ -1,4 +1,4 @@
-import { ICollegeDepartmentResponse } from 'src/modules/college-department/response';
+import { CollegeDepartmentResponse } from 'src/modules/college-department/response';
 
 import { IUserResponse } from 'user/response';
 
@@ -8,7 +8,7 @@ export interface ICourseDetailResponse {
   creditHours: number;
   blockType?: string;
   coordinator?: IUserResponse;
-  department: ICollegeDepartmentResponse;
+  department: CollegeDepartmentResponse;
   semester: any;
   allCoordinators?: IUserResponse[];
 }
