@@ -1,4 +1,4 @@
-import { IAuthorityResponse } from 'authority/response';
+import { AuthorityResponse } from 'authority/response';
 import { IDepartmentResponse } from 'department/response';
 import { IHospitalResponse } from 'hospital/response';
 
@@ -8,5 +8,5 @@ export interface IDepartmentUnitDetailResponse {
   contactEmail: string;
   department: IDepartmentResponse;
   hospital: IHospitalResponse;
-  authority: IAuthorityResponse;
+  authority: AuthorityResponse;
 }

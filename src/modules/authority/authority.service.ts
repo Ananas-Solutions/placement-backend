@@ -2,11 +2,11 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 
-import { SuccessMessageResponse } from 'commons/response';
+import { DataResponse, SuccessMessageResponse } from 'commons/response';
 import { AuthorityEntity } from 'entities/authority.entity';
 
 import { AuthorityDto } from './dto';
-import { IAuthorityResponse } from './response/authority.response';
+import { AuthorityResponse } from './response/authority.response';
 import { ISingleAuthorityResponse } from './response/single-authority.response';
 import { SearchQueryDto } from 'commons/dto';
 
@@ -17,7 +17,9 @@ export class AuthorityService {
     private authorityRepository: Repository<AuthorityEntity>,
   ) {}
 
-  async saveAuthority(body: AuthorityDto): Promise<IAuthorityResponse> {
+  async saveAuthority(
+    body: AuthorityDto,
+  ): Promise<DataResponse<AuthorityResponse>> {
     const existingAuthority = await this.authorityRepository.findOne({
       where: { name: body.name },
     });
@@ -28,10 +30,16 @@ export class AuthorityService {
     }
 
     const newAuthority = await this.authorityRepository.save(body);
-    return this.transformToResponse(newAuthority);
+
+    return {
+      data: newAuthority,
+      message: 'Authority created successfully',
+    };
   }
 
-  async findAllAuthority(query: SearchQueryDto): Promise<IAuthorityResponse[]> {
+  async findAllAuthority(
+    query: SearchQueryDto,
+  ): Promise<DataResponse<AuthorityResponse[]>> {
     const { page, limit, search } = query;
     const skip = (page - 1) * limit;
 
@@ -50,32 +58,38 @@ export class AuthorityService {
       skip,
       take: limit,
     });
-    return allAuthorities.map((authority) =>
-      this.transformToResponse(authority),
-    );
+
+    return {
+      data: allAuthorities,
+    };
   }
 
-  async findOneAuthority(id: string): Promise<IAuthorityResponse> {
+  async findOneAuthority(id: string): Promise<DataResponse<AuthorityEntity>> {
     const authority = await this.authorityRepository.findOne({
       where: { id },
       loadEagerRelations: false,
       relations: ['hospitals'],
     });
 
-    return this.transformToSingleResponse(authority);
+    return {
+      data: authority,
+    };
   }
 
   async updateOneAuthority(
     authorityId: string,
     body: AuthorityDto,
-  ): Promise<IAuthorityResponse> {
+  ): Promise<DataResponse<AuthorityEntity>> {
     await this.authorityRepository.update({ id: authorityId }, body);
     const authority = await this.authorityRepository.findOne({
       where: { id: authorityId },
       loadEagerRelations: false,
     });
 
-    return this.transformToResponse(authority);
+    return {
+      message: 'Authority fetched successfully',
+      data: authority,
+    };
   }
 
   async deleteOneAuthority(id: string): Promise<SuccessMessageResponse> {
@@ -84,31 +98,5 @@ export class AuthorityService {
     });
     await this.authorityRepository.softRemove(authority);
     return { message: 'Authority deleted successfully' };
-  }
-
-  private transformToResponse(authority: AuthorityEntity): IAuthorityResponse {
-    const { id, name, initials, contactEmail } = authority;
-    return { id, name, initials, contactEmail };
-  }
-
-  private transformToSingleResponse(
-    authority: AuthorityEntity,
-  ): ISingleAuthorityResponse {
-    const { id, name, initials, contactEmail, hospitals } = authority;
-
-    const mappedHospitals = hospitals?.map((hospital) => ({
-      id: hospital.id,
-      name: hospital.name,
-      location: hospital.location,
-      contactEmail: hospital.contactEmail,
-    }));
-
-    return {
-      id,
-      name,
-      contactEmail,
-      initials,
-      hospitals: mappedHospitals,
-    };
   }
 }
