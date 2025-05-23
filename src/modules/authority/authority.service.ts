@@ -49,18 +49,23 @@ export class AuthorityService {
       where.name = ILike(`%${search}%`);
     }
 
-    const allAuthorities = await this.authorityRepository.find({
-      where,
-      loadEagerRelations: false,
-      order: {
-        name: 'asc',
-      },
-      skip,
-      take: limit,
-    });
+    const [allAuthorities, totalItems] =
+      await this.authorityRepository.findAndCount({
+        where,
+        loadEagerRelations: false,
+        order: {
+          name: 'asc',
+        },
+        skip,
+        take: limit,
+      });
 
     return {
       data: allAuthorities,
+      metadata: {
+        ...query,
+        totalItems,
+      },
     };
   }
 
