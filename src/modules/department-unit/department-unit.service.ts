@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
 import { SuccessMessageResponse } from 'commons/response';
-import { IDepartmentResponse } from 'department/response';
+import { DepartmentResponse } from 'department/response';
 import { DepartmentUnitEntity, DepartmentEntity } from 'entities/index.entity';
 
 import { DepartmentUnitsDto, QueryDepartmentUnitsDto } from './dto';
@@ -85,7 +85,7 @@ export class DepartmentUnitsService {
     return this.transformToDetailResponse(departmentUnit);
   }
 
-  async find(query: QueryDepartmentUnitsDto): Promise<IDepartmentResponse[]> {
+  async find(query: QueryDepartmentUnitsDto): Promise<DepartmentResponse[]> {
     const { departmentIds, page, limit, search } = query;
     const skip = (page - 1) * limit;
 

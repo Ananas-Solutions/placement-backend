@@ -10,7 +10,7 @@ import { DepartmentDto, QueryHospitalDepartmentDto } from './dto';
 import {
   IDepartmentCoordinatorResponse,
   IDepartmentDetailResponse,
-  IDepartmentResponse,
+  DepartmentResponse,
 } from './response';
 import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
 import { SearchQueryDto } from 'commons/dto';
@@ -24,7 +24,7 @@ export class DepartmentService {
     private readonly coordinatorDepartmentRepository: Repository<CoordinatorCollegeDepartmentEntity>,
   ) {}
 
-  async saveDepartment(bodyDto: DepartmentDto): Promise<IDepartmentResponse> {
+  async saveDepartment(bodyDto: DepartmentDto): Promise<DepartmentResponse> {
     const { hospitalId, name, contactEmail } = bodyDto;
     const existingDepartment = await this.departmentRepository.findOne({
       where: { name, hospital: { id: hospitalId } },
@@ -76,7 +76,7 @@ export class DepartmentService {
 
   async findHospitalDepartments(
     query: QueryHospitalDepartmentDto,
-  ): Promise<IDepartmentResponse[]> {
+  ): Promise<DepartmentResponse[]> {
     const { hospitalIds, page, limit, search } = query;
     const where: FindOptionsWhere<DepartmentEntity> = {};
 
@@ -162,7 +162,7 @@ export class DepartmentService {
     return { message: 'Department deleted successfully' };
   }
 
-  private transformToResponse(entity: DepartmentEntity): IDepartmentResponse {
+  private transformToResponse(entity: DepartmentEntity): DepartmentResponse {
     const { id, name, contactEmail } = entity;
 
     return {

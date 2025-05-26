@@ -1,9 +1,9 @@
-import { IHospitalResponse } from 'hospital/response';
+import { HospitalResponse } from 'hospital/response';
 
 export interface ISingleAuthorityResponse {
   id: string;
   name: string;
   initials: string;
   contactEmail: string;
-  hospitals?: IHospitalResponse[];
+  hospitals?: HospitalResponse[];
 }

@@ -1,6 +1,6 @@
-import { IHospitalResponse } from 'hospital/response';
-import { IDepartmentResponse } from './department.response';
+import { HospitalResponse } from 'hospital/response';
+import { DepartmentResponse } from './department.response';
 
-export interface IDepartmentDetailResponse extends IDepartmentResponse {
-  hospital: IHospitalResponse;
+export interface IDepartmentDetailResponse extends DepartmentResponse {
+  hospital: HospitalResponse;
 }

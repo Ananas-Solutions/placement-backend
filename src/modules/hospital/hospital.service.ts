@@ -2,12 +2,16 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
-import { SuccessMessageResponse } from 'commons/response';
+import { DataResponse, SuccessMessageResponse } from 'commons/response';
 import { HospitalEntity } from 'entities/hospital.entity';
 import { AuthorityEntity } from 'entities/authority.entity';
 
 import { HospitalDto, QueryAuthorityHospitalDto } from './dto/';
-import { IHospitalDetailResponse, IHospitalResponse } from './response';
+import {
+  CreateHospitalResponse,
+  HospitalDetailResponse,
+  HospitalResponse,
+} from './response';
 import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
@@ -17,7 +21,7 @@ export class HospitalService {
     private readonly hospitalRepository: Repository<HospitalEntity>,
   ) {}
 
-  async saveHospital(bodyDto: HospitalDto): Promise<IHospitalResponse> {
+  async saveHospital(bodyDto: HospitalDto): Promise<CreateHospitalResponse> {
     const { authorityId, name, location, contactEmail } = bodyDto;
     const existingHospital = await this.hospitalRepository.findOne({
       where: { location },
@@ -37,12 +41,20 @@ export class HospitalService {
     });
     const hospital = await this.hospitalRepository.save(newHospital);
 
-    return this.transformToResponse(hospital);
+    return {
+      message: 'Hospital created successfully',
+      data: {
+        id: hospital.id,
+        name: hospital.name,
+        location: hospital.location,
+        contactEmail: hospital.contactEmail,
+      },
+    };
   }
 
   async getAllHospital(
     query: SearchQueryDto,
-  ): Promise<IHospitalDetailResponse[]> {
+  ): Promise<DataResponse<HospitalDetailResponse[]>> {
     const { page, limit, search } = query;
     const skip = (page - 1) * limit;
 
@@ -52,25 +64,32 @@ export class HospitalService {
       where.name = ILike(`%${search}%`);
     }
 
-    const allHospitals = await this.hospitalRepository.find({
-      where,
-      relations: ['authority'],
-      loadEagerRelations: false,
-      order: {
-        name: 'asc',
-      },
-      skip,
-      take: limit,
-    });
+    const [allHospitals, totalItems] =
+      await this.hospitalRepository.findAndCount({
+        where,
+        relations: ['authority'],
+        loadEagerRelations: false,
+        order: {
+          name: 'asc',
+        },
+        skip,
+        take: limit,
+      });
 
-    return allHospitals.map((hospital) =>
-      this.transformToDetailResponse(hospital),
-    );
+    return {
+      data: allHospitals.map((hospital) =>
+        this.transformToDetailResponse(hospital),
+      ),
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async findAllHospital(
     query: QueryAuthorityHospitalDto,
-  ): Promise<IHospitalResponse[]> {
+  ): Promise<DataResponse<HospitalEntity[]>> {
     const { page, limit, search, authorityIds } = query;
     const authorityIdsArray = authorityIds.split(' ');
     const skip = (page - 1) * limit;
@@ -85,33 +104,39 @@ export class HospitalService {
       where.authority = { id: In(authorityIdsArray) };
     }
 
-    const authorityAllHospitals = await this.hospitalRepository.find({
-      where,
-      loadEagerRelations: false,
-      order: {
-        name: 'asc',
+    const [authorityAllHospitals, totalItems] =
+      await this.hospitalRepository.findAndCount({
+        where,
+        loadEagerRelations: false,
+        order: {
+          name: 'asc',
+        },
+        skip,
+        take: limit,
+      });
+
+    return {
+      data: authorityAllHospitals,
+      metadata: {
+        ...query,
+        totalItems: totalItems,
       },
-      skip,
-      take: limit,
-    });
-    return authorityAllHospitals.map((hospital) =>
-      this.transformToResponse(hospital),
-    );
+    };
   }
 
-  async findOneHospital(id: string): Promise<IHospitalDetailResponse> {
+  async findOneHospital(id: string): Promise<{ data: HospitalDetailResponse }> {
     const hospital = await this.hospitalRepository.findOne({
       where: { id },
       loadEagerRelations: false,
       relations: ['authority', 'departments'],
     });
-    return this.transformToDetailResponse(hospital);
+    return { data: this.transformToDetailResponse(hospital) };
   }
 
   async updateOneHospital(
     hospitalId: string,
     bodyDto: HospitalDto,
-  ): Promise<IHospitalResponse> {
+  ): Promise<{ data: HospitalResponse }> {
     const { authorityId, name, location, contactEmail } = bodyDto;
     await this.hospitalRepository.update(
       { id: hospitalId },
@@ -128,7 +153,7 @@ export class HospitalService {
       loadEagerRelations: false,
     });
 
-    return this.transformToResponse(updatedHospital);
+    return { data: this.transformToResponse(updatedHospital) };
   }
 
   async deleteOneHospital(id: string): Promise<SuccessMessageResponse> {
@@ -138,7 +163,7 @@ export class HospitalService {
     return { message: 'Hospital deleted successfully' };
   }
 
-  private transformToResponse(hospital: HospitalEntity): IHospitalResponse {
+  private transformToResponse(hospital: HospitalEntity): HospitalResponse {
     const { id, name, location, contactEmail } = hospital;
     return {
       id,
@@ -150,7 +175,7 @@ export class HospitalService {
 
   private transformToDetailResponse(
     hospital: HospitalEntity,
-  ): IHospitalDetailResponse {
+  ): HospitalDetailResponse {
     const { id, name, location, authority, contactEmail, departments } =
       hospital;
 
