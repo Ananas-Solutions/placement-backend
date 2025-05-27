@@ -24,6 +24,7 @@ import { DocumentVerifyDto } from './dto/document-verify.dto';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { UserDocumentService } from './user-document.service';
 import { DefineUserDocumentRequirementListDto } from './dto';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('user-document')
 @UseInterceptors(ErrorInterceptor)
@@ -43,14 +44,20 @@ export class UserDocumentController {
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('master-document-list')
-  async fetchMasterList() {
-    return await this.documentService.fetchMasterGlobalDocument();
+  async fetchMasterList(@Query() query: SearchQueryDto) {
+    return await this.documentService.fetchMasterGlobalDocument(query);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get('master-course-document-list/:courseId')
-  async fetchCourseMasterList(@Param('courseId') courseId: string) {
-    return await this.documentService.fetchMasterCourseDocument(courseId);
+  async fetchCourseMasterList(
+    @Param('courseId') courseId: string,
+    @Query() query: SearchQueryDto,
+  ) {
+    return await this.documentService.fetchMasterCourseDocument(
+      courseId,
+      query,
+    );
   }
 
   @Roles(UserRoleEnum.STUDENT)

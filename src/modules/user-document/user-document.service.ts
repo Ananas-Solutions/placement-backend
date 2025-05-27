@@ -4,7 +4,7 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Repository } from 'typeorm';
 
-import { SuccessMessageResponse } from 'commons/response';
+import { DataResponse, SuccessMessageResponse } from 'commons/response';
 import { UserDocumentEntity } from 'entities/user-document.entity';
 import { UserEntity } from 'entities/user.entity';
 import { UserService } from 'user/user.service';
@@ -20,6 +20,7 @@ import { FileUploadService } from 'helper/file-uploader.service';
 import { DefineUserDocumentRequirementListDto } from './dto';
 import { CourseEntity } from 'entities/courses.entity';
 import { MasterUserDocumentEntity } from 'entities/master-user-document.entity';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 @WebSocketGateway({
@@ -72,16 +73,41 @@ export class UserDocumentService {
     return { message: 'Master document list defined successfully' };
   }
 
-  async fetchMasterGlobalDocument() {
-    return await this.masterDocumentRepository.find({
-      where: { implication: 'global' },
-    });
+  async fetchMasterGlobalDocument(
+    query: SearchQueryDto,
+  ): Promise<DataResponse<MasterUserDocumentEntity[]>> {
+    const [allMasterDocument, totalItems] =
+      await this.masterDocumentRepository.findAndCount({
+        where: { implication: 'global' },
+        skip: query.page * query.limit,
+        take: query.limit,
+      });
+
+    return {
+      data: allMasterDocument,
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
-  async fetchMasterCourseDocument(courseId: string) {
-    return await this.masterDocumentRepository.find({
-      where: { implication: 'course', course: { id: courseId } },
-    });
+  async fetchMasterCourseDocument(
+    courseId: string,
+    query: SearchQueryDto,
+  ): Promise<DataResponse<MasterUserDocumentEntity[]>> {
+    const [allMasterDocument, totalItems] =
+      await this.masterDocumentRepository.findAndCount({
+        where: { implication: 'course', course: { id: courseId } },
+      });
+
+    return {
+      data: allMasterDocument,
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async getMasterList(userId: string) {
