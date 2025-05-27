@@ -79,7 +79,7 @@ export class UserDocumentService {
     const [allMasterDocument, totalItems] =
       await this.masterDocumentRepository.findAndCount({
         where: { implication: 'global' },
-        skip: query.page * query.limit,
+        skip: (query.page - 1) * query.limit,
         take: query.limit,
       });
 
@@ -99,6 +99,8 @@ export class UserDocumentService {
     const [allMasterDocument, totalItems] =
       await this.masterDocumentRepository.findAndCount({
         where: { implication: 'course', course: { id: courseId } },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
       });
 
     return {
