@@ -2,16 +2,12 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 
-import { SuccessMessageResponse } from 'commons/response';
+import { DataResponse, SuccessMessageResponse } from 'commons/response';
 import { DepartmentEntity } from 'entities/department.entity';
 import { HospitalEntity } from 'entities/hospital.entity';
 
 import { DepartmentDto, QueryHospitalDepartmentDto } from './dto';
-import {
-  IDepartmentCoordinatorResponse,
-  IDepartmentDetailResponse,
-  DepartmentResponse,
-} from './response';
+import { IDepartmentCoordinatorResponse } from './response';
 import { CoordinatorCollegeDepartmentEntity } from 'entities/coordinator-college-department.entity';
 import { SearchQueryDto } from 'commons/dto';
 
@@ -24,7 +20,9 @@ export class DepartmentService {
     private readonly coordinatorDepartmentRepository: Repository<CoordinatorCollegeDepartmentEntity>,
   ) {}
 
-  async saveDepartment(bodyDto: DepartmentDto): Promise<DepartmentResponse> {
+  async saveDepartment(
+    bodyDto: DepartmentDto,
+  ): Promise<DataResponse<DepartmentEntity>> {
     const { hospitalId, name, contactEmail } = bodyDto;
     const existingDepartment = await this.departmentRepository.findOne({
       where: { name, hospital: { id: hospitalId } },
@@ -41,12 +39,15 @@ export class DepartmentService {
       hospital: { id: hospitalId } as HospitalEntity,
     });
 
-    return this.transformToResponse(newDepartment);
+    return {
+      data: newDepartment,
+      message: 'Department created successfully',
+    };
   }
 
   async findAllDepartments(
     query: SearchQueryDto,
-  ): Promise<IDepartmentDetailResponse[]> {
+  ): Promise<DataResponse<DepartmentEntity[]>> {
     const { page, limit, search } = query;
     const skip = (page - 1) * limit;
 
@@ -56,27 +57,33 @@ export class DepartmentService {
       where.name = ILike(`%${search}%`);
     }
 
-    const allDepartments = await this.departmentRepository.find({
-      where,
-      loadEagerRelations: false,
-      relations: {
-        hospital: true,
-      },
-      order: {
-        name: 'asc',
-      },
-      skip,
-      take: limit,
-    });
+    const [allDepartments, totalItems] =
+      await this.departmentRepository.findAndCount({
+        where,
+        loadEagerRelations: false,
+        relations: {
+          hospital: true,
+        },
+        order: {
+          name: 'asc',
+        },
+        skip,
+        take: limit,
+      });
 
-    return allDepartments
-      .map((department) => this.transformToDetailResponse(department))
-      .filter(Boolean);
+    return {
+      data: allDepartments.filter(Boolean),
+      message: 'Departments fetched successfully',
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async findHospitalDepartments(
     query: QueryHospitalDepartmentDto,
-  ): Promise<DepartmentResponse[]> {
+  ): Promise<DataResponse<DepartmentEntity[]>> {
     const { hospitalIds, page, limit, search } = query;
     const where: FindOptionsWhere<DepartmentEntity> = {};
 
@@ -90,31 +97,39 @@ export class DepartmentService {
 
     const skip = (page - 1) * limit;
 
-    const allDepartmentsOfHospital = await this.departmentRepository.find({
-      where,
-      loadEagerRelations: false,
-      order: {
-        name: 'asc',
-      },
-      skip,
-      take: limit,
-    });
+    const [allDepartmentsOfHospital, totalItems] =
+      await this.departmentRepository.findAndCount({
+        where,
+        loadEagerRelations: false,
+        order: {
+          name: 'asc',
+        },
+        skip,
+        take: limit,
+      });
 
-    return allDepartmentsOfHospital.map((department) =>
-      this.transformToResponse(department),
-    );
+    return {
+      data: allDepartmentsOfHospital,
+      message: 'Departments fetched successfully',
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async findOneDepartment(
     departmentId: string,
-  ): Promise<IDepartmentDetailResponse> {
+  ): Promise<DataResponse<DepartmentEntity>> {
     const department = await this.departmentRepository.findOne({
       where: { id: departmentId },
       loadEagerRelations: false,
       relations: ['hospital'],
     });
 
-    return this.transformToDetailResponse(department);
+    return {
+      data: department,
+    };
   }
 
   async findDepartmentCoordinators(departmentId: string) {
@@ -133,7 +148,7 @@ export class DepartmentService {
   async updateOneDepartment(
     departmentId: string,
     bodyDto: DepartmentDto,
-  ): Promise<any> {
+  ): Promise<DataResponse<DepartmentEntity>> {
     const { hospitalId, name, contactEmail } = bodyDto;
     await this.departmentRepository.update(
       { id: departmentId },
@@ -149,7 +164,10 @@ export class DepartmentService {
       loadEagerRelations: false,
     });
 
-    return this.transformToResponse(updatedDepartment);
+    return {
+      data: updatedDepartment,
+      message: 'Department updated successfully',
+    };
   }
 
   async deleteOneDepartment(id: string): Promise<SuccessMessageResponse> {
@@ -160,38 +178,6 @@ export class DepartmentService {
     await this.departmentRepository.softRemove(department);
 
     return { message: 'Department deleted successfully' };
-  }
-
-  private transformToResponse(entity: DepartmentEntity): DepartmentResponse {
-    const { id, name, contactEmail } = entity;
-
-    return {
-      id,
-      name,
-      contactEmail,
-    };
-  }
-
-  private transformToDetailResponse(
-    entity: DepartmentEntity,
-  ): IDepartmentDetailResponse {
-    const { id, name, hospital, contactEmail } = entity;
-
-    if (!hospital) {
-      return null;
-    }
-
-    return {
-      id,
-      name,
-      contactEmail,
-      hospital: {
-        id: hospital.id,
-        name: hospital.name,
-        location: hospital.location,
-        contactEmail: hospital.contactEmail,
-      },
-    };
   }
 
   private transformToCoordinatorResponse(
