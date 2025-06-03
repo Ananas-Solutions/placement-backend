@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -10,7 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard, RolesGuard } from 'auth/guards';
 import { Roles } from 'commons/decorator';
@@ -35,12 +37,15 @@ export class HospitalController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Query all hospital' })
   async findAllHospital(@Query() query: SearchQueryDto) {
     return await this.hospitalService.getAllHospital(query);
   }
 
-  @Get('authority')
-  async queryAllHospital(@Query() query: QueryAuthorityHospitalDto) {
+  @Post('authority')
+  @ApiOperation({ summary: 'Query all hospital by authority' })
+  @HttpCode(HttpStatus.OK)
+  async queryAllHospital(@Body() query: QueryAuthorityHospitalDto) {
     return await this.hospitalService.findAllHospital(query);
   }
 

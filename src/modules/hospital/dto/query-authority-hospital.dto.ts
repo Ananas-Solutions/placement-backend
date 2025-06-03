@@ -6,5 +6,5 @@ export class QueryAuthorityHospitalDto extends SearchQueryDto {
   @IsString({ each: true })
   @IsOptional()
   @ArrayMinSize(1)
-  authorityIds: string;
+  authorityIds: string[];
 }

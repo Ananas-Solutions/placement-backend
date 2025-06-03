@@ -91,7 +91,7 @@ export class HospitalService {
     query: QueryAuthorityHospitalDto,
   ): Promise<DataResponse<HospitalEntity[]>> {
     const { page, limit, search, authorityIds } = query;
-    const authorityIdsArray = authorityIds.split(' ');
+
     const skip = (page - 1) * limit;
 
     const where: FindOptionsWhere<HospitalEntity> = {};
@@ -100,8 +100,8 @@ export class HospitalService {
       where.name = ILike(`%${search}%`);
     }
 
-    if (authorityIdsArray.length > 0) {
-      where.authority = { id: In(authorityIdsArray) };
+    if (authorityIds.length > 0) {
+      where.authority = { id: In(authorityIds) };
     }
 
     const [authorityAllHospitals, totalItems] =
