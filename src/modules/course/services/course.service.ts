@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserRoleEnum } from 'commons/enums';
-import { SuccessMessageResponse } from 'commons/response';
+import { DataResponse, SuccessMessageResponse } from 'commons/response';
 import {
   CollegeDepartmentEntity,
   CourseCoordinatorEntity,
@@ -32,6 +32,7 @@ import { CourseBlockEntity } from 'entities/course-block.entity';
 import { CourseTransferService } from './course-transfer.service';
 import { CoordinatorService } from 'coordinator/coordinator.service';
 import { CourseGridViewEntity } from 'entities/course-grid-view.entity';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class CourseService {
@@ -176,9 +177,16 @@ export class CourseService {
     return { message: 'Students added to block successfully' };
   }
 
-  async allCourses(userId: string): Promise<ICourseDetailResponse[]> {
-    let whereClause = {};
+  async allCourses(
+    userId: string,
+    query: SearchQueryDto,
+  ): Promise<DataResponse<ICourseDetailResponse[]>> {
     const user = await this.userService.findUserById(userId);
+
+    let whereClause = {};
+
+    const { search, page, limit } = query;
+
     if (user.role === UserRoleEnum.CLINICAL_COORDINATOR) {
       whereClause = {
         ...whereClause,
@@ -189,18 +197,37 @@ export class CourseService {
         },
       };
     }
-    const allCourses = await this.courseRepository.find({
+
+    if (search) {
+      whereClause = {
+        ...whereClause,
+      };
+    }
+
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const [allCourses, totalItems] = await this.courseRepository.findAndCount({
       where: whereClause,
       loadEagerRelations: false,
-      relations: [
-        'department',
-        'semester',
-        'courseCoordinator',
-        'courseCoordinator.coordinator',
-      ],
+      relations: {
+        department: true,
+        semester: true,
+        courseCoordinator: {
+          coordinator: true,
+        },
+      },
+      skip,
+      take,
     });
 
-    return allCourses.map((course) => this.transformToDetailResponse(course));
+    return {
+      data: allCourses.map((course) => this.transformToDetailResponse(course)),
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async findAllCoursesForCoordinatorDepartment(coordinatorId: string) {

@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   Req,
   Res,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -34,6 +35,7 @@ import {
 import { CourseTrainingSiteService } from '../services/course-training-site.service';
 import { CourseTransferService } from '../services/course-transfer.service';
 import { CourseExportService } from '../services/course-export.service';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('course')
 @UseInterceptors(ErrorInterceptor)
@@ -122,9 +124,9 @@ export class CourseController {
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get()
-  async getAllCourses(@Req() req) {
+  async getAllCourses(@Req() req, @Query() query: SearchQueryDto) {
     const { id } = req.user;
-    return await this.coursesServices.allCourses(id);
+    return await this.coursesServices.allCourses(id, query);
   }
 
   @Roles(UserRoleEnum.CLINICAL_COORDINATOR)
