@@ -41,7 +41,7 @@ export class DepartmentController {
     return await this.departmentService.findAllDepartments(query);
   }
 
-  @Post('hospital')
+  @Post('query-hospital')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Query all hospital department' })
   async queryHospitalDepartment(@Body() query: QueryHospitalDepartmentDto) {
