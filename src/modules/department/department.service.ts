@@ -87,7 +87,7 @@ export class DepartmentService {
     const { hospitalIds, page, limit, search } = query;
     const where: FindOptionsWhere<DepartmentEntity> = {};
 
-    if (hospitalIds.length > 0) {
+    if (hospitalIds?.length > 0) {
       where.hospital = { id: In(hospitalIds) };
     }
 
