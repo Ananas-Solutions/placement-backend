@@ -43,7 +43,7 @@ export class DepartmentUnitsController {
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
-  @Get('department')
+  @Post('query-by-department')
   async findAllUnit(@Body() body: QueryDepartmentUnitsDto) {
     return this.departmentUnitsService.find(body);
   }
