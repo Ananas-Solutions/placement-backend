@@ -68,12 +68,12 @@ export class EventService {
       relations: ['student'],
     });
     const audiences = courseStudent.map((cs) => cs.student.id);
-    const queue = this.queueService.getQueue('events-queue');
-    await queue.add('events-queue', {
-      message: body.message,
-      date: body.date,
-      audiences: audiences,
-    });
+    // const queue = this.queueService.getQueue('events-queue');
+    // await queue.add('events-queue', {
+    //   message: body.message,
+    //   date: body.date,
+    //   audiences: audiences,
+    // });
 
     return { message: 'Course event added successfully.' };
   }
