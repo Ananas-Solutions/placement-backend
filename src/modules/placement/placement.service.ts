@@ -323,7 +323,7 @@ export class PlacementService {
       );
 
       let unplacedCourseStudents = await Promise.all(
-        courseStudents.map(async (student) => {
+        courseStudents.data.map(async (student) => {
           const studentPlacement = await this.findStudentPlacement(
             student.id,
             courseId,
@@ -660,9 +660,10 @@ export class PlacementService {
       });
 
       return {
-        allStudents: allStudentsOnCourse.length,
+        allStudents: allStudentsOnCourse.metadata.totalItems,
         studentsPlaced: studentsPlaced.length,
-        studentsUnplaced: allStudentsOnCourse.length - studentsPlaced.length,
+        studentsUnplaced:
+          allStudentsOnCourse.metadata.totalItems - studentsPlaced.length,
       };
     } catch (err) {
       throw err;
@@ -687,7 +688,7 @@ export class PlacementService {
       );
 
       const allResults = await Promise.all(
-        courseStudents.map(async (student: UserEntity) => {
+        courseStudents.data.map(async (student: UserEntity) => {
           const studentTrainingSitePlacement =
             await this.findStudentPlacementByStudentId(student.id);
 

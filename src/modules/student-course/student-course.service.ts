@@ -15,6 +15,7 @@ import {
 import { ICourseStudentResponse, IStudentCourseResponse } from './response';
 import { CourseBlockEntity } from 'entities/course-block.entity';
 import { PlacementEntity } from 'entities/placement.entity';
+import { SearchQueryDto } from 'commons/dto';
 
 @Injectable()
 export class StudentCourseService {
@@ -174,19 +175,40 @@ export class StudentCourseService {
 
   async findCourseStudents(
     courseId: string,
-  ): Promise<ICourseStudentResponse[]> {
-    const studentCourses = await this.studentCourseRepository.find({
-      where: { course: { id: courseId } },
-      loadEagerRelations: false,
-      relations: ['student', 'student.studentProfile'],
-    });
+    query?: SearchQueryDto,
+  ): Promise<{
+    data: ICourseStudentResponse[];
+    metadata: { totalItems: number };
+  }> {
+    const { page = 1, limit = 10000 } = query;
+    const skip = (page - 1) * limit;
+
+    const [studentCourses, totalItems] =
+      await this.studentCourseRepository.findAndCount({
+        where: { course: { id: courseId } },
+        loadEagerRelations: false,
+        relations: ['student', 'student.studentProfile'],
+        order: {
+          student: {
+            name: 'ASC',
+          },
+        },
+        skip,
+        take: limit,
+      });
     const users = await Promise.all(
       studentCourses.map((studentCourse) =>
         this.transformToCourseStudent(studentCourse, courseId, undefined),
       ),
     );
 
-    return users;
+    return {
+      data: users,
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async findCourseBlockStudents(

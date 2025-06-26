@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -22,6 +23,7 @@ import {
   AssignStudentsToCourseDto,
   AutoAssignStudentsToBlockDto,
 } from './dto';
+import { SearchQueryDto } from 'commons/dto';
 
 @ApiTags('student-course')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -94,8 +96,9 @@ export class StudentCourseController {
   @Get('course/:courseId')
   async queryCourseAssignedStudents(
     @Param() { courseId }: { courseId: string },
+    @Query() query: SearchQueryDto,
   ) {
-    return await this.studentCourseService.findCourseStudents(courseId);
+    return await this.studentCourseService.findCourseStudents(courseId, query);
   }
 
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
