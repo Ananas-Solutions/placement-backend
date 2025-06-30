@@ -180,7 +180,7 @@ export class StudentCourseService {
     data: ICourseStudentResponse[];
     metadata: { totalItems: number };
   }> {
-    const { page = 1, limit = 10000 } = query;
+    const { page = 1, limit = 10000 } = query || {};
     const skip = (page - 1) * limit;
 
     const [studentCourses, totalItems] =
