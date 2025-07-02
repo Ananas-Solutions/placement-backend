@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { SearchQueryDto } from 'commons/dto';
 
-export class QueryStudentAttendanceReportDto {
+export class QueryStudentAttendanceReportDto extends SearchQueryDto {
   @IsNotEmpty()
   @IsString()
   public studentId!: string;

@@ -529,7 +529,10 @@ export class PlacementService {
         timeSlot: { id: timeSlotId },
       },
       loadEagerRelations: false,
-      relations: ['student', 'timeSlot'],
+      relations: {
+        student: true,
+        timeSlot: true,
+      },
     });
 
     const mappedTrainingSiteStudents = studentsPlacement.map(

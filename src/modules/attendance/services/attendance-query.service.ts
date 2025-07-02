@@ -25,7 +25,7 @@ export class AttendanceQueryService {
   ) {}
 
   public async queryStudentAttendance(body: QueryStudentAttendanceReportDto) {
-    const { studentId, trainingSiteId } = body;
+    const { studentId, trainingSiteId, page = 1, limit = 10000 } = body;
 
     const startDate = startOfDay(body.startDate);
     const endDate = endOfDay(body.endDate);
@@ -39,9 +39,16 @@ export class AttendanceQueryService {
       where.trainingSite = trainingSiteId;
     }
 
-    const attendance = await this.trainingSiteAttendanceRepository.find({
-      where,
-    });
+    const [attendance, totalItems] =
+      await this.trainingSiteAttendanceRepository.findAndCount({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        order: {
+          student: { name: 'ASC' },
+          createdAt: 'DESC',
+        },
+      });
 
     const transformedAttendance = attendance?.map((item) =>
       this.transformToAttendanceResponse(item),
@@ -56,6 +63,10 @@ export class AttendanceQueryService {
       studentId,
       trainingSiteId: trainingSiteId || null,
       attendance: sortedAttendance,
+      metadata: {
+        ...body,
+        totalItems,
+      },
     };
   }
 
