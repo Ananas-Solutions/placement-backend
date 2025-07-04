@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { UserRoleEnum } from 'commons/enums';
@@ -103,8 +103,18 @@ export class UserService {
     metadata: any;
   }> {
     const { role, page = 1, limit = 1000, search } = query;
+
+    const whereClause: FindOptionsWhere<UserEntity> = {};
+
+    if (role) {
+      whereClause.role = role;
+    }
+
+    if (search) {
+      whereClause.name = ILike(`%${search}%`);
+    }
     const [allUsers, totalItems] = await this.userRepository.findAndCount({
-      where: { role, name: ILike(`%${search}%`) },
+      where: whereClause,
       loadEagerRelations: false,
       order: { name: 'ASC' },
       skip: (page - 1) * limit,
