@@ -20,7 +20,7 @@ import { ErrorInterceptor } from 'interceptor/error.interceptor';
 
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { UpdateStudentUserDto, UpdateUserDto } from './dto';
+import { UpdateStudentUserDto, UpdateUserDto, UserQueryDto } from './dto';
 
 @ApiTags('user')
 @UseInterceptors(ErrorInterceptor)
@@ -36,8 +36,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.CLINICAL_COORDINATOR)
   @Get()
-  async queryAllStudents(@Query('role') role: UserRoleEnum) {
-    return await this.userService.findAllSpecificUser(role);
+  async queryAllStudents(@Query() query: UserQueryDto) {
+    return await this.userService.findAllSpecificUser(query);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

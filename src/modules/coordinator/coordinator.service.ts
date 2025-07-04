@@ -52,11 +52,11 @@ export class CoordinatorService {
   }
 
   async getAllCoordinators(): Promise<ICoordinatorResponse[]> {
-    const allCoordinators = await this.userService.findAllSpecificUser(
-      UserRoleEnum.CLINICAL_COORDINATOR,
-    );
+    const allCoordinators = await this.userService.findAllSpecificUser({
+      role: UserRoleEnum.CLINICAL_COORDINATOR,
+    });
     const result = await Promise.all(
-      allCoordinators.map(async (coordinator) => {
+      allCoordinators.users.map(async (coordinator) => {
         const coordinatorDepartment = await this.coordinatorDepartment.findOne({
           where: { coordinator: { id: coordinator.id } },
           loadEagerRelations: false,

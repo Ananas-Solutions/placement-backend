@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { UserRoleEnum } from 'commons/enums';
@@ -12,7 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { IUserResponse } from './response';
 
-import { UpdateStudentUserDto } from './dto';
+import { UpdateStudentUserDto, UserQueryDto } from './dto';
 import { SuccessMessageResponse } from 'commons/response';
 
 @Injectable()
@@ -98,14 +98,30 @@ export class UserService {
     });
   }
 
-  async findAllSpecificUser(role: UserRoleEnum): Promise<IUserResponse[]> {
-    const allUsers = await this.userRepository.find({
-      where: { role },
+  async findAllSpecificUser(query: UserQueryDto): Promise<{
+    users: IUserResponse[];
+    metadata: any;
+  }> {
+    const { role, page = 1, limit = 1000, search } = query;
+    const [allUsers, totalItems] = await this.userRepository.findAndCount({
+      where: { role, name: ILike(`%${search}%`) },
       loadEagerRelations: false,
       order: { name: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return allUsers.map((user) => this.transformToResponse(user));
+    const transformedUsers = allUsers.map((user) =>
+      this.transformToResponse(user),
+    );
+
+    return {
+      users: transformedUsers,
+      metadata: {
+        ...query,
+        totalItems,
+      },
+    };
   }
 
   async updateUser(id: string, body: UpdateUserDto): Promise<IUserResponse> {
